@@ -70,7 +70,7 @@ def pyt_espectro(waveform, fs):
     plt.plot(f[0:l_mitad],mod_sptrm[0:l_mitad])
     
     plt.plot(f[0:l_mitad],y[0:l_mitad])
-    plt.plot(f[peaks], mod_sptrm[peaks],'o')
+    #plt.plot(f[peaks], mod_sptrm[peaks],'o')
     
     #plt.axis([0, fs/2, minimo-10, maximo+10])                  
     plt.grid()

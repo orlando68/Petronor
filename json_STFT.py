@@ -16,7 +16,7 @@ import scipy as sp
 from scipy.signal import hilbert, chirp
 from scipy.signal import find_peaks
 from scipy import signal
-
+from scipy.stats import kurtosis
 import matplotlib.pyplot as plt
 import json
 
@@ -126,8 +126,15 @@ a          = data[counter]
 print (counter,a['AssetId'],a['AssetName'])
 waveform   = np.asarray(a['Value'])
  
+print (kurtosis(waveform,fisher=False))
 waveform   = waveform-np.mean(waveform) 
+print (kurtosis(waveform,fisher=False))
+
+
 l          = np.size(waveform)
+
+kur = np.sum(waveform**4)/l /( (  np.sum( waveform**2)/l )**2)
+print (kur)
 b          = a['Props']
 c          = b[0]
 fs_m       = np.float(c['Value'])
@@ -136,7 +143,7 @@ tiempo     = np.arange(l)  / fs_m
 n          = 1500 #2**9
 f, t, Zxx  = signal.stft(waveform, fs=fs_m, window = 'hann', nperseg=n,noverlap = n-1,nfft=1*n)
 
-but_ord    = 4       
+but_ord    = 2       
 fc         = 1*24.8
 fd         = 5
 b, a       = signal.butter(but_ord, ([2*(fc-fd)/fs_m , 2*(fc+fd)/fs_m]), 'bandpass', analog=False)
@@ -281,12 +288,12 @@ plt.show()
 
 
             
-"""
+
 pota = sorted(data, key=getKey)
 for counter,a in enumerate(pota,0):
     print (counter,a['AssetId'],a['AssetName'])
     
-    
+"""    
 
 sensor_n    = 96#int(input('numero de sensor: '))
 sensor_data = data[sensor_n]

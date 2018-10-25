@@ -20,7 +20,7 @@ from PETRONOR_lyb import load_json_file
 pi = np.pi
 
 path    = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\'
-path    = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018\\10\\10\\10'
+path    = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018\\10\\19\\11'
 
 for dirname, dirnames, filenames in os.walk(path):
     # print path to all subdirectories first.

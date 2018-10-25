@@ -23,6 +23,9 @@ pi = np.pi
 path      = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018\\10\\10\\10'
 json_file = 'ab98949e-17e8-46eb-6d20-165279207208_amplitude.json'
 
+path    = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018\\10\\19\\11'
+json_file = '0ecbe08c-295c-4e77-5401-9e0c8a627990_amplitude.json'
+
 data      = load_json_file(path+'\\'+json_file)
 print (data["AssetId"])
 print (data["AssetName"])    
@@ -52,7 +55,7 @@ c          = b[4]
 cal_factor = np.float(c['Value'])
 accel      = accel * cal_factor * 9.81 
 
-speed      = 1000*np.cumsum(accel -np.mean(accel))
+speed      = 1000*np.cumsum(accel -np.mean(accel))*(1/fs_m)
 speed_real = 1000*np.cumsum(accel)
 #speed_real = speed
 tiempo     = np.arange(l)  / fs_m
@@ -72,6 +75,7 @@ titulo     = 'Acceleration ' +data["AssetName"]+'('+data["AssetId"]+')'
 ylabel     = 'RMS(m/s2)'
 PETROspectro(accel,fs_m,titulo,ylabel,plot = True)
 
+
 print('VELOCITY')
 print('valor RMS :',np.std(speed_real))
 print('Kurtosis  :',kurtosis(speed_real,fisher=False))
@@ -83,4 +87,8 @@ print('Varianza  :',np.std(speed_real)**2)
 print('')
 titulo     = 'Velocity ' +data["AssetName"]+'('+data["AssetId"]+')'    
 ylabel     = 'RMS(mm/s)'
+
+plt.figure()
+plt.plot(speed_real)
+plt.show()
 PETROspectro(speed,fs_m,titulo,ylabel,plot = True)

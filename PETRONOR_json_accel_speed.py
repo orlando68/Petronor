@@ -15,10 +15,11 @@ import matplotlib.pyplot as plt
 
 from PETRONOR_lyb import load_json_file
 from PETRONOR_lyb import PETROspectro
-
+from PETRONOR_lyb import spectro
 
 
 pi = np.pi
+g= 9.81
 
 path      = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018\\10\\10\\10'
 json_file = 'ab98949e-17e8-46eb-6d20-165279207208_amplitude.json'
@@ -53,11 +54,13 @@ fs_m       = np.float(c['Value'])
 
 c          = b[4]
 cal_factor = np.float(c['Value'])
-accel      = accel * cal_factor * 9.81 
+accel      = accel * cal_factor 
+b, a       = signal.butter(3,2*10/fs_m,'highpass',analog=False)
+#speed      = signal.filtfilt(b, a, accel)
 
-speed      = 1000*np.cumsum(accel -np.mean(accel))*(1/fs_m)
-speed_real = 1000*np.cumsum(accel)
-#speed_real = speed
+speed      = g * 1000*np.cumsum(accel -np.mean(accel))*(1/fs_m)
+speed_real = g * 1000*np.cumsum(accel)/fs_m
+speed = signal.filtfilt(b, a, speed_real)
 tiempo     = np.arange(l)  / fs_m
 
 ##STFT_waterfall(acceleration, fs_m)
@@ -88,7 +91,13 @@ print('')
 titulo     = 'Velocity ' +data["AssetName"]+'('+data["AssetId"]+')'    
 ylabel     = 'RMS(mm/s)'
 
+
+"""
 plt.figure()
-plt.plot(speed_real)
+plt.plot(tiempo,accel)
 plt.show()
+plt.figure()
+plt.plot(tiempo,speed*g*1000)
+plt.show()
+"""
 PETROspectro(speed,fs_m,titulo,ylabel,plot = True)

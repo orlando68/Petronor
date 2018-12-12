@@ -2,7 +2,12 @@ caca.py
 KK*.*
 @*.*
 %*.*
-Sin*.*
+*.pkl
+Sin t*.*
 *.xlsx
+*.xls
+*.csv
+*.png
+*.jpg
 /caca
 /downloaded scripts

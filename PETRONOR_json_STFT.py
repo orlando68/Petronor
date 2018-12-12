@@ -27,7 +27,7 @@ from pandas import DataFrame
 def load_vibrationData(rootdir, assetId):
     data = []
     date = []
-    array_days = np.array([])
+    
     for root, dirs, files in os.walk(rootdir):
         #print (dirs)
         for filename in files:
@@ -39,16 +39,17 @@ def load_vibrationData(rootdir, assetId):
                     file = f.read().decode("utf-8-sig").encode("utf-8")
                 res = pd.read_json(file, lines=True)
                 if res.AssetId.values[0] == assetId:
-                    print(fullpath)
+                    print(root)
                     #print(filename,res.SourceTimeStamp.values[0])
+                    print 
                     b= res.Props
                     s = b[0]
                     v= s[4]
                     cal_factor = np.float(v['Value'])
                     data.append(np.asarray(res.Value.values[0])*cal_factor*9.81)
                     #data.append(res.Value.values[0])
-                    date.append(res.SourceTimeStamp.values[0])
-                    break
+                    date.append(res.ServerTimeStamp.values[0])
+                    break #----one per day
                 
     return DataFrame(data=data, index=date)
 #------------------------------------------------------------------------------
@@ -57,40 +58,43 @@ pi = np.pi
 
 
 path      = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018'
-month_day = '\\10\\09'
-path      = path + month_day
-
+month     = '\\09'
+day       = ''
+path      = path + month + day
+fs        = 5120.0
 df_accel  = load_vibrationData(path,'H4-FA-0002')
-shape     = df_accel.shape
-l         = shape[1]
 
-df_speed  = pd.DataFrame(index=df_accel.index,columns=np.arange(l),data = np.ones((24,l)))
+l         = df_accel.shape[1]
+n_traces  = df_accel.shape[0]
+traces    = np.arange(n_traces)
+
+df_speed  = pd.DataFrame(index=df_accel.index,columns=np.arange(l),data = np.ones((n_traces,l)))
 counter   = 0
 for indice in df_accel.index:
     mean                   = np.mean(df_accel.iloc[counter])
-    df_speed.iloc[counter] = np.cumsum(df_accel.iloc[counter]-mean)
+    df_speed.iloc[counter] = 1000*np.cumsum(df_accel.iloc[counter]-mean)/fs
     counter                = counter+1
 
-df_day    = df_speed
-fs        = 5120.0
+df_plot   = df_speed
+
 b, a      = signal.butter(5,2*10/fs,'highpass',analog=False)
 
 fig       = plt.figure()
 ax        = fig.gca(projection='3d')
 verts     = []
-shape     = df_day.shape
-days      = np.arange(24)
-l         = shape[1]
+
+
+
 
 fmax      = 200
 n_fmax    = np.int(l*fmax/(fs))
 f         = np.arange(n_fmax)/n_fmax*fmax
 
-color     = np.ones((n_fmax,24))
-for counter,indice in enumerate(df_day.index):
-    curva               = df_day.loc[indice]
+color     = np.ones((n_fmax,n_traces))
+for counter,indice in enumerate(df_plot.index):
+    curva               = df_plot.loc[indice]
     curva               = signal.filtfilt(b, a, curva)
-    curva               = 2*np.abs(np.fft.fft(np.hanning(l)*curva/l))/np.sqrt(2)
+    curva               = 1*np.abs(np.fft.fft(np.hanning(l)*curva/l))/np.sqrt(2)
     color[:,counter]    = curva[0:n_fmax]
     curva[0], curva[-1] = 0, 0
     verts.append(list(zip(f, curva[0:n_fmax])))
@@ -98,25 +102,26 @@ for counter,indice in enumerate(df_day.index):
 cc = lambda arg: colorConverter.to_rgba(arg, alpha=0.3)
 poly = PolyCollection(verts, facecolors=[cc('g')])
 poly.set_alpha(0.7)
-ax.add_collection3d(poly, zs=days, zdir='y')
+ax.add_collection3d(poly, zs=traces, zdir='y')
 ax.view_init(10, -45)
 ax.set_xlabel('Hertz')
 ax.set_xlim3d(0, fmax)
-ax.set_ylabel('Days')
-ax.set_ylim3d(0, 24)
-ax.set_zlabel('RMS value')
+ax.set_ylabel('Hours')
+ax.set_ylim3d(0, n_traces)
+ax.set_zlabel('RMS mm/s')
 ax.set_zlim3d(0, np.max(color))
 
 plt.tight_layout()
 #plt.show()
 
-
+"""
 #----------------------------------------------------------------
 plt.figure()
 color= np.asarray(color)
-plt.pcolormesh(days,f,color,vmin=0, vmax=np.max(color))
+plt.pcolormesh(traces,f,color,vmin=0, vmax=np.max(color))
 #plt.pcolormesh(df_accel.values,vmin=0, vmax=np.max(color))
-plt.xlabel('Days')
+plt.xlabel('Hours')
 plt.ylabel('Hz')
 plt.show()
 
+"""

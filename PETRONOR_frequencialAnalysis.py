@@ -34,37 +34,40 @@ class temporal_analysis(object):
         - Inputs: X
         - Outputs: rms of X
     '''
-    def rms(self,
-            X):
-        # remove nans
-        X.dropna(inplace=True)
-        return np.sqrt(sum(n*n for n in X)/len(X))
-    
-    
+    def central_frequency(self,X):
+        fs = 5120.0
+        l = 16384.0
+        f   = np.arange(l)/l*fs
+        #print (np.argmax(X)/l*fs)
+        return np.sum(f*f*X)/np.sum(X)
+
     '''
-    Mehtod that computes the peak value of an array.
+    Mehtod that computes the Root Mean Square Frequency of an array.
         - Inputs: X
-        - Outputs: peak value of X
+        - Outputs: RMSF of X
     '''
-    def peak_value(self,
-                   X):
-        # remove nans
-        X.dropna(inplace=True)
-        return (max(X)-min(X))/2
+    def RMSF(self,X):
+        fs = 5120.0
+        l = 16384.0
+        f   = np.arange(l)/l*fs
+        #print (np.argmax(X)/l*fs)
+        return np.sqrt(np.sum(f*f*X)/np.sum(X))    
     
-    
+
     '''
-    Mehtod that computes the crest factor of an array.
+    Mehtod that computes Root Variance Frequency.
         - Inputs: X
-        - Outputs: crest factor of X
-    '''
-    def crest_factor(self,
-                     X):
-        # remove nans
-        X.dropna(inplace=True)
-        peak_value = (max(X)-min(X))/2
-        rms = np.sqrt(sum(n*n for n in X)/len(X))
-        return peak_value/rms
+        - Outputs: RVF of X
+    '''    
+    def RVF(self, X):
+
+        l = 16384.0
+        X_prima = np.diff(X)
+        FC      = np.sum(X_prima*X[0:int(l)-1]) /(2*np.pi*np.sum(X*X))
+        MSF     = np.sum(X_prima**2)     /(4*np.pi**2*np.sum(X*X))
+       # RMSF    = np.sqrt(MSF)
+        return np.sqrt(MSF-FC**2)
+        
     
     
     '''
@@ -90,87 +93,24 @@ class temporal_analysis(object):
         return stats.skew(X) 
     
 
-    '''
-    Mehtod that computes the clearance factor of an array.
-        - Inputs: X
-        - Outputs: clearance factor of X
-    '''    
-    def clearance_factor(self,
-                         X):
-        # remove nans
-        X.dropna(inplace=True)
-        peak_value = (max(X)-min(X))/2
-        return peak_value/(sum(np.sqrt(abs(n)) for n in X)/len(X))
-    
-    
-    '''
-    Mehtod that computes the impulse factor of an array.
-        - Inputs: X
-        - Outputs: impulse factor of X
-    '''
-    def impulse_factor(self,
-                       X):
-        # remove nans
-        X.dropna(inplace=True)
-        peak_value = (max(X)-min(X))/2
-        return peak_value/(sum(abs(n) for n in X)/len(X))
-    
-    
-    '''
-    Mehtod that computes the shape factor of an array.
-        - Inputs: X
-        - Outputs: shape factor of X
-    '''
-    def shape_factor(self,
-                     X):
-        # remove nans
-        X.dropna(inplace=True)
-        rms = np.sqrt(sum(n*n for n in X)/len(X))
-        return rms/(sum(abs(n) for n in X)/len(X))    
-    
+
     
     '''
     Mehtod that computes the Shannon entropy of an array.
         - Inputs: X
         - Outputs: Shannon entropy of X
     '''
-    def entropy(self,
+    def spectral_entropy(self,
                 X):
         # remove nans
         X.dropna(inplace=True)
         pX = X / X.sum()
-        return -np.nansum(pX*np.log2(pX))
+        return -np.nansum(pX*np.log2(pX)) / np.size(X)
     
     
-    '''
-    Mehtod that computes the Weibull negative log-likelihood of an array.
-        - Inputs: X
-        - Outputs: Wnl of X
-    '''
-    def Wnl(self,
-            X):
-        # remove nans
-        X.dropna(inplace=True)
-        params = stats.exponweib.fit(X, floc=0, f0=1)
-        shape = params[1]
-        scale = params[3] 
-        weibull_pdf = (shape / scale) * (X / scale)**(shape-1) * np.exp(-(X/scale)**shape)
-        return -np.nansum(np.log(weibull_pdf))
+
     
-    
-    '''
-    Mehtod that computes the normal negative log-likelihood of an array.
-        - Inputs: X
-        - Outputs: Nnl of X
-    '''
-    def Nnl(self, 
-            X):
-        # remove nans
-        X.dropna(inplace=True)
-        mean = np.mean(X)
-        std = np.std(X)
-        normal_pdf = np.exp(-(X-mean)**2/(2*std**2)) / (std*np.sqrt(2*np.pi))
-        return -np.nansum(np.log(normal_pdf))
+
     
     
     '''
@@ -180,9 +120,10 @@ class temporal_analysis(object):
     '''
     def get_temporal_feats(self,
                            data):
-        df = DataFrame({#"RMS": data.apply(self.rms, axis=1).values,
-                        #"PEAK_VALUE": data.apply(self.peak_value, axis=1).values,
-                        #"CREST_FACTOR": data.apply(self.crest_factor, axis=1).values,
+        df = DataFrame({"CENTRAL_FREQUENCY": data.apply(self.central_frequency, axis=1).values,
+                        "ROOT MEAN SQUARE FREQUENCY": data.apply(self.RMSF, axis=1).values,
+                        "ROOT VARIANCE FREQUENCY": data.apply(self.RVF, axis=1).values,
+                        
                         "KURTOSIS": data.apply(self.kurtosis, axis=1).values,
                         "SKEWNESS": data.apply(self.skewness, axis=1).values,
                         #"CLEARANCE_FACTOR": data.apply(self.clearance_factor, axis=1).values,
@@ -194,7 +135,7 @@ class temporal_analysis(object):
                         #"MIN": data.apply(np.nanmin, axis=1).values,
                         #"MAX": data.apply(np.nanmax, axis=1).values,
                         "VARIANCE": data.apply(np.nanvar, axis=1).values,
-                        #"ENTROPY": data.apply(self.entropy, axis=1).values,
+                        "SPECTRAL ENTROPY": data.apply(self.spectral_entropy, axis=1).values,
                         #"WNL": data.apply(self.Wnl, axis=1).values,
                         #"NNL": data.apply(self.Nnl, axis=1).values
                         })
@@ -217,9 +158,9 @@ class temporal_analysis(object):
         else:
             n = 30
         for feat in tfeats.columns:
-            plt.figure(figsize=(64,24))  
+            plt.figure()  
             plt.plot(tfeats[feat], lw=3)
-            plt.title(feat, size=48)
+            plt.title(feat,)
             ax = plt.gca()
             # set monthly locator
             ax.xaxis.set_major_locator(mdates.DayLocator(interval=n))
@@ -229,10 +170,9 @@ class temporal_analysis(object):
             plt.gcf().autofmt_xdate()
             #plt.xticks([idx.strftime('%a\n%d\n%h\n%Y') for idx in tfeats.index[::n]], rotation=45, rotation_mode='anchor', ha="right")
             plt.grid()
-            plt.xticks(size=48)
-            plt.yticks(size=48)
+            
             # histogram
-            plt.figure(figsize=(14,6))
+            plt.figure()
             tfeats[feat].replace([np.inf, -np.inf], np.nan, inplace=True)
             tfeats[feat].astype(float).hist(figsize=(14,6))
             plt.title(feat)
@@ -252,8 +192,8 @@ class temporal_analysis(object):
         df_out = []
         feats_out = []
         for feat in df.columns:
-            plt.figure(figsize=(64,24))   
-            plt.title(feat, size=48)
+            plt.figure()   
+            plt.title(feat)
             lag = []
             cols = []
             data_out = []
@@ -269,8 +209,7 @@ class temporal_analysis(object):
             lag = pd.concat(lag, axis=1)                
             lag.columns=cols
             lag.boxplot(vert=True, rot=45, showmeans=True, boxprops=boxprops, medianprops=medianprops)
-            plt.xticks(size=48)
-            plt.yticks(size=48)
+            
             data_out = pd.concat(data_out, axis=1)
             data_out.columns=cols
             df_out.append(data_out)

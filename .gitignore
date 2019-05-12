@@ -12,8 +12,13 @@ Sin t*.*
 *.mat
 *.csv
 *.xlsx
+/outputs
+/_pycache_
+/notebooks
 /cooking oven
 /imagenes
-/outputs
+/wavelets
 /downloaded scripts
 /caca
+
+

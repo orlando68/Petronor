@@ -22,6 +22,9 @@ from statsmodels.tsa.arima_model import ARIMA
 import statsmodels.api as sm
 import datetime
 from sklearn.model_selection import KFold
+from sklearn.decomposition import PCA
+from scipy import signal
+import requests
 
 
 
@@ -30,7 +33,7 @@ class temporal_analysis(object):
     
     
     '''
-    Mehtod that computes the root mean square of an array.
+    Method that computes the root mean square of an array.
         - Inputs: X
         - Outputs: rms of X
     '''
@@ -42,7 +45,7 @@ class temporal_analysis(object):
     
     
     '''
-    Mehtod that computes the peak value of an array.
+    Method that computes the peak value of an array.
         - Inputs: X
         - Outputs: peak value of X
     '''
@@ -54,7 +57,7 @@ class temporal_analysis(object):
     
     
     '''
-    Mehtod that computes the crest factor of an array.
+    Method that computes the crest factor of an array.
         - Inputs: X
         - Outputs: crest factor of X
     '''
@@ -68,7 +71,7 @@ class temporal_analysis(object):
     
     
     '''
-    Mehtod that computes the kurtosis of an array.
+    Method that computes the kurtosis of an array.
         - Inputs: X
         - Outputs: kurtosis of X
     '''
@@ -76,10 +79,10 @@ class temporal_analysis(object):
                  X):
         # remove nans
         X.dropna(inplace=True)
-        return stats.kurtosis(X)
+        return stats.kurtosis(X, fisher=False)
     
     '''
-    Mehtod that computes the skewness of an array.
+    Method that computes the skewness of an array.
         - Inputs: X
         - Outputs: skewness of X
     '''
@@ -91,7 +94,7 @@ class temporal_analysis(object):
     
 
     '''
-    Mehtod that computes the clearance factor of an array.
+    Method that computes the clearance factor of an array.
         - Inputs: X
         - Outputs: clearance factor of X
     '''    
@@ -104,7 +107,7 @@ class temporal_analysis(object):
     
     
     '''
-    Mehtod that computes the impulse factor of an array.
+    Method that computes the impulse factor of an array.
         - Inputs: X
         - Outputs: impulse factor of X
     '''
@@ -117,7 +120,7 @@ class temporal_analysis(object):
     
     
     '''
-    Mehtod that computes the shape factor of an array.
+    Method that computes the shape factor of an array.
         - Inputs: X
         - Outputs: shape factor of X
     '''
@@ -130,7 +133,7 @@ class temporal_analysis(object):
     
     
     '''
-    Mehtod that computes the Shannon entropy of an array.
+    Method that computes the Shannon entropy of an array.
         - Inputs: X
         - Outputs: Shannon entropy of X
     '''
@@ -140,10 +143,10 @@ class temporal_analysis(object):
         X.dropna(inplace=True)
         pX = X / X.sum()
         return -np.nansum(pX*np.log2(pX))
-    
+         
     
     '''
-    Mehtod that computes the Weibull negative log-likelihood of an array.
+    Method that computes the Weibull negative log-likelihood of an array.
         - Inputs: X
         - Outputs: Wnl of X
     '''
@@ -159,7 +162,7 @@ class temporal_analysis(object):
     
     
     '''
-    Mehtod that computes the normal negative log-likelihood of an array.
+    Method that computes the normal negative log-likelihood of an array.
         - Inputs: X
         - Outputs: Nnl of X
     '''
@@ -173,6 +176,132 @@ class temporal_analysis(object):
         return -np.nansum(np.log(normal_pdf))
     
     
+    
+    #----------------------Rutinas de Orlando----------------------------------
+    '''
+    1. Method that computes the central frequency of an array.
+        - Inputs: X
+        - Outputs: central frequency of X
+    '''
+    def central_frequency(self,
+                          X):
+        X  = np.abs(X)
+        fs = 5120.0
+        l = 16384.0
+        f = np.arange(l)/l*fs
+        #print ('cental---------',np.argmax(X)/l*fs)
+        
+        return np.sum(f*f*X)/np.sum(X)
+    
+    '''
+    2. Method that computes the Root Mean Square Frequency of an array.
+        - Inputs: X
+        - Outputs: RMSF of X
+    '''
+    def RMSF(self,
+             X):
+        X  = np.abs(X)
+        fs = 5120.0
+        l = 16384.0
+        f = np.arange(l)/l*fs
+        #print (np.argmax(X)/l*fs)
+        return np.sqrt(np.sum(f*f*X)/np.sum(X))  
+    
+    '''
+    3. Method that computes Root Variance Frequency.
+        - Inputs: X
+        - Outputs: RVF of X
+    '''    
+    def RVF(self, 
+            X):
+        X  = np.abs(X)
+        l = 16384.0
+        X_prima = np.diff(X)
+        FC  = np.sum(X_prima*X[0:int(l)-1]) /(2*np.pi*np.sum(X*X))
+        MSF = np.sum(X_prima**2)/(4*np.pi**2*np.sum(X*X))
+        #RMSF = np.sqrt(MSF)
+        return np.sqrt(MSF-FC**2)
+    
+    '''
+    4. Method that computes the kurtosis of an array.
+        - Inputs: X
+        - Outputs: kurtosis of X
+    '''
+    def kurtosis_freq(self,
+                 X):
+        # remove nans
+        X  = np.abs(X) 
+        X.dropna(inplace=True)
+        return stats.kurtosis(X)
+    
+    '''
+    5. Method that computes the skewness of an array.
+        - Inputs: X
+        - Outputs: skewness of X
+    '''
+    def skewness_freq(self,
+                 X):
+        # remove nans
+        X  = np.abs(X) 
+        X.dropna(inplace=True)
+        return stats.skew(X)
+    
+    '''
+    6. Method that computes the STDV frequencial of an array.
+        - Inputs: X
+        - Outputs: skewness of X
+    '''
+    def STDV_freq(self,
+                 X):
+        # remove nans
+        X  = np.abs(X) 
+        X.dropna(inplace=True)
+        return np.std(X)
+    
+    '''
+    7. Method that computes the Shannon entropy of an array.
+        - Inputs: X
+        - Outputs: Shannon entropy of X
+    '''
+    def spectral_entropy(self,
+                         X):
+        X  = np.abs(X)
+        # remove nans
+        X.dropna(inplace=True)
+        pX = X / X.sum()
+        return -np.nansum(pX*np.log2(pX))/np.size(X)
+    
+    '''
+    8. Method that computes discrete cosine transform.
+        - Inputs: X (data), y (positions)
+        - El indice del pico de cada N-armonico es 2+N*7
+        - Outputs: DCT of X
+    '''    
+    def DCT1(self, 
+            X,
+            y):
+        return np.real(X[int(y[2+0*7])])
+    
+    def DCT2(self, 
+            X,
+            y):
+        return np.real(X[int(y[2+1*7])])
+    
+    def DCT3(self, 
+            X,
+            y):
+        return np.real(X[int(y[2+2*7])])
+    
+    def DCT4(self, 
+            X,
+            y):
+        return np.real(X[int(y[2+3*7])])
+    
+    def DCT5(self, 
+            X,
+            y):
+        return np.real(X[int(y[2+4*7])])
+
     '''
     Mehtod that extracts temporal features from a set of data.
         - Inputs: data (DataFrame that contains data to be processed)
@@ -180,27 +309,49 @@ class temporal_analysis(object):
     '''
     def get_temporal_feats(self,
                            data):
-        df = DataFrame({#"RMS": data.apply(self.rms, axis=1).values,
-                        #"PEAK_VALUE": data.apply(self.peak_value, axis=1).values,
-                        #"CREST_FACTOR": data.apply(self.crest_factor, axis=1).values,
-                        "KURTOSIS": data.apply(self.kurtosis, axis=1).values,
-                        "SKEWNESS": data.apply(self.skewness, axis=1).values,
-                        #"CLEARANCE_FACTOR": data.apply(self.clearance_factor, axis=1).values,
-                        #"IMPULSE_FACTOR": data.apply(self.impulse_factor, axis=1).values,
-                        #"SHAPE_FACTOR": data.apply(self.shape_factor, axis=1).values,
-                        #"AVG": data.apply(np.nanmean, axis=1).values,
-                        "STDV": data.apply(np.nanstd, axis=1).values,
-                        #"MEDIAN": data.apply(np.nanmedian, axis=1).values,
-                        #"MIN": data.apply(np.nanmin, axis=1).values,
-                        #"MAX": data.apply(np.nanmax, axis=1).values,
-                        "VARIANCE": data.apply(np.nanvar, axis=1).values,
-                        #"ENTROPY": data.apply(self.entropy, axis=1).values,
-                        #"WNL": data.apply(self.Wnl, axis=1).values,
-                        #"NNL": data.apply(self.Nnl, axis=1).values
-                        })
+        df = DataFrame({"RMS_time": data.apply(self.rms, axis=1).values,
+                        "PEAK_VALUE_time": data.apply(self.peak_value, axis=1).values,
+                        "CREST_FACTOR_time": data.apply(self.crest_factor, axis=1).values,
+                        "KURTOSIS_time": data.apply(self.kurtosis, axis=1).values,
+                        "SKEWNESS_time": data.apply(self.skewness, axis=1).values,
+                        "CLEARANCE_FACTOR_time": data.apply(self.clearance_factor, axis=1).values,
+                        "IMPULSE_FACTOR_time": data.apply(self.impulse_factor, axis=1).values,
+                        "SHAPE_FACTOR_time": data.apply(self.shape_factor, axis=1).values,
+                        "AVG_time": data.apply(np.nanmean, axis=1).values,
+                        "STDV_time": data.apply(np.nanstd, axis=1).values,
+                        "MEDIAN_time": data.apply(np.nanmedian, axis=1).values,
+                        "MIN_time": data.apply(np.nanmin, axis=1).values,
+                        "MAX_time": data.apply(np.nanmax, axis=1).values,
+                        "VARIANCE_time": data.apply(np.nanvar, axis=1).values,
+                        "ENTROPY_time": data.apply(self.entropy, axis=1).values,
+                        "WNL_time": data.apply(self.Wnl, axis=1).values,
+                        "NNL_time": data.apply(self.Nnl, axis=1).values})
         df.index = data.index
         return df
             
+    
+    '''
+    Mehtod that extracts frequency features in time from a set of data.
+        - Inputs: data (DataFrame that contains data to be processed)
+        - Outputs: DataFrame, indexed by time and containing computed features
+    '''
+    def get_frequency_feats(self,
+                            data,
+                            pos=[]):
+        df = DataFrame({"CENTRAL_freq": data.apply(self.central_frequency, axis=1).values,
+                        "RMS_freq": data.apply(self.RMSF, axis=1).values,
+                        "ROOT_VARIANCE_freq": data.apply(self.RVF, axis=1).values,
+                        "KURTOSIS_freq": data.apply(self.kurtosis_freq, axis=1).values,
+                        "SKEWNESS_freq": data.apply(self.skewness_freq, axis=1).values,
+                        "SPECTRAL_ENTROPY_freq": data.apply(self.spectral_entropy, axis=1).values,
+                        "DCT1_freq": [self.DCT1(data.iloc[i],pos.iloc[i]) for i in range(data.shape[0])],
+                        "DCT2_freq": [self.DCT2(data.iloc[i],pos.iloc[i]) for i in range(data.shape[0])],
+                        "DCT3_freq": [self.DCT3(data.iloc[i],pos.iloc[i]) for i in range(data.shape[0])],
+                        "DCT4_freq": [self.DCT4(data.iloc[i],pos.iloc[i]) for i in range(data.shape[0])],
+                        "DCT5_freq": [self.DCT5(data.iloc[i],pos.iloc[i]) for i in range(data.shape[0])]})
+        df.index = data.index
+        return df
+    
     
     '''
     Mehtod that plots given features.
@@ -262,14 +413,17 @@ class temporal_analysis(object):
                 cols.append(date)
                 data = DataFrame(group.values)
                 lag.append(data)
-                Q1 = data.quantile(0.25)
-                Q3 = data.quantile(0.75)
+                Q1 = data.quantile(0.25, numeric_only=False)
+                Q3 = data.quantile(0.75, numeric_only=False)
                 IQR = Q3 - Q1
                 data_out.append(data[~((data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR))).any(axis=1)])                
             lag = pd.concat(lag, axis=1)                
             lag.columns=cols
             lag.boxplot(vert=True, rot=45, showmeans=True, boxprops=boxprops, medianprops=medianprops)
-            plt.xticks(size=48)
+            if frequency=='D':
+                plt.xticks(size=12, rotation=45, ha="right")
+            else:
+                plt.xticks(size=48, rotation=45, ha="right")
             plt.yticks(size=48)
             data_out = pd.concat(data_out, axis=1)
             data_out.columns=cols
@@ -288,12 +442,13 @@ class temporal_analysis(object):
                          df,
                          frequency='W'):
         # last date, given as prediction
-        add_time = 0
-        if frequency == 'W':
-            add_time = 7
-        elif frequency == 'D':
-            add_time = 1
+#        add_time = 0
+#        if frequency == 'W':
+#            add_time = 7
+#        elif frequency == 'D':
+#            add_time = 1
         anomalies = []
+        outliers = []
         for feat in df.columns:
             residuals = []
             threshold = np.inf
@@ -301,9 +456,10 @@ class temporal_analysis(object):
             limits = [0]
             tmp = 0
             # print(feat)
-            groups = df[feat].groupby(pd.Grouper(freq=frequency))
+            groups = df[feat].groupby(pd.Grouper(freq=frequency, closed='left', label='left', convention='s'))
             gp = groups.apply(lambda x: x.name)
             anomalies_tmp = [0]*(len(gp))
+            outliers_tmp = [0]*(len(gp))
             n = len(groups.apply(lambda x: x.name))
             c = 0
             filtered_data = []
@@ -317,13 +473,14 @@ class temporal_analysis(object):
                 if not data.shape[0] > 1:
                     c += 1
                     residuals = np.concatenate((residuals, [0]*len(filtered_data)), axis=None)
-                    anomalies_tmp[c-1] = 0
+                    anomalies_tmp[c] = 0
+                    outliers_tmp[c] = 0
                     limits.append(tmp + len(filtered_data))
                     tmp += len(filtered_data)
                     continue                
                 # train AR model after removing outliers
-                Q1 = data.quantile(0.25)
-                Q3 = data.quantile(0.75)
+                Q1 = data.quantile(0.25, numeric_only=False)
+                Q3 = data.quantile(0.75, numeric_only=False)
                 IQR = Q3 - Q1
                 filtered_data = data[~((data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR))).any(axis=1)].values
                 if c == 0:
@@ -337,14 +494,17 @@ class temporal_analysis(object):
                     except Exception as ex:
                         #print('No data found for ' + str(gp[c]))
                         residuals = np.concatenate((residuals, [0]*len(filtered_data)), axis=None)
-                        anomalies_tmp[c-1] = 0
+                        anomalies_tmp[c] = 0
+                        outliers_tmp[c] = 0
                         limits.append(tmp + len(filtered_data))
                         tmp += len(filtered_data)
                         continue
                     #data_sig = data_sig[~np.isnan(data_sig)]
                     #data_sig = data_sig[np+.isfinite(data_sig)]
                 else:
-                    data_sig = filtered_data.ravel()
+#                    data_sig = filtered_data.ravel()
+                    # no more data to check
+                    break
                 limits.append(tmp + len(data_sig))
                 tmp += len(data_sig)
                 # moving average model
@@ -355,28 +515,33 @@ class temporal_analysis(object):
                     moving_avg = (moving_avg + value) / 2
                 residuals = np.concatenate((residuals, residuals_tmp), axis=None)
                 # check anomalies, with severity
-                anomalies_tmp[c-1] = np.round(len(np.where(np.array(residuals_tmp)>threshold)[0])/len(residuals_tmp), decimals=3)
+                anomalies_tmp[c] = np.round(len(np.where(np.array(residuals_tmp)>threshold)[0])/len(residuals_tmp), decimals=3)
+                outliers_tmp[c] = np.max(residuals_tmp)
                 threshold = np.mean(residuals_tmp)
             # add days to last prediction residuals
             if anomalies == []:
                 anomalies = np.array(anomalies_tmp)
+                outliers = np.array(outliers_tmp)
             else:
                 anomalies = np.column_stack((anomalies, np.array(anomalies_tmp)))
-            days = datetime.timedelta(days=add_time)
-            dates.append(dates[-1]+days)
+                outliers = np.column_stack((outliers, np.array(outliers_tmp)))
+#            days = datetime.timedelta(days=add_time)
+#            dates.append(dates[-1]+days)
             # plot residuals
-            residuals = self.normalize(residuals)
-            plt.figure(figsize=(64,24))
-            plt.title(feat, size=48)
-            plt.plot(range(limits[1], limits[1]+len(residuals)), residuals, label='residuals', lw=3)
-            plt.xlim(0, limits[1]+len(residuals))
-            plt.legend(fontsize=48)
-            plt.xticks(limits[::7], [date.date() for date in dates[::7]], rotation=45, ha="right", size=48) 
-            plt.yticks(size=48)
-            plt.grid()
+            if len(residuals) > 0:
+                residuals = self.normalize(residuals)
+                plt.figure(figsize=(64,24))
+                plt.title(feat, size=48)
+                plt.plot(range(0, len(residuals)), residuals, label='residuals', lw=3)
+                plt.xlim(0, limits[1]+len(residuals))
+                plt.legend(fontsize=48)
+                plt.xticks(limits[::7], [date.date() for date in dates[::7]], rotation=45, ha="right", size=48) 
+                plt.yticks(size=48)
+                plt.grid()
         # print anomalies
-        res = DataFrame(data=anomalies, index=dates[1:], columns=df.columns)
-        return res
+        res_anomalies = DataFrame(data=anomalies, index=dates, columns=df.columns)
+        res_outliers = DataFrame(data=outliers, index=dates, columns=df.columns)
+        return res_anomalies, res_outliers
 
 
     ''''''''''''
@@ -507,7 +672,8 @@ class temporal_analysis(object):
     
     def feature_ranking(self, 
                         X, 
-                        y):
+                        y,
+                        show_ranking=True):
         '''
         Method to compute the feature importance based on their score when decreasing impurity in random forests model.
             Inputs:
@@ -539,21 +705,23 @@ class temporal_analysis(object):
         # normalize values between 0 and 1
         importances = self.scale_linear_bycolumn(importances)
         # Print the feature ranking
-        print("Feature ranking:")
-        for f in range(X.shape[1]):
-            print("%d. %s (%f)" % (f+1, X.columns[indices[f]], importances[indices[f]]))
+        if show_ranking:
+            print("Feature ranking:")
+            for f in range(X.shape[1]):
+                print("%d. %s (%f)" % (f+1, X.columns[indices[f]], importances[indices[f]]))
         # Plot the feature importances of the forest
         plt.figure(figsize=(30,8))
-        plt.bar(np.arange(0,X.shape[1]),importances[indices],color="r", yerr=std[indices], align="center")
+        idx = np.where(importances[indices]>0.01)[0]
+        plt.bar(np.arange(0,len(idx)),importances[indices][idx],color="r", yerr=std[indices][idx], align="center")
         #    plt.xticks(range(X.shape[1]), [str(i) for i in X.columns[indices]],size=20,rotation=90)
-        plt.xticks(range(X.shape[1]), [str(i) for i in X.columns[indices]], rotation=45, ha="right", rotation_mode='anchor', size=24)
+        plt.xticks(range(X.shape[1]), [str(i) for i in X.columns[indices][idx]], rotation=45, ha="right", rotation_mode='anchor', size=20)
         plt.yticks(size=24)
         plt.ylabel('score', size=24)
-        plt.xlim([-1, X.shape[1]])
+        plt.xlim([-1, len(idx)])
         #plt.tight_layout()
         plt.grid()
         plt.show()
-        return X.iloc[:,np.where(importances>0.0)[0]]
+        return X.iloc[:,np.where(importances>0.0)[0]], importances[indices][idx], X.columns[indices][idx]
     
     
     # convert series to supervised learning
@@ -643,8 +811,8 @@ class temporal_analysis(object):
                     tmp += len(filtered_data)
                     continue                
                 # train AR model after removing outliers
-                Q1 = data.quantile(0.25)
-                Q3 = data.quantile(0.75)
+                Q1 = data.quantile(0.25, numeric_only=False)
+                Q3 = data.quantile(0.75, numeric_only=False)
                 IQR = Q3 - Q1
                 filtered_data = data[~((data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR))).any(axis=1)].values
                 model = AR(filtered_data)
@@ -763,8 +931,8 @@ class temporal_analysis(object):
                 tmp += len(filtered_data)
                 continue                
             # train VAR model after removing outliers
-            Q1 = data.quantile(0.25)
-            Q3 = data.quantile(0.75)
+            Q1 = data.quantile(0.25, numeric_only=False)
+            Q3 = data.quantile(0.75, numeric_only=False)
             IQR = Q3 - Q1
             filtered_data = data[~((data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR))).any(axis=1)]
             filtered_data.dropna(inplace=True)
@@ -915,4 +1083,215 @@ class temporal_analysis(object):
             ax2 = fig.add_subplot(212)
             fig = sm.graphics.tsa.plot_pacf(data[feat], lags=lags, ax=ax2)
             ax2.set_title("Partial autocorrelation " + str(feat))                            
-        
+    
+
+    '''
+    Mehtod that detects anomalies and outliers from temporal feats, performing the whole detection process.
+        - Inputs: idPLanta, idAsset, date, numTramas, param
+        - Outputs: anomalies (m,n), outliers (m,n)
+    ''' 
+    def temporal_analysis(self,
+                          idPlanta='BPT',
+                          idAsset='H4-FA-0002',
+                          date='2018-09-18 00:00:00.00Z',
+                          numTramas='200',
+                          param='temperatura'):
+        anomalies, outliers = [], []
+        parameters = {'IdPlanta': idPlanta,
+                      'IdAsset': idAsset,
+                      'Fecha': date,
+                      'FechaInicio': '',
+                      'NumeroTramas': numTramas,
+                      'Parametros': param
+        }
+        api_endpoint = ('http://predictivepumpsapi.azurewebsites.net/api/Models/GetInfoForModel?IdPlanta=' + parameters['IdPlanta'] + \
+                        '&IdAsset=' + parameters['IdAsset'] + '&Fecha=' + parameters['Fecha'] + '&FechaInicio=' + parameters['FechaInicio'] + \
+                        '&NumeroTramas=' + parameters['NumeroTramas'] + '&Parametros=' + parameters['Parametros'])
+        response = requests.get(api_endpoint)
+        if response.status_code == 200 and response.ok:
+            response_json = response.json()
+            data = []
+            dates = []
+            for res in response_json:
+                for trama in list(res.values())[0][1]['ValoresParametro']:      
+                        data.append(trama['Val'])
+                        dates.append(trama['Fecha'])
+            response.close()
+            data = pd.DataFrame(data=data, index=pd.to_datetime(dates), columns=['TEMPERATURE'])
+            data.sort_index(inplace= True)
+            if data.shape[0] > 0:
+                print('Data loaded from '  + str(data.index[0]) + ' to ' + str(data.index[-1]))
+                anomalies, outliers = self.moving_avg_model(data, frequency='D')
+            else:
+                print('No data available!')
+        else:
+            print('No data loaded!')
+        return anomalies, outliers
+    
+    
+    '''
+    Mehtod that detects anomalies and outliers from frequency feats, performing the whole detection process.
+        - Inputs: idPLanta, idAsset, date, numTramas, param, measurePointId
+        - Outputs: anomalies_t (m,n), outliers_t (m,n), anomalies_f (m,n), outliers_f (m,n)
+    ''' 
+    def frequency_analysis(self,
+                           idPlanta='BPT',
+                           idAsset='H4-FA-0002',
+                           date='2019-01-06 23:50:56.5838941Z',
+                           numTramas='200',
+                           param='waveform',
+                           measurePointId='SH4'):
+        anomalies_t, outliers_t, anomalies_f, outliers_f  = [], [], [], []
+        parameters = {'IdPlanta': idPlanta,
+                      'IdAsset': idAsset,
+                      'Fecha': date,
+                      'FechaInicio': '',
+                      'NumeroTramas': numTramas,
+                      'Parametros': param
+        }
+        api_endpoint = ('http://predictivepumpsapi.azurewebsites.net/api/Models/GetInfoForModel?IdPlanta=' + parameters['IdPlanta'] + \
+                        '&IdAsset=' + parameters['IdAsset'] + '&Fecha=' + parameters['Fecha'] + '&FechaInicio=' + parameters['FechaInicio'] + \
+                        '&NumeroTramas=' + parameters['NumeroTramas'] + '&Parametros=' + parameters['Parametros'])
+        response = requests.get(api_endpoint)
+        if response.status_code == 200 and response.ok:
+            response_json = response.json()    
+            data = []
+            dates = []
+            for res in response_json:
+                try:
+                    for trama in list(res.values())[0][1]['ValoresTrama']:
+                        if trama['MeasurePointId'] == measurePointId:
+                            if len(trama['Value']) > 0:
+                                data.append(np.array(trama['Value'])*float(trama['Props'][4]['Value']))
+                                dates.append(trama['ServerTimeStamp'])
+                except Exception as ex:
+                    continue
+            response.close()
+            df = pd.DataFrame(data=data, index=pd.to_datetime(dates))
+            df.sort_index(inplace= True)
+            if df.shape[0] > 0:
+                # compute velocity
+                velocity = self.compute_velocity(df)
+                # compute temporal feats
+                tfeats = self.get_temporal_feats(velocity)
+                tfeats.index = pd.to_datetime(tfeats.index)
+                # compute frequency feats
+                G = 9.81
+                fs = 5120.0
+                b, a = signal.butter(3,2*5/fs,'highpass',analog=False)
+                df_accel_rem_DC = self.DataFrame_remove_DC(df)
+                df_speed = G*1000*self.DataFrame_integrate(df_accel_rem_DC)/fs
+                #df_accel_f = DataFrame_filt(df_accel,b,a)
+                df_speed_f = self.DataFrame_filt(df_speed,b,a,df.shape[1],df.shape[0])    
+                df_SPEED = self.DataFrame_fft_abs(df_speed_f)
+                ffeats = self.get_frequency_feats(df_SPEED)
+                ffeats.index = pd.to_datetime(ffeats.index)
+                print('Data loaded from '  + str(tfeats.index[0]) + ' to ' + str(tfeats.index[-1]))
+                anomalies_t, outliers_t = self.moving_avg_model(tfeats, frequency='D')
+                anomalies_f, outliers_f = self.moving_avg_model(ffeats, frequency='D')
+            else:
+                print('No data available!')
+        else:
+            print('No data loaded!')
+        return anomalies_t, outliers_t, anomalies_f, outliers_f   
+    
+    
+    '''
+    Mehtod that computes velocity (mm/s) from acceleration (g's peak).
+        - Inputs: df, f (frequency)
+        - Outputs: velocity
+    '''
+    def compute_velocity(self,
+                         df, 
+                         f=5120.0):
+        velocity = 9.81*1000*np.cumsum(df.sub(df.mean(axis=1), axis=0))/f
+        return velocity
+    
+    
+    def DataFrame_remove_DC(self,
+                            df_in):
+        df_out    = pd.DataFrame(np.nan,index = df_in.index,columns = df_in.columns.values)
+        for counter,indice in enumerate(df_in.index):
+            #trace               = signal.filtfilt(b_filt, a_filt, df_in.loc[indice].values)
+            media               = np.mean(df_in.loc[indice].values)
+            df_out.loc[indice]  = df_in.loc[indice].values - media
+        return df_out
+    
+    
+    def DataFrame_integrate(self,
+                            df_in):#,b_filt,a_filt):
+        df_out    = pd.DataFrame(np.nan,index = df_in.index,columns = df_in.columns.values)
+        for counter,indice in enumerate(df_in.index):
+            #trace                  = signal.filtfilt(b_filt, a_filt, df_in.loc[indice].values)
+            trace                  = df_in.iloc[counter].values
+            #DC                     = np.mean(df_in.iloc[counter].values)
+            #df_out.iloc[counter]   = np.cumsum(df_in.iloc[counter].values-DC)
+            df_out.iloc[counter]   = np.cumsum(trace)
+            #print (np.cumsum(df_in.iloc[counter]-mean),df_out.iloc[counter]         
+        return df_out
+    
+    
+    def DataFrame_fft_abs(self,
+                          df_in):
+        l         = df_in.shape[1]
+        hann      = np.hanning(l) #
+        df_out    = pd.DataFrame(np.nan,index = df_in.index,columns = df_in.columns.values)
+        for counter,indice in enumerate(df_in.index):        
+            trace                 = df_in.iloc[counter].values * hann
+            df_out.iloc[counter]  = np.abs( np.fft.fft(trace/l) )
+        return df_out
+    
+    
+    def DataFrame_filt(self,
+                       df_in,
+                       b_filt,
+                       a_filt,
+                       l,
+                       n_columns):
+        #l         = df_accel.shape[1]#-500
+        #n_columns = df_accel.shape[0]
+        df_out    = pd.DataFrame(index   = df_in.index,
+                                 columns = df_in.columns.values,
+                                 data    = np.ones((n_columns,l)))
+        df_out    = pd.DataFrame(np.nan,index = df_in.index,columns = df_in.columns.values)
+        for counter,indice in enumerate(df_in.index):
+            trace               = signal.filtfilt(b_filt, a_filt, df_in.loc[indice].values)
+            df_out.loc[indice]  = trace[0:l]
+        return df_out
+    
+    
+    '''
+    Mehtod that specifies the severity's color of an anomaly based on normalized (from 0 to 1) values in val.
+        - Inputs: val
+        - Outputs: color
+    '''
+    def color_anomalies(self,
+                        val):
+        if val < .33:
+            color = 'green'
+        elif val >= .33 and val < .66:
+            color = 'yellow'
+        elif val >= .66:
+            color = 'red'
+        else:
+            color = 'white'
+        return 'background-color: %s' % color
+    
+    
+    '''
+    Mehtod that specifies the severity's color of an outlier based on values in val.
+        - Inputs: val
+        - Outputs: color
+    '''
+    def color_outliers(self,
+                       val):
+        if val < 10:
+            color = 'green'
+        elif val >= 10 and val < 50:
+            color = 'yellow'
+        elif val >= 50:
+            color = 'red'
+        else:
+            color = 'white'
+        return 'background-color: %s' % color
+    

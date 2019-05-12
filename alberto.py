@@ -17,7 +17,9 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import TimeSeriesSplit
 from statsmodels.tsa.arima_model import ARIMA
 import datetime
+from PETRONOR_FreqAnalysis_lyb import *
 
+Path_out  = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\python\\outputs\\'
 """
 file_name = 'tfeats_05to12oct2018.csv'
 #file_name = 'all_data.csv'
@@ -27,7 +29,7 @@ df= df.drop(labels= 'Unnamed: 0',axis=1)
 df.index = pd.to_datetime(df.index)
 """ 
 
-df_SPEED = pd.read_pickle('SPEED_H4-FA-0002_SH4_10__.pkl')
+df_SPEED = pd.read_pickle(Path_out+'SPEED_f_Local_DB_H4-FA-0002_SH4_11__.pkl')
 
 
 indice = []

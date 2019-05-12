@@ -9,5 +9,11 @@ Sin t*.*
 *.csv
 *.png
 *.jpg
-/caca
+*.mat
+*.csv
+*.xlsx
+/cooking oven
+/imagenes
+/outputs
 /downloaded scripts
+/caca

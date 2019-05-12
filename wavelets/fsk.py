@@ -29,22 +29,22 @@ fs  = 1
 
 
 #------------------------------BFSK
-bits    = prbs(100,128*2)
+bits    = prbs(50,128*2)
 npoints = np.size(bits)
-n       = np.arange(npoints)
+t       = np.arange(npoints)
 
 #w        = np.sin(2*np.pi*t*(4+1*bits)/64)
 fi  = 1/16
-df  = 1/16/16+0.0001*0
-w   = np.sin(2*np.pi*n*(fi+df*bits)/fs)
+df  = 1/16/2#/16+0.0001*0
+w   = np.sin(2*np.pi*t*(fi+df*bits)/fs)
 
-coeffs   = wavedec(w, 'coif3', level=4)
+coeffs   = wavedec(w, 'dmey', level=4)
 n_plots  = 2* (np.size(coeffs)+1)
 fig, ax1 = plt.subplots(num=None, figsize=(18, 18), dpi=80, facecolor='w', edgecolor='k')
 
 plt.subplot(n_plots,1,1)
 plt.title("Linear Chirp, f(0)=6, f(10)=1")
-plt.plot(n,w,n,bits)
+plt.plot(t,w,t,bits)
 plt.xlabel('t (sec)')
 
 plt.subplot(n_plots,1,2)
@@ -53,14 +53,14 @@ spect = 20*np.log10(np.abs(np.fft.fft(w)/npoints))
 plt.plot   (f,spect)
 plt.axis([0,0.5,-80,np.max(spect)])
 
-n_max = n[-1]
+n_max = t[-1]
 
 for counter,i in enumerate(coeffs):
     l1 = np.size(i)
     
     plt.subplot(n_plots,1,2*(counter+1)+1)
     n1 = n_max*np.arange (l1)/(l1-1)
-    plt.plot(n1,i,n,bits)
+    plt.plot(n1,i,t,bits)
     plt.grid(False)
     fs1 = l1/npoints
     f1  = fs1* np.arange(l1)/(l1-1)
@@ -72,3 +72,19 @@ for counter,i in enumerate(coeffs):
     
 
 print(fs)
+
+
+n_points = 20
+scales = np.arange(1,n_points)
+coef, freqs=pywt.cwt(w,scales,'gaus2')
+#plt.figure()
+#plt.matshow(coef) 
+#plt.show()
+plt.figure()
+plt.imshow(coef, extent=[-1, 1, 1, n_points], cmap='PRGn', aspect='auto', vmax=abs(coef).max(), vmin=-abs(coef).max())  
+plt.figure()
+plt.plot(t,bits)
+plt.plot(t,coef[5,:])
+#plt.plot(t,coef[1,:])
+#plt.plot(t,coef[2,:])
+plt.show() 

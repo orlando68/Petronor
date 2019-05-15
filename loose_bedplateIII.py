@@ -108,7 +108,7 @@ if __name__ == '__main__':
     
     
     df_speed,df_SPEED = Load_Vibration_Data_Global(parameters)
-    harm              = df_Harmonics(df_speed,df_SPEED, fs,'blower')
+    harm              = df_Harmonics(df_SPEED, fs,'blower')
     harm              = Loose_Bedplate(harm)
     
     columnas  = ['Type','Bedplate','Kurtosis','Skewness','Wnl_o','Wnl','Entropy','Nnl']
@@ -196,9 +196,9 @@ if __name__ == '__main__':
             #print(l1,l2,l3)
             #print(x1,x2,x3)
             #print(l1,l2,l3)
-            A = 0    < x1 < 0.71 
-            B = 0.71 < x1 < 1.8
-            C = 1.8  < x1
+            A = 0    < x1 < 2 
+            B = 2 < x1 < 5
+            C = 5  < x1
             D = (PK(x2) and PK(x3)) and x3 > 1*x2
             
             if A and l1 < n_random:#-----------------------------------Good signals
@@ -244,7 +244,7 @@ if __name__ == '__main__':
         spec_rand[inic_2x:fin_2x]         = fact_2x          * spectrum[inic_2x:fin_2x]
         spec_rand[l-fin_2x+1:l-inic_2x+1] = np.conj(fact_2x) * spectrum[l-fin_2x+1:l-inic_2x+1]
         
-        fact_3x = df_random.iloc[k]['2x']/power_3x
+        fact_3x = df_random.iloc[k]['3x']/power_3x
         spec_rand[inic_3x:fin_3x]         = fact_3x          * spectrum[inic_3x:fin_3x]
         spec_rand[l-fin_3x+1:l-inic_3x+1] = np.conj(fact_3x) * spectrum[l-fin_3x+1:l-inic_3x+1]
         

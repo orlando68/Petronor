@@ -18,7 +18,7 @@ if __name__ == '__main__':
         
         'Fecha'        : '2019-05-08T16:00:46.9988564Z',
         'FechaInicio'  : '2018-10-12T00:52:46.9988564Z',
-        'NumeroTramas' : '10',
+        'NumeroTramas' : '2',
         'Parametros'   : 'waveform',
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     df_speed_BH3,df_SPEED_BH3,df_speed_BA4,df_SPEED_BA4,df_speed_BV4,df_SPEED_BV4 = Load_Vibration_Data_Global_Pumps(parameters)
     
     if parameters['Localizacion'] == 'BH3':    #-------horizontal Radial
-        #harm_BH3                  = df_Harmonics(df_speed_BH3,df_SPEED_BH3, fs,'pump')
+       
         harm_BH3                  = df_Harmonics(df_SPEED_BH3, fs,'pump')
         
         harm_BH3                  = Recirculation_in_pump(harm_BH3)
@@ -49,6 +49,7 @@ if __name__ == '__main__':
         harm_BH3                  = Vane_Failure(harm_BH3)
         harm_BH3                  = Oil_Whirl_pumps(harm_BH3)
         harm_BH3                  = Oil_Whip_pumps(harm_BH3)
+        harm_BH3                  = Auto_Oscillation(harm_BH3)
         
         check_test_results(harm_BH3)
         save_files(parameters,df_speed_BH3,df_SPEED_BH3,harm_BH3)
@@ -57,7 +58,7 @@ if __name__ == '__main__':
         Plot_Spectrum(0,df_SPEED_BH3,harm_BH3)
     
     if parameters['Localizacion'] == 'BV4':    #-------vertical Radial
-        #harm_BV4                  = df_Harmonics(df_speed_BV4,df_SPEED_BV4, fs,'pump')
+        
         harm_BV4                  = df_Harmonics(df_SPEED_BV4, fs,'pump')
         
         harm_BV4                  = Recirculation_in_pump(harm_BV4)
@@ -76,6 +77,7 @@ if __name__ == '__main__':
         harm_BV4                  = Vane_Failure(harm_BV4)
         harm_BV4                  = Oil_Whirl_pumps(harm_BV4)
         harm_BV4                  = Oil_Whip_pumps(harm_BV4)
+        harm_BH3                  = Auto_Oscillation(harm_BH3)
         
         check_test_results(harm_BV4)
         
@@ -89,9 +91,9 @@ if __name__ == '__main__':
         harm_BH3                  = df_Harmonics(df_SPEED_BH3, fs,'pump')
         harm_BV4                  = df_Harmonics(df_SPEED_BV4, fs,'pump')
         
-#        harm_BA4                  = Recirculation_in_pump(harm_BA4)
-#        harm_BA4                  = Impeller_Rotor_Unbalance(harm_BA4)
-#        harm_BA4                  = Shaft_misaligment_Axial(harm_BH3,harm_BV4,harm_BA4)
+        harm_BA4                  = Recirculation_in_pump(harm_BA4)
+        harm_BA4                  = Impeller_Rotor_Unbalance(harm_BA4)
+        harm_BA4                  = Shaft_misaligment_Axial(harm_BH3,harm_BV4,harm_BA4)
         harm_BA4                  = Hydraulic_Instability(harm_BA4)
         harm_BA4                  = Loosness_pumps(harm_BH3,harm_BA4)
         harm_BA4                  = Dynamic_instability(harm_BH3,harm_BA4)
@@ -103,7 +105,7 @@ if __name__ == '__main__':
         save_files(parameters,df_speed_BA4,df_SPEED_BA4,harm_BA4)
         #Plot_Spectrum(0,df_SPEED_BH3,harm_BH3)
         #Plot_Spectrum(0,df_SPEED_BV4,harm_BV4)
-        Plot_Spectrum(3,df_SPEED_BA4,harm_BA4)
+        Plot_Spectrum(0,df_SPEED_BA4,harm_BA4)
 
 #   
     #find_closest(datetime.datetime(2018, int(month), int(day), 0, 0),df_SPEED_abs,harm)

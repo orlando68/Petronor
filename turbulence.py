@@ -155,8 +155,8 @@ if __name__ == '__main__':
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
         'Month'        : '11',
-        'Day'          : '',#'12'
-        'Hour'         : '' 
+        'Day'          : '12',#'12'
+        'Hour'         : '12' 
     }
     
     
@@ -173,9 +173,10 @@ if __name__ == '__main__':
     df_speed,df_SPEED_abs = Load_Vibration_Data_Global(parameters)
     spectrum              = np.fft.fft(df_speed.iloc[0])/l
     df_SPEED_abs.iloc[0]  = np.abs(spectrum)        # sin ventana de hanning
-    harm                  = df_Harmonics(df_speed,df_SPEED_abs, fs)
+    harm                  = df_Harmonics(df_SPEED_abs, fs,'blower')
+    #harm                  = df_Harmonics(df_SPEED_abs, fs)
     #signal,spec_rand = Synth_Peak(9,5,df_speed.iloc[0])
-    signal,spec_rand = Synth_feature(1000,5,0.1,'tukey',df_speed.iloc[0])
+    signal,spec_rand = Synth_feature(1000,2.5,1,'triangle',df_speed.iloc[0])
     #signal,spec_rand = Shift_Noise(9,5,df_speed.iloc[0],0.3)
     
 

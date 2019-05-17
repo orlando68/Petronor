@@ -13,7 +13,7 @@ Sin t*.*
 *.csv
 *.xlsx
 /outputs
-/_pycache_
+/__pycache__
 /notebooks
 /imagenes
 /wavelets

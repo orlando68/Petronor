@@ -108,6 +108,7 @@ def Synth_Loose_Bedplate(df_speed_in,df_SPEED_in):
     df_random = pd.DataFrame(index = range(3*n_random), 
                              columns = columnas, 
                              data = np.zeros((3*n_random,np.size(columnas))) )
+    
 
                   #--DataFrame con todos los valores de amplitud aleatorios válidos
     l1 = l2 = l3 = 0
@@ -170,6 +171,7 @@ def Synth_Loose_Bedplate(df_speed_in,df_SPEED_in):
 #            else:
 #                print ('Combination not valid',x1,x2,x3)
     df_random.to_pickle('dados.pkl')
+    
 #    df_random = pd.read_pickle('dados.pkl')   
     print(df_random)         
     for k in range(df_random.shape[0]): #----- IFFT de cada una de las señales sinteticas
@@ -272,7 +274,12 @@ def Synth_Severe_Misaligment(df_speed_in,df_SPEED_in):
     df_random     = pd.DataFrame(index = range(3*n_random), 
                                  columns = columnas_rand, 
                                  data = np.zeros((3*n_random,np.size(columnas_rand))) )
-    
+
+#          Bedplate       1.0       2.0       3.0
+#        0        g  1.997650  0.982614  0.340704
+#        1        y  5.789201  1.149204  0.459223
+#        2        r  5.584069  0.466865  1.256888
+   
     df_dado       = pd.DataFrame(index = ['0'],
                                  columns = harmonics, 
                                  data = np.zeros((1,np.size(harmonics))) )
@@ -283,6 +290,8 @@ def Synth_Severe_Misaligment(df_speed_in,df_SPEED_in):
     df_envelope.loc['0','1.0']      = 10
     df_envelope.loc['0','2.0']      = 1.2
     df_envelope.loc['0','3.0']      = 2.4
+#                1.0  2.0  3.0
+#            0  10.0  1.2  2.4    
     
     l1 = l2 = l3  = 0
     
@@ -291,50 +300,43 @@ def Synth_Severe_Misaligment(df_speed_in,df_SPEED_in):
     while True: #---------rellenamos df_random con "sucesos" aleatorios válidos
                 #----------------lanzamos el dado
         
-        for k in harmonics:
-#            print(k)
+        for k in harmonics:             #------lanzo el dado--
             df_dado.loc['0',k] = np.abs(df_randn_spcs.loc['mean'][k] + df_randn_spcs.loc['std'][k] * np.random.randn(1))    
-        
-#        print (df_dado)
+                                        #---------------------
+        bool_template = (df_dado.loc['0']['1.0'] < df_envelope.loc['0']['1.0']) and (df_dado.loc['0']['2.0'] < df_envelope.loc['0']['2.0']) and (df_dado.loc['0']['3.0'] < df_envelope.loc['0']['3.0'])
 
-        condition = (df_dado.loc['0']['1.0'] < df_envelope.loc['0']['1.0']) and (df_dado.loc['0']['2.0'] < df_envelope.loc['0']['2.0']) and (df_dado.loc['0']['3.0'] < df_envelope.loc['0']['3.0'])
-
-        if condition:#-----------------TEMPLATE
-            #print(l1,l2,l3)
-            #print(x1,x2,x3)
-            #print(l1,l2,l3)
+        if bool_template:#-----------------TEMPLATE
             A = 0   < df_dado.loc['0']['1.0'] < 2.0 
             B = 2.0 < df_dado.loc['0']['1.0'] < 5.0
             C = 5.0 < df_dado.loc['0']['1.0']
             D = (PK(df_dado.loc['0']['2.0']) and PK(df_dado.loc['0']['2.0'])) and df_dado.loc['0']['3.0'] > 1*df_dado.loc['0']['2.0']
             
             if A and l1 < n_random:#-----------------------------------Good signals
-                df_random.loc[df_random.index[l1],'Bedplate'] = 'g'
+                df_random.loc[df_random.index[l1]           ,'Bedplate'] = 'g'
                 for k in harmonics:
-                    df_random.loc[df_random.index[l1],k]       = df_dado.loc['0'][k]
-                l1                                             = l1 + 1
-                #-------from now on  acceptable
+                    df_random.loc[df_random.index[l1],k]            = df_dado.loc['0'][k]
+                l1                                                  = l1 + 1
+
             if (B ^ C) and l2 < n_random:#-----------------------Acceptable signals
                 df_random.loc[df_random.index[l2+1*n_random],'Bedplate'] = 'y'
                 for k in harmonics:
-                    df_random.loc[df_random.index[l2+1*n_random],k]       = df_dado.loc['0'][k]
+                    df_random.loc[df_random.index[l2+1*n_random],k] = df_dado.loc['0'][k]
                 l2                                                  = l2 + 1
+
             if (C and D) and l3 < n_random: #------------------Unacceptable signals
                 df_random.loc[df_random.index[l3+2*n_random],'Bedplate'] = 'r'
                 for k in harmonics:
-                    df_random.loc[df_random.index[l3+2*n_random],k]       = df_dado.loc['0'][k]
+                    df_random.loc[df_random.index[l3+2*n_random],k] = df_dado.loc['0'][k]
                 l3                                                  = l3 + 1
-            #print('longitudes',l1,l2,l3)
+
             if l1 == n_random and l2 == n_random and l3 == n_random:
                 print(l1,l2,l3)
                 break            
-#            else:
-#                print ('Combination not valid',x1,x2,x3)
+
     
     #df_random = pd.read_pickle('dados.pkl')
-    print(df_random)          
+          
     for k in range(df_random.shape[0]): #----- IFFT de cada una de las señales sinteticas
-#        print ('valor de k:',k)
         for harm_nb,hrm_name in enumerate(harmonics):
             inic = int(df_golden.loc['n_s',hrm_name])
             fin  = int(df_golden.loc['n_e',hrm_name])
@@ -344,7 +346,6 @@ def Synth_Severe_Misaligment(df_speed_in,df_SPEED_in):
 #            print(df_golden.loc['RMS',hrm_name],inic,fin)
             #print('--------------',df_random.iloc[k][hrm_name],df_golden.loc['RMS',hrm_name] )
             fact                        = df_random.iloc[k][hrm_name]/df_golden.loc['RMS',hrm_name] 
-            #print(fact)#,spectrum[inic:fin],spectrum[l-fin+1:l-inic+1])
             spec_rand[inic:fin]         = fact          * spectrum[inic:fin]
             spec_rand[l-fin+1:l-inic+1] = np.conj(fact) * spectrum[l-fin+1:l-inic+1]
         
@@ -381,7 +382,7 @@ if __name__ == '__main__':
     t        = np.arange(l)/fs
     f        = np.arange(l)/(l-1)*fs
     A_noise  = 0*0.8
-    n_random = 100 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
+    n_random = 2 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
     #start    = 0;       end   = l
     start    = 2600;    end   = 13500
     length   = end-start

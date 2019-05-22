@@ -2278,13 +2278,8 @@ def plot_waterfall_lines(title,df_in,df_harm,fs,fmin,fmax):
     ax.set_ylim3d(0, t_traces[np.size(t_traces)-1])
     ax.set_zlabel('RMS mm/s')
     #ax.set_zlim3d(np.min(color), np.max(color))
-<<<<<<< Updated upstream
-    ax.set_title(title)
-
-=======
     #ax.set_title(Parameters['IdAsset']+' '+Parameters['Localizacion']+' mm/sg RMS')
     ax.set_title(title)
->>>>>>> Stashed changes
     second_plot = plt.axes([.05, .75, .2, .2], facecolor='w')
     plt.plot(t_traces,df_harm.loc[:,'RMS (mm/s) f'].values)
     plt.legend(('Total RMS', 'Peak @1x'),loc='upper right')

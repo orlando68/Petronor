@@ -48,8 +48,8 @@ if __name__ == '__main__':
     harm                  = Ball_Bearing_Inner_Race_Defects_22217C(harm) #ok
     harm                  = Ball_Bearing_Inner_Race_Defects_22219C(harm) #ok
     
-    harm                  = Ball_Bearing_Defect_22217C(harm) #ok
-    harm                  = Ball_Bearing_Defect_22219C(harm) #ok
+    harm                  = Ball_Bearing_Ball_Defect_22217C(harm) #ok
+    harm                  = Ball_Bearing_Ball_Defect_22219C(harm) #ok
     
     harm                  = Ball_Bearing_Cage_Defect_22217C(harm)    #ok
     harm                  = Ball_Bearing_Cage_Defect_22219C(harm) #ok
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     Plot_Spectrum(0,df_SPEED,harm)
     
     #PETROspectro(df_speed.iloc[0], fs,'Velocidad','mm/s',Detection = 'Peak')
-    #color,vertices = plot_waterfall(df_SPEED_abs,harm,fs,0,400)
+    #color,vertices = plot_waterfall(df_SPEED_abs,harm,fs,0,400) 
     
     plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED,harm,fs,0,400)
 

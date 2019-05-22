@@ -114,7 +114,7 @@ if __name__ == '__main__':
     
     
     
-    #PETROspectro(df_speed.iloc[0], fs,'Velocidad','mm/s',Detection = 'Peak')
+    #PETROspectro(df_speed.iloc[0], fs,'Velocidad','mm/s',Detection = 'Peak') 
     #color,vertices = plot_waterfall(df_SPEED_abs,harm,fs,0,400)
     
     #plot_waterfall2(parameters,df_SPEED_BV4,harm_BV4,fs,0,400)

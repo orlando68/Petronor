@@ -14,29 +14,41 @@ import time
 Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\python\\outputs\\'
 #--------------------------------------------------------------------------------
 
-freq_names = ['5/2','7/2','9/2',
-              '12.0','24.0','11.0','13.0','23.0','25.0',
-              'BPFO1','2*BPFO1','3*BPFO1','4*BPFO1',
-              'BPFO2','2*BPFO2','3*BPFO2','4*BPFO2',
-              'BPFI1','BPFI1+f','BPFI1-f','2*BPFI1','2*BPFI1+f','2*BPFI1-f',
-              'BPFI2','BPFI2+f','BPFI2-f','2*BPFI2','2*BPFI2+f','2*BPFI2-f',
-              'BSF1','BSF1-FTF1','BSF1+FTF1','2*BSF1','2*BSF1-FTF1','2*BSF1+FTF1',
-              'BSF2','BSF2-FTF2','BSF2+FTF2','2*BSF2','2*BSF2-FTF2','2*BSF2+FTF2',
-              'FTF1','2*FTF1','3*FTF1','4*FTF1','FTF2','2*FTF2','3*FTF2','4*FTF2',
+
+freq_names = ['1/2'                 ,'5/2'            ,'7/2'       ,'9/2'     ,
+              '1/3'                 ,'2/3'            ,'4/3'       ,'5/3'     ,'8/3'         ,
+              '1/4'                 ,
+              '5.0'                 ,'6.0'            ,'7.0'       ,'8.0'     ,'9.0'         ,'10.0'        ,
+              '11/2'                ,'13/2'           ,'15/2'      ,'17/2'    ,'19/2'                       ,
+              '12.0'                ,'24.0'           ,'11.0'      ,'13.0'    ,'23.0'        ,'25.0'        ,
+              'BPFO1'               ,'2*BPFO1'        ,'3*BPFO1'   ,'4*BPFO1' ,
+              'BPFO2'               ,'2*BPFO2'        ,'3*BPFO2'   ,'4*BPFO2' ,
+              'BPFI1'               ,'BPFI1+f'        ,'BPFI1-f'   ,'2*BPFI1' ,'2*BPFI1+f'   ,'2*BPFI1-f'   ,
+              'BPFI2'               ,'BPFI2+f'        ,'BPFI2-f'   ,'2*BPFI2' ,'2*BPFI2+f'   ,'2*BPFI2-f'   ,
+              'BSF1'                ,'BSF1-FTF1'      ,'BSF1+FTF1' ,'2*BSF1'  ,'2*BSF1-FTF1' ,'2*BSF1+FTF1' ,
+              'BSF2'                ,'BSF2-FTF2'      ,'BSF2+FTF2' ,'2*BSF2'  ,'2*BSF2-FTF2' ,'2*BSF2+FTF2' ,
+              'FTF1'                ,'2*FTF1'         ,'3*FTF1'    ,'4*FTF1'  ,
+              'FTF2'                ,'2*FTF2'         ,'3*FTF2'    ,'4*FTF2'  ,
+              'Surge E. 0.33x 0.5x' ,'Surge E. 12/20k',
               'Oil Whirl',
               'Flow T.']
 f = 24.7
-freq_values = [f*5/2,f*7/2,f*9/2,
-               12*f,24*f,11*f,13*f,23*f,25*f,
-               BPFO1,2*BPFO1,3*BPFO1,4*BPFO1,
-               BPFO2,2*BPFO2,3*BPFO2,4*BPFO2,
-               BPFI1,BPFI1+f,BPFI1-f,2*BPFI1,2*BPFI1+f,2*BPFI1-f,
-               BPFI2,BPFI2+f,BPFI2-f,2*BPFI2,2*BPFI2+f,2*BPFI2-f,
-               BSF1,BSF1-FTF1,BSF1+FTF1,2*BSF1,2*BSF1-FTF1,2*BSF1+FTF1,
-               BSF2,BSF2-FTF2,BSF2+FTF2,2*BSF2,2*BSF2-FTF2,2*BSF2+FTF2,
-               FTF1,2*FTF1,3*FTF1,4*FTF1,
-               FTF2,2*FTF2,3*FTF2,4*FTF2,
-               0.41*f,
+freq_values = [f/2                  , f*5/2           , f*7/2      , f*9/2    ,
+               f*1/3                , f*2/3           , f*4/3      , f*5/3    , f*8/3,
+               f/4                  ,
+               5*f                  , 6*f             , 7*f        , 8*f      , 9*f          , 10*f         ,
+               11/2*f               , 13/2*f          , 15/2*f     , 17/2*f   , 19/2*f                      ,
+               12*f                 , 24*f            , 11*f       , 13*f     , 23*f         , 25*f         ,
+               BPFO1                , 2*BPFO1         , 3*BPFO1    , 4*BPFO1,
+               BPFO2                , 2*BPFO2         , 3*BPFO2    , 4*BPFO2,
+               BPFI1                , BPFI1+f         , BPFI1-f    , 2*BPFI1  , 2*BPFI1+f    , 2*BPFI1-f    ,
+               BPFI2                , BPFI2+f         , BPFI2-f    , 2*BPFI2  , 2*BPFI2+f    , 2*BPFI2-f    ,
+               BSF1                 , BSF1-FTF1       , BSF1+FTF1  , 2*BSF1   , 2*BSF1-FTF1  , 2*BSF1+FTF1  ,
+               BSF2                 , BSF2-FTF2       , BSF2+FTF2  , 2*BSF2   , 2*BSF2-FTF2  , 2*BSF2+FTF2  ,
+               FTF1                 , 2*FTF1          , 3*FTF1     , 4*FTF1   ,
+               FTF2                 , 2*FTF2          , 3*FTF2     , 4*FTF2   ,
+               0.47*f               ,14700,
+               0.41*f               ,
                14]
 
 @jit
@@ -386,12 +398,57 @@ def DecissionTable_Severe_Misaligment(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN
             
             B         = N_picos_B >= 3 and  PK(E2,df_dice_IN.iloc[0]['1.0'] )
             C         = df_dice_IN.iloc[0]['2.0'] > df_dice_IN.iloc[0]['1.0']
+            print(SP_FingerPrint.iloc[n_golden]['RMS 5.0'],SP_FingerPrint.iloc[n_golden]['RMS 6.0'],
+                                  SP_FingerPrint.iloc[n_golden]['RMS 7.0'],SP_FingerPrint.iloc[n_golden]['RMS 8.0'],
+                                  SP_FingerPrint.iloc[n_golden]['RMS 9.0'],SP_FingerPrint.iloc[n_golden]['RMS 10.0'])
             print(l1,l2,l3,A,'(',N_picos_A,')',B,'(',N_picos_B,')',C)
             df_Values_IN,l1,l2,l3 = decision_table( not A,l1,
                                                 A or B,l2,
                                                 A and B and C,l3,
                                                 df_Values_IN,df_dice_IN.loc['0'],Harmonics_IN,n_reales_IN)
     return df_Values_IN
+
+
+#-----------------------------------------------------------------------------1   
+"""
+@jit
+def DecissionTable_Severe_Misaligment(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,df_env_specs_IN,df_Values_IN,n_reales_IN,n_golden):
+    print('entradoen tabla-----------------------')
+    l1 = l2 = l3  = 0
+    df_dice_IN = pd.DataFrame(index = ['0'], columns = Harmonics_IN, data = np.zeros((1,np.size(Harmonics_IN))) )
+    
+    while not(l1 == n_random and l2 == n_random and l3 == n_random): #---------rellenamos df_random con "sucesos" aleatorios válidos
+                #----------------lanzamos el dado
+        bool_template = True
+        for k in Harmonics_IN:             #------lanzo el dado--
+            df_dice_IN.loc['0',k] = np.abs(df_RD_specs_IN.loc['mean'][k] + df_RD_specs_IN.loc['std'][k] * np.random.randn(1)) 
+            bool_template      = bool_template and df_dice_IN.loc['0'][k] < df_env_specs_IN.loc['0'][k] 
+#            print(       df_dice_IN.loc['0'][k] , df_env_specs_IN.loc['0'][k],'==>',df_dice_IN.loc['0'][k] < df_env_specs_IN.loc['0'][k])                    #---------------------
+#        print(bool_template)
+        if bool_template:#-----------------TEMPLATE
+            
+            N_picos_A = Number_PEAKS(E2,df_dice_IN.iloc[0]['2.0'],df_dice_IN.iloc[0]['3.0'],df_dice_IN.iloc[0]['4.0'], 
+                                  df_dice_IN.iloc[0]['5.0'],df_dice_IN.iloc[0]['6.0'],
+                                  df_dice_IN.iloc[0]['7.0'],df_dice_IN.iloc[0]['8.0'],
+                                  df_dice_IN.iloc[0]['9.0'],df_dice_IN.iloc[0]['10.0'])
+            
+            A         = N_picos_A >= 3 and  PK(E2,df_dice_IN.iloc[0]['1.0'] )
+
+            N_picos_B = Number_PEAKS(E2,df_dice_IN.iloc[0]['5/2'],df_dice_IN.iloc[0]['7/2'],df_dice_IN.iloc[0]['9/2'],
+                                  df_dice_IN.iloc[0]['11/2'],df_dice_IN.iloc[0]['13/2'],
+                                  df_dice_IN.iloc[0]['15/2'],df_dice_IN.iloc[0]['17/2'],
+                                  df_dice_IN.iloc[0]['19/2'])
+            
+            B         = N_picos_B >= 3 and  PK(E2,df_dice_IN.iloc[0]['1.0'] )
+            C         = df_dice_IN.iloc[0]['2.0'] > df_dice_IN.iloc[0]['1.0']
+            
+            print(l1,l2,l3,A,'(',N_picos_A,')',B,'(',N_picos_B,')',C)
+            df_Values_IN,l1,l2,l3 = decision_table( not A,l1,
+                                                A or B,l2,
+                                                A and B and C,l3,
+                                                df_Values_IN,df_dice_IN.loc['0'],Harmonics_IN,n_reales_IN)
+    return df_Values_IN
+"""
 
 #-----------------------------------------------------------------------------2
 @jit 
@@ -969,124 +1026,133 @@ if __name__ == '__main__':
         'Hour'         : ''
         }
     
-    n_random = 100 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
+    n_random = 10 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
     df_speed,df_SPEED = Load_Vibration_Data_Global(parameters)
     
     
     Process_variable1 = FailureMode('Severe_Misaligment',df_speed,df_SPEED)    #------tarda mucho en generar señales verdes
     Process_variable1.__func__(0,['1.0','2.0','3.0','4.0','5/2','7/2','9/2'],
-                                 [4.6  , 4.6 ,1.0  ,0.5  ,0.1  ,0.1  , 0.1],
-                                 [0.85 , 0.85,0.5  ,0.5  ,0.5  ,0.5  , 0.5],
-                                 [10   , 10  ,1.4  ,0.9  ,0.2  ,0.2  , 0.2])
+                                 [4.6  ,4.6   ,1.0  ,0.2  ,0.1  ,0.1  , 0.1],
+                                 [0.85 ,4     ,0.5  ,0.7  ,0.5  ,0.5  , 0.5],
+                                 [10   ,10    ,1.4  ,0.9  ,0.2  ,0.2  , 0.2])
     
-    Process_variable2 = FailureMode('Loose_Bedplate',df_speed,df_SPEED) 
-    Process_variable2.__func__(0,['1.0','2.0','3.0'],
-                                 [4.8  ,0.9  ,0.9],
-                                 [1.2  ,0.5  ,0.5],
-                                 [10   ,1.2  ,2.4])
+    """
+    Process_variable1 = FailureMode('Severe_Misaligment',df_speed,df_SPEED)    #------tarda mucho en generar señales verdes
+    Process_variable1.__func__(0,['1.0','2.0','3.0','4.0','5/2','7/2','9/2','5.0','6.0','7.0','8.0','9.0','10.0','11/2','13/2','15/2','17/2','19/2'],
+                                 [2.5  ,1  ,0.5  ,0.2  ,0.8  ,0.8  ,0.8  ,0.02  ,0.02  , 0.02 ,0.02  ,0.02  ,0.02   ,0.02   ,0.02   ,0.02  ,0.02   ,0.02],
+                                 [2    ,2    ,1    ,0.5   ,0.5  ,0.5  ,0.5  ,0.1  ,0.1  ,0.1  ,0.1  ,0.1  ,0.1   ,0.1   ,0.1   ,0.1  ,0.1   ,0.1],
+                                 [10   ,10   ,1.4  ,0.9  ,0.2  ,0.2  ,0.2  ,1  ,1  ,1  ,1  ,1  ,1   ,1   ,1   ,1  ,1   ,1])
+    """
+    
+#    Process_variable2 = FailureMode('Loose_Bedplate',df_speed,df_SPEED) 
+#    Process_variable2.__func__(0,['1.0','2.0','3.0'],
+#                                 [4.8  ,0.9  ,0.9],
+#                                 [1.2  ,0.5  ,0.5],
+#                                 [10   ,1.2  ,2.4])
 #    Process_variable2.__func_2__()
-    
-    Process_variable3 = FailureMode('Surge_Effect',df_speed,df_SPEED) 
-    Process_variable3.__func__(0,['Surge E. 0.33x 0.5x','Surge E. 12/20k'],[0.05,0.05],[0.1,0.1],[0.7,0.7])
+#    
+#    Process_variable3 = FailureMode('Surge_Effect',df_speed,df_SPEED) 
+#    Process_variable3.__func__(0,['Surge E. 0.33x 0.5x','Surge E. 12/20k'],[0.05,0.05],[0.1,0.1],[0.7,0.7])
 
-    Process_variable4 = FailureMode('Plain_Bearing_Lubrication_Whip',df_speed,df_SPEED) 
-    Process_variable4.__func__(0,['1/2','5/2'],[0.05,0.1],[0.5,0.5],[0.7,0.7])
-
-    Process_variable5 = FailureMode('Plain_Bearing_Clearance',df_speed,df_SPEED) 
-    Process_variable5.__func__(0,['1.0','2.0','3.0','1/2','3/2','5/2'],
-                                 [4.6  ,1    ,0.9  ,0.9  ,0.5  ,0.3],
-                                 [1    ,0.5  ,0.5  ,0.5  ,0.01 ,0.5],
-                                 [10   ,3    ,2    ,2    ,1.5  ,1])
+#    Process_variable4 = FailureMode('Plain_Bearing_Lubrication_Whip',df_speed,df_SPEED) 
+#    Process_variable4.__func__(0,['1/2','5/2'],[0.05,0.1],[0.5,0.5],[0.7,0.7])
+#
+#    Process_variable5 = FailureMode('Plain_Bearing_Clearance',df_speed,df_SPEED) 
+#    Process_variable5.__func__(0,['1.0','2.0','3.0','1/2','3/2','5/2'],
+#                                 [4.6  ,1    ,0.9  ,0.9  ,0.5  ,0.3],
+#                                 [1    ,0.5  ,0.5  ,0.5  ,0.01 ,0.5],
+#                                 [10   ,3    ,2    ,2    ,1.5  ,1])
+#    
+#    Process_variable6 = FailureMode('Centrifugal_Fan_Unbalance',df_speed,df_SPEED) 
+#    Process_variable6.__func__(0,['1.0','2th Max Value.'],[4.8,0.8],[1.2,0.5],[10,3])
+#
+#    Process_variable7 = FailureMode('Pressure_Pulsations',df_speed,df_SPEED) 
+#    Process_variable7.__func__(0,['1/3','2/3','4/3','5/3','8/3','4.0'],
+#                                 [0.1  ,0.3  ,0.2  ,0.2  ,0.15 ,0.1],
+#                                 [0.5  ,0.5  ,0.5  ,0.5  ,0.5  ,0.5],
+#                                 [0.5  ,1.2  ,1    ,1    ,0.7  ,0.5])
     
-    Process_variable6 = FailureMode('Centrifugal_Fan_Unbalance',df_speed,df_SPEED) 
-    Process_variable6.__func__(0,['1.0','2th Max Value.'],[4.8,0.8],[1.2,0.5],[10,3])
+#    Process_variable8 = FailureMode('Shaft_Misaligments',df_speed,df_SPEED) 
+#    Process_variable8.__func__(0,['1.0','2.0','3.0','4.0','5.0'],
+#                                 [3.5  ,5.2  ,1    ,0.5  ,0.1],
+#                                 [0.85 ,0.85 ,0.5  ,0.5  ,0.5],
+#                                 [6    ,10   ,1.4  ,0.9  ,0.2])
+#    
+#    Process_variable9 = FailureMode('Plain_Bearing_Block_Looseness',df_speed,df_SPEED) 
+#    Process_variable9.__func__(0,['1.0','2.0','3.0','1/4','1/3','1/2'],
+#                                 [3.5  ,5.2  ,1    ,0.2  ,0.15 ,0.1],
+#                                 [0.85 ,0.85 ,0.5  ,0.5  ,0.5  ,0.5],
+#                                 [6    ,10   ,1.4  ,0.4  ,0.3  ,0.2])    
 
-    Process_variable7 = FailureMode('Pressure_Pulsations',df_speed,df_SPEED) 
-    Process_variable7.__func__(0,['1/3','2/3','4/3','5/3','8/3','4.0'],
-                                 [0.1  ,0.3  ,0.2  ,0.2  ,0.15 ,0.1],
-                                 [0.5  ,0.5  ,0.5  ,0.5  ,0.5  ,0.5],
-                                 [0.5  ,1.2  ,1    ,1    ,0.7  ,0.5])
+#  
+#    Process_variable10a = FailureMode('Blade_Faults',df_speed,df_SPEED) 
+#    Process_variable10a.__func__(0,['1.0','12.0','24.0','11.0','13.0','23.0','25.0'],    #OK modificado
+#                                   [3.5  ,0.3   ,0.2   ,0.1   ,0.1    ,0.1  ,0.1],
+#                                   [0.85 ,0.5   ,0.5   ,0.6   ,0.6    ,0.6   ,0.6],
+#                                   [6    ,1     ,0.8   ,0.2  ,0.2   ,0.2  ,0.2])
     
-    Process_variable8 = FailureMode('Shaft_Misaligments',df_speed,df_SPEED) 
-    Process_variable8.__func__(0,['1.0','2.0','3.0','4.0','5.0'],
-                                 [3.5  ,5.2  ,1    ,0.5  ,0.1],
-                                 [0.85 ,0.85 ,0.5  ,0.5  ,0.5],
-                                 [6    ,10   ,1.4  ,0.9  ,0.2])
-    
-    Process_variable9 = FailureMode('Plain_Bearing_Block_Looseness',df_speed,df_SPEED) 
-    Process_variable9.__func__(0,['1.0','2.0','3.0','1/4','1/3','1/2'],
-                                 [3.5  ,5.2  ,1    ,0.2  ,0.15 ,0.1],
-                                 [0.85 ,0.85 ,0.5  ,0.5  ,0.5  ,0.5],
-                                 [6    ,10   ,1.4  ,0.4  ,0.3  ,0.2])    
-
+#    Process_variable10b = FailureMode('Flow_Turbulence',df_speed,df_SPEED)  # OK modificada
+#    Process_variable10b.__func__(0,['Flow T.','1.0'],
+#                                   [3        ,  3.5],
+#                                   [3        , 0.85],
+#                                   [8        , 6])
   
-    Process_variable10a = FailureMode('Blade_Faults',df_speed,df_SPEED) 
-    Process_variable10a.__func__(0,['1.0','12.0','24.0','11.0','13.0','23.0','25.0'],    #TARDA EN GENERAR amarillas/rojas
-                                   [3.5  ,0.3   ,0.2   ,0.1   ,0.1    ,0.1  ,0.1],
-                                   [0.85 ,0.5   ,0.5   ,0.5   ,0.5   ,0.5   ,0.5],
-                                   [6    ,1     ,0.8   ,0.15  ,0.15  ,0.15  ,0.15])
-    
-    Process_variable10b = FailureMode('Flow_Turbulence',df_speed,df_SPEED)  # FLow es muy grande tarda en generar verdes
-    Process_variable10b.__func__(0,['Flow T.','1.0'],
-                                   [4        ,  3.5],
-                                   [1        , 0.85],
-                                   [8        , 6])
-  
-    Process_variable11 = FailureMode('Plain_Bearing_Lubrication_Whirl',df_speed,df_SPEED)  #tarda en generar amarillas
-    Process_variable11.__func__(0,['Oil Whirl','1.0'],
-                                  [0.1        , 3.5],
-                                  [0.5        ,0.85],
-                                  [0.7        ,6])
+#    Process_variable11 = FailureMode('Plain_Bearing_Lubrication_Whirl',df_speed,df_SPEED)  # OK modificada
+#    Process_variable11.__func__(0,['Oil Whirl','1.0'],
+#                                  [0.1        ,3.5],
+#                                  [0.5        ,2],
+#                                  [0.7        ,6])
 
     
-    Process_variable12a = FailureMode('Ball_Bearing_Outer_Race_Defects_22217C',df_speed,df_SPEED)  
-    Process_variable12a.__func__(0,['BPFO1','2*BPFO1','3*BPFO1','4*BPFO1'],
-                                  [1.5     ,1        ,0.5      , 0.35],
-                                  [1       ,0.85     ,0.5      ,0.5],
-                                  [4       ,2        ,1        ,0.8])  
-    Process_variable12a.__func_2__()
-    
-    Process_variable12b = FailureMode('Ball_Bearing_Outer_Race_Defects_22219C',df_speed,df_SPEED)  
-    Process_variable12b.__func__(0,['BPFO2','2*BPFO2','3*BPFO2','4*BPFO2'],
-                                  [1.5     ,1        ,0.5      ,0.35],
-                                  [1       ,0.85     ,0.5      ,0.5],
-                                  [4       ,2        ,1        ,0.8])       
-                   #------------------------------------------------------------
-    Process_variable13a = FailureMode('Ball_Bearing_Inner_Race_Defects_22217C',df_speed,df_SPEED)  
-    Process_variable13a.__func__(0,['BPFI1','2*BPFI1','BPFI1-f','BPFI1+f','2*BPFI1-f','2*BPFI1+f'],
-                                  [0.9     ,0.5      ,0.08     ,0.08     ,0.08       ,0.08],
-                                  [1       ,0.85     ,0.5      ,0.5      ,0.5        ,0.5],
-                                  [3       ,1.5      ,0.15     ,0.15     ,0.15       ,0.15])     
-    
-    Process_variable13b = FailureMode('Ball_Bearing_Inner_Race_Defects_22219C',df_speed,df_SPEED)  
-    Process_variable13b.__func__(0,['BPFI2','2*BPFI2','BPFI2-f','BPFI2+f','2*BPFI2-f','2*BPFI2+f'],
-                                  [0.9     ,0.5      ,0.08     ,0.08     ,0.08       ,0.08],
-                                  [1       ,0.85     ,0.5      ,0.5      ,0.5        ,0.5],
-                                  [3       ,1.5      ,0.15     ,0.15     ,0.15       ,0.15])  
-                   #------------------------------------------------------------    
-    Process_variable14b = FailureMode('Ball_Bearing_Ball_Defect_22217C',df_speed,df_SPEED)  
-    Process_variable14b.__func__(0,['BSF1','2*BSF1','BSF1-FTF1','BSF1+FTF1','2*BSF1-FTF1','2*BSF1+FTF1'],
-                                  [1.5    ,1       ,0.1        ,0.1        ,0.1          ,0.1],
-                                  [1      ,0.85    ,0.5        ,0.5        ,0.5          ,0.5],
-                                  [4      ,2       ,0.15       ,0.15       ,0.15         ,0.15]) 
-    
-    Process_variable14b = FailureMode('Ball_Bearing_Ball_Defect_22219C',df_speed,df_SPEED)  
-    Process_variable14b.__func__(0,['BSF2','2*BSF2','BSF2-FTF2','BSF2+FTF2','2*BSF2-FTF2','2*BSF2+FTF2'],
-                                  [1.5    ,1       ,0.1        ,0.1        ,0.1          ,0.1],
-                                  [1      ,0.85    ,0.5        ,0.5        ,0.5          ,0.5],
-                                  [4      ,2       ,0.15       ,0.15       ,0.15         ,0.15])  
-                   #------------------------------------------------------------
-
-
-    Process_variable15a = FailureMode('Ball_Bearing_Cage_Defect_22217C',df_speed,df_SPEED)  # red signals NO generated
-    Process_variable15a.__func__(0,['FTF1','2*FTF1','3*FTF1','4*FTF1'],
-                                   [2     ,2       ,1       ,0.8],
-                                   [2     ,2       ,0.5     ,0.5],
-                                   [4     ,4       ,2       ,1.5])  
-    
-    Process_variable15b = FailureMode('Ball_Bearing_Cage_Defect_22219C',df_speed,df_SPEED)  # red signals NO generated
-    Process_variable15b.__func__(0,['FTF2','2*FTF2','3*FTF2','4*FTF2'],
-                                   [2     ,2       ,1       ,0.8],
-                                   [2     ,2       ,0.5     ,0.5],
-                                   [4     ,4       ,2       ,1.5]) 
-    
+#    Process_variable12a = FailureMode('Ball_Bearing_Outer_Race_Defects_22217C',df_speed,df_SPEED)  
+#    Process_variable12a.__func__(0,['BPFO1','2*BPFO1','3*BPFO1','4*BPFO1'],
+#                                  [1.5     ,1        ,0.5      , 0.35],
+#                                  [1       ,0.85     ,0.5      ,0.5],
+#                                  [4       ,2        ,1        ,0.8])  
+#    Process_variable12a.__func_2__()
+#    
+#    Process_variable12b = FailureMode('Ball_Bearing_Outer_Race_Defects_22219C',df_speed,df_SPEED)  
+#    Process_variable12b.__func__(0,['BPFO2','2*BPFO2','3*BPFO2','4*BPFO2'],
+#                                  [1.5     ,1        ,0.5      ,0.35],
+#                                  [1       ,0.85     ,0.5      ,0.5],
+#                                  [4       ,2        ,1        ,0.8])       
+##                   #------------------------------------------------------------
+#    Process_variable13a = FailureMode('Ball_Bearing_Inner_Race_Defects_22217C',df_speed,df_SPEED)  
+#    Process_variable13a.__func__(0,['BPFI1','2*BPFI1','BPFI1-f','BPFI1+f','2*BPFI1-f','2*BPFI1+f'],
+#                                  [0.9     ,0.5      ,0.08     ,0.08     ,0.08       ,0.08],
+#                                  [1       ,0.85     ,0.5      ,0.5      ,0.5        ,0.5],
+#                                  [3       ,1.5      ,0.5      ,0.5      ,0.5        ,0.5])     
+#    
+#    Process_variable13b = FailureMode('Ball_Bearing_Inner_Race_Defects_22219C',df_speed,df_SPEED)  
+#    Process_variable13b.__func__(0,['BPFI2','2*BPFI2','BPFI2-f','BPFI2+f','2*BPFI2-f','2*BPFI2+f'],
+#                                  [0.9     ,0.5      ,0.08     ,0.08     ,0.08       ,0.08],
+#                                  [1       ,0.85     ,0.5      ,0.5      ,0.5        ,0.5],
+#                                  [3       ,1.5      ,0.5     ,0.5     ,0.5       ,0.5])  
+#                   #------------------------------------------------------------    
+#    Process_variable14b = FailureMode('Ball_Bearing_Ball_Defect_22217C',df_speed,df_SPEED)   #esta
+#    Process_variable14b.__func__(0,['BSF1','2*BSF1','BSF1-FTF1','BSF1+FTF1','2*BSF1-FTF1','2*BSF1+FTF1'],
+#                                  [1.5    ,1       ,0.1        ,0.1        ,0.1          ,0.1],
+#                                  [1      ,0.85    ,1        ,1        ,1          ,1],
+#                                  [4      ,2       ,0.5       ,0.5       ,0.5         ,0.5]) 
+#
+#    
+#    Process_variable14b = FailureMode('Ball_Bearing_Ball_Defect_22219C',df_speed,df_SPEED)  
+#    Process_variable14b.__func__(0,['BSF2','2*BSF2','BSF2-FTF2','BSF2+FTF2','2*BSF2-FTF2','2*BSF2+FTF2'],
+#                                  [1.5    ,1       ,0.1        ,0.1        ,0.1          ,0.1],
+#                                  [1      ,0.85    ,0.5        ,0.5        ,0.5          ,0.5],
+#                                  [4      ,2       ,0.5       ,0.5       ,0.5         ,0.5])  
+#                   #------------------------------------------------------------
+#
+#
+#    Process_variable15a = FailureMode('Ball_Bearing_Cage_Defect_22217C',df_speed,df_SPEED)  # OK
+#    Process_variable15a.__func__(0,['FTF1','2*FTF1','3*FTF1','4*FTF1'],
+#                                   [2     ,2       ,1       ,0.8],
+#                                   [2     ,2       ,0.5     ,0.5],
+#                                   [4     ,4       ,2       ,1.5])  
+#    
+#    Process_variable15b = FailureMode('Ball_Bearing_Cage_Defect_22219C',df_speed,df_SPEED)  # OK
+#    Process_variable15b.__func__(0,['FTF2','2*FTF2','3*FTF2','4*FTF2'],
+#                                   [2     ,2       ,1       ,0.8],
+#                                   [2     ,2       ,0.5     ,0.5],
+#                                   [4     ,4       ,2       ,1.5]) 
+#    

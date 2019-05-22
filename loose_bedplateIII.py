@@ -8,7 +8,7 @@ from scipy import stats
 import matplotlib
 from numba import jit
 #------------------------------------------------------------------------------
-Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\python\\outputs\\'
+#Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\python\\outputs\\'
 #--------------------------------------------------------------------------------
 def PK(a):
     if a > E1:
@@ -92,11 +92,11 @@ if __name__ == '__main__':
         'IdPlanta'     : 'BPT',
         'IdAsset'      : 'H4-FA-0002',
         'Localizacion' : 'SH4', #SH3/4
-        'Source'       : 'Local Database', # 'Petronor Server'/'Local Database'
+        'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
         'Fecha'        : '2019-02-20T00:20:00.9988564Z',
         'FechaInicio'  : '2019-02-12T00:52:46.9988564Z',
-        'NumeroTramas' : '1',
+        'NumeroTramas' : '5',
         'Parametros'   : 'waveform',
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     for counter,k in enumerate (harm.index):
         signal                            = Rms(df_speed.iloc[counter].values[start:end])
         df_Values.loc[counter,'Type']     = 'Real'
-        df_Values.loc[counter,'Bedplate'] = harm.iloc[counter]['$Loose Bedplate Failure']
+        df_Values.loc[counter,'Bedplate'] = harm.iloc[counter]['$Loose_Bedplate_Failure']
         df_Values.loc[counter,'Kurtosis'] = stats.kurtosis(np.abs(signal),fisher = False)
         df_Values.loc[counter,'Skewness'] = stats.skew(signal)
         #df_Values.loc[counter,'Wnl_o']    = Wnl_o(signal)
@@ -233,7 +233,7 @@ if __name__ == '__main__':
 #    
 #    
     for k in range(df_random.shape[0]): #----- IFFT de cada una de las señales sinteticas
-        
+        spec_rand = np.copy(spectrum)
         #print (k,df_Values.loc[ k + df_speed.shape[0] ].values)
         #----------------------------------------------------------Good signals
         fact_1x = df_random.iloc[k]['1x']/power_1x
@@ -253,7 +253,7 @@ if __name__ == '__main__':
             print('Cuidado señal no valida!!!!!!!!!!!!!!!')
             #----espectro de la señal sintetica => spec_rand
             #----señal sintetica en el tiempo   => signal
-            
+        #print(np.mean(spec_rand),np.std(spec_rand))
         signal = np.real(signal_math[start:end])# + A_noise * np.random.randn(np.size(signal))
         signal = Rms(signal)
         

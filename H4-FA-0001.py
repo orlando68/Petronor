@@ -16,7 +16,7 @@ if __name__ == '__main__':
         'Localizacion' : 'MH2', #SH4/MH2
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
-        'Fecha'        : '2019-02-16T01:00:00Z',
+        'Fecha'        : '2019-02-20T00:00:00.00Z',
         'FechaInicio'  : '2019-02-14T00:00:00Z',
         'NumeroTramas' : '5',
         'Parametros'   : 'waveform',

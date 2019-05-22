@@ -643,8 +643,7 @@ def feats(df_speed):
         df_out.iloc[counter]['Skewness'] = stats.skew(df_speed.iloc[counter].values)
 
     return df_out
-#------------------------------------------------------------------------------
- 
+#-----------------------------------------------------------------------------1
 def Plain_Bearing_Clearance(df_in):
     print('-------------------------Clearance Failure--------------------------')
     n_traces   = df_in.shape[0]
@@ -652,11 +651,11 @@ def Plain_Bearing_Clearance(df_in):
 
     for i in range (n_traces):
         none_list.append('None')
-    df_in['$Plain Bearing Clearance Failure'] = none_list
+    df_in['$Plain_Bearing_Clearance_Failure'] = none_list
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Plain Bearing Clearance Failure'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Plain_Bearing_Clearance_Failure'] = 'No vibration detected'
         else:
             v_1x   = df_in.iloc[i]['RMS 1.0']
             v_2x   = df_in.iloc[i]['RMS 2.0']
@@ -676,59 +675,21 @@ def Plain_Bearing_Clearance(df_in):
             b2 = PEAKS(v_0_5x,v_1x,v_1_5x,v_2_5x) and (v_0_5x > 0.02 * v_1x) and (v_1_5x > 0.02 * v_1x) and (v_2_5x > 0.02 * v_1x)
             B  = b1 and b2
             
-            df_in.loc[df_in.index[i],'$Plain Bearing Clearance Failure'] = Truth_Table( not(A) and not(B) , A or B , A and B)
+            df_in.loc[df_in.index[i],'$Plain_Bearing_Clearance_Failure'] = Truth_Table( not(A) and not(B) , A or B , A and B)
     return df_in
-#------------------------------------------------------------------------------
- 
-def Blower_Wheel_Unbalance(df_in):
-    print('--------------------Blower Wheel Unbalance Failure------------------')
-    n_traces   = df_in.shape[0]
-    none_list  = []
-
-    for i in range (n_traces):
-        none_list.append('None')
-    df_in['$Blower Wheel Unbalance Failure'] = none_list
-
-    for i in range (n_traces):
-        #print(df_in.iloc[i].values[1:8])
-        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Blower Wheel Unbalance Failure'] = 'No vibration detected'
-        else:
-                                                #---1X meno que el umbral
-            A_peaks = PK(E1,df_in.iloc[i]['RMS 1.0'])
-            A       = A_peaks and df_in.iloc[i]['RMS 1.0'] < 4
-                                                #---El 15% 1x < resto armonicos.
-                                                #   es decir 1X no es dominante
-            B_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2th Max Value.'])
-            B       =  B_peaks and df_in.iloc[i]['RMS 1.0'] * 0.15 < df_in.iloc[i]['RMS 2th Max Value.']
-    
-                                                #--------------------------Green
-            if A and B:
-                df_in.loc[df_in.index[i],'$Blower Wheel Unbalance Failure'] = 'Green'
-                                                #--------------------------yellow
-                                                #   Xor = cualquiera de ellas
-                                                #        pero no ambas
-            if (A == False) ^   (B == False):
-                df_in.loc[df_in.index[i],'$Blower Wheel Unbalance Failure'] = 'Yellow'
-                                                #--------------------------Red
-                                                # las dos falsas
-            if (A == False) and (B == False):
-                df_in.loc[df_in.index[i],'$Blower Wheel Unbalance Failure'] = 'Green'
-    return df_in
-#------------------------------------------------------------------------------
-
-def Oil_Whirl(df_in):
+#-----------------------------------------------------------------------------2
+def Plain_Bearing_Lubrication_Whirl(df_in):
     print('---------------------------Oil Whirl Failure-----------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
     
     for i in range (n_traces):
         none_list.append('None')
-    df_in['$Oil Whirl Failure'] = none_list
+    df_in['$Plain_Bearing_Lubrication_Whirl_Failure'] = none_list
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Oil Whirl Failure'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Plain_Bearing_Lubrication_Whirl_Failure'] = 'No vibration detected'
         else:
                                                 #-----------green-----------------
                                                 # no detected Peak in '0.38-0.48'
@@ -740,15 +701,15 @@ def Oil_Whirl(df_in):
             B_peaks = PEAKS(E1,df_in.iloc[i]['RMS Oil Whirl'],df_in.iloc[i]['RMS 1.0']) 
             B       = B_peaks and df_in.iloc[i]['RMS Oil Whirl'] > 0.02 * df_in.iloc[i]['RMS 1.0']
             
-            df_in.loc[df_in.index[i],'$Oil Whirl Failure'] = Truth_Table( not(A) , A and (not B) , A and B)
+            df_in.loc[df_in.index[i],'$Plain_Bearing_Lubrication_Whirl_Failure'] = Truth_Table( not(A) , A and (not B) , A and B)
             
-            if df_in.iloc[i]['$Oil Whirl Failure'] == 'None':
+            if df_in.iloc[i]['$Plain_Bearing_Lubrication_Whirl_Failure'] == 'None':
                 print ('Fallo en:', i)
                 print (df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS Oil Whirl'],A,B)
     return df_in
-#------------------------------------------------------------------------------
- 
-def Oil_Whip(df_in):
+#-----------------------------------------------------------------------------3
+
+def Plain_Bearing_Lubrication_Whip(df_in):
     print('---------------------------Oil Whip Failure------------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
@@ -756,11 +717,11 @@ def Oil_Whip(df_in):
 
     for i in range (n_traces):
         none_list.append('None')
-    df_in['$Oil Whip Failure'] = none_list
+    df_in['$Plain_Bearing_Lubrication_Whip_Failure'] = none_list
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Oil Whip Failure'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Plain_Bearing_Lubrication_Whip_Failure'] = 'No vibration detected'
         else:
             A       = (df_in.iloc[i]['RMS 1/2'] >= E1 and df_in.iloc[i]['BW 1/2'] >= 4)  and  ((df_in.iloc[i]['RMS 5/2'] >= E1) and df_in.iloc[i]['BW 5/2'] >= 4)
             B_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 1/2']) 
@@ -776,76 +737,22 @@ def Oil_Whip(df_in):
                                                  # 2H BW at 0.5 = 0 and 2H BW at 2.5 = 0
     
             if A == False and ( (B and C) == False ):
-                df_in.loc[df_in.index[i],'$Oil Whip Failure'] = 'Green'
+                df_in.loc[df_in.index[i],'$Plain_Bearing_Lubrication_Whip_Failure'] = 'Green'
                                                  #---------yellow------------------
                                                  # 2H BW at 0.5 > 0
                                                  # 2H BW at 2.5 > 0
                                                  # 2H BW at 0.5 >2% 1.0x
                                                  # 2H BW at 2.5 >2% 1.0x
             if A ^ ((B ^ C)) :
-                df_in.loc[df_in.index[i],'$Oil Whip Failure'] = 'Yellow'
+                df_in.loc[df_in.index[i],'$Plain_Bearing_Lubrication_Whip_Failure'] = 'Yellow'
                                                  #-----------red-------------------
                                                  #     2H BW at 0.5 >2% 1.0x
                                                  #           AND
                                                  #     2H BW at 2.5 >2% 1.0x
             if A and B and C:
-                df_in.loc[df_in.index[i],'$Oil Whip Failure'] = 'Red'
+                df_in.loc[df_in.index[i],'Plain_Bearing_Lubrication_Whip_Failure'] = 'Red'
     return df_in
-#------------------------------------------------------------------------------
- 
-def Blade_Faults(df_in):
-    print('-----------------------Blade Faults Failure------------------------')
-    n_traces   = df_in.shape[0]
-    none_list  = []
-   
-    for i in range (n_traces):
-        none_list.append('None')
-    df_in['$Blade Faults Failure'] = none_list
-
-    for i in range (n_traces):
-        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Blade Faults Failure'] = 'No vibration detected'
-        else:
-            A = PK(E1,df_in.iloc[i]['RMS 12.0'])
-            B = PEAKS(E1,df_in.iloc[i]['RMS 12.0'],df_in.iloc[i]['RMS 24.0']) 
-            C = PK(E1,df_in.iloc[i]['RMS 12.0'])       and ( PK(df_in.iloc[i]['RMS 11.0']) or PK(df_in.iloc[i]['RMS 13.0']) )
-            D = C and PK(E1,df_in.iloc[i]['RMS 24.0']) 
-            E = C and PK(E1,df_in.iloc[i]['RMS 24.0']) and ( PK(df_in.iloc[i]['RMS 23.0']) or PK(df_in.iloc[i]['RMS 25.0']) )
-            F = df_in.iloc[i]['RMS 12.0'] < E1 and df_in.iloc[i]['RMS 24.0'] < E1
-            #print('Blade Faults         ',A,B,C,D,E,F)
-                                                 #  Tabla de verdad progresiva
-                                                 #  puede empezar siendo verde,
-                                                 #  acabar siendo rojo
-            df_in.loc[df_in.index[i],'$Blade Faults Failure'] = Truth_Table( A or B or F , C or D , E)
-
-    return df_in
-#------------------------------------------------------------------------------
- 
-def Flow_Turbulence(df_in):
-    print('---------------------Flow Turbulence Failure-----------------------')
-    n_traces   = df_in.shape[0]
-    none_list  = []
-    
-    for i in range (n_traces):
-        none_list.append('None')
-    df_in['$Flow Turbulence Failure'] = none_list
-
-    for i in range (n_traces):
-        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Flow Turbulence Failure'] = 'No vibration detected'
-        else:
-            A       = df_in.iloc[i]['RMS Flow T.'] <= 0.2
-            B_peaks = PK(E1,df_in.iloc[i]['RMS 1.0'])
-            B       = B_peaks and (0.2 <= df_in.iloc[i]['RMS Flow T.'] <= df_in.iloc[i]['RMS 1.0'])
-            C_peaks = PK(E1,df_in.iloc[i]['RMS 1.0'])
-            C       = C_peaks and (df_in.iloc[i]['RMS Flow T.'] >  df_in.iloc[i]['RMS 1.0'])
-            #print('Flow Tur.           ',A,B,C)
-            
-            df_in.loc[df_in.index[i],'$Flow Turbulence Failure'] = Truth_Table(A,B,C)
-           
-    return df_in
-#------------------------------------------------------------------------------
- 
+#-----------------------------------------------------------------------------4
 def Plain_Bearing_Block_Looseness(df_in):
     print('-----------------------PBB looseness Failure-----------------------')
     n_traces   = df_in.shape[0]
@@ -853,87 +760,56 @@ def Plain_Bearing_Block_Looseness(df_in):
     
     for i in range (n_traces):
         none_list.append('None')
-    df_in['$PBB looseness Failure'] = none_list
+    df_in['$Plain_Bearing_Block_Looseness_Failure'] = none_list
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$PBB looseness Failure'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Plain_Bearing_Block_Looseness_Failure'] = 'No vibration detected'
         else:
             A_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'],df_in.iloc[i]['RMS 3.0'])
             A       = A_peaks and df_in.iloc[i]['RMS 1.0'] <df_in.iloc[i]['RMS 2.0'] > df_in.iloc[i]['RMS 3.0']
             B       = PEAKS(E1,df_in.iloc[i]['RMS 1/2'],df_in.iloc[i]['RMS 1/3'],df_in.iloc[i]['RMS 1/4'])
             #print('Plain Bearin block   ',A,B)
-            df_in.loc[df_in.index[i],'$PBB looseness Failure'] = Truth_Table(not A and not B , A or B , A and B)
-
+            df_in.loc[df_in.index[i],'$Plain_Bearing_Block_Looseness_Failure'] = Truth_Table(not A and not B , A ^ B , A and B)
     return df_in
-#------------------------------------------------------------------------------
- 
-def Shaft_Misaligments(df_in):
-    print('--------------------------Shaft Mis. Failure-----------------------')
+
+#-----------------------------------------------------------------------------5
+    
+def Centrifugal_Fan_Unbalance (df_in):
+    print('--------------------Blower Wheel Unbalance Failure------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
-    
-    for i in range (n_traces):
-        none_list.append('None')
-    df_in['$Shaft Mis. Failure'] = none_list
 
     for i in range (n_traces):
-        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Shaft Mis. Failure'] = 'No vibration detected'
-        else:
-            A_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'])
-            A       = A_peaks and df_in.iloc[i]['RMS 2.0'] < 0.5 *  df_in.iloc[i]['RMS 1.0']
-            B_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'])
-            B       = B_peaks and 1.5 *df_in.iloc[i]['RMS 1.0'] >        df_in.iloc[i]['RMS 2.0'] > 0.5 *df_in.iloc[i]['RMS 1.0']
-            C_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'])
-            C       = C_peaks and 1.5 *df_in.iloc[i]['RMS 1.0'] <        df_in.iloc[i]['RMS 2.0']
-            D       = PEAKS(E1,df_in.iloc[i]['RMS 2.0'],df_in.iloc[i]['RMS 3.0'],df_in.iloc[i]['RMS 4.0'],df_in.iloc[i]['RMS 5.0'])
-            
-            df_in.loc[df_in.index[i],'$Shaft Mis. Failure'] = Truth_Table(A or not D , B and D , C and D)
-    return df_in
-#------------------------------------------------------------------------------
- 
-def Pressure_Pulsations(df_in):
-    print('-------------------------Pressure P. Failure------------------------')
-    n_traces   = df_in.shape[0]
-    none_list  = []
-    
-    for i in range (n_traces):
         none_list.append('None')
-    df_in['$Pressure P. Failure'] = none_list
+    df_in['$Centrifugal_Fan_Unbalance_Failure'] = none_list
 
     for i in range (n_traces):
+        #print(df_in.iloc[i].values[1:8])
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Pressure P. Failure'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Centrifugal_Fan_Unbalance_Failure'] = 'No vibration detected'
         else:
-            A       = PEAKS(E1,df_in.iloc[i]['RMS 1/3'],df_in.iloc[i]['RMS 2/3'],df_in.iloc[i]['RMS 4/3'],df_in.iloc[i]['RMS 5/3'])
-            B_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1/3'],df_in.iloc[i]['RMS 4/3'],df_in.iloc[i]['RMS 8/3'],df_in.iloc[i]['RMS 4.0']) 
-            B       = B_peaks and (df_in.iloc[i]['RMS 4/3'] > df_in.iloc[i]['RMS 1/3']) and (df_in.iloc[i]['RMS 8/3'] > df_in.iloc[i]['RMS 1/3']) and (df_in.iloc[i]['RMS 4.0'] > df_in.iloc[i]['RMS 1/3'])
-            
-            df_in.loc[df_in.index[i],'$Pressure P. Failure'] = Truth_Table(not A , A , A and B)
-       
-    return df_in
-#------------------------------------------------------------------------------
- 
-def Surge_Effect(df_in):
-    print('------------------------Surge E. Failure---------------------------')
-    n_traces   = df_in.shape[0]
-    none_list  = []
+                                                #---1X meno que el umbral
+            A_peaks = PK(E1,df_in.iloc[i]['RMS 1.0'])
+            A       = A_peaks and df_in.iloc[i]['RMS 1.0'] < 4
+                                                #---El 15% 1x < resto armonicos.
+                                                #   es decir 1X no es dominante
+            B_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2th Max Value.'])
+            B       =  B_peaks and df_in.iloc[i]['RMS 1.0'] * 0.15 < df_in.iloc[i]['RMS 2th Max Value.']
     
-    for i in range (n_traces):
-        none_list.append('None')
-    df_in['$Surge E. Failure'] = none_list
-
-    for i in range (n_traces):
-        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Surge E. Failure'] = 'No vibration detected'
-        else:
-            A = PK(E1,df_in.iloc[i]['RMS Surge E. 0.33x 0.5x'])
-            B = PK(E1,df_in.iloc[i]['RMS Surge E. 12/20k'])
-            
-            df_in.loc[df_in.index[i],'$Surge E. Failure'] = Truth_Table(not A , A , A and B)
+                                                #--------------------------Green
+            if A and B:
+                df_in.loc[df_in.index[i],'$Centrifugal_Fan_Unbalance_Failure'] = 'Green'
+                                                #--------------------------yellow
+                                                #   Xor = cualquiera de ellas
+                                                #        pero no ambas
+            if (A == False) ^   (B == False):
+                df_in.loc[df_in.index[i],'$Centrifugal_Fan_Unbalance_Failure'] = 'Yellow'
+                                                #--------------------------Red
+                                                # las dos falsas
+            if (A == False) and (B == False):
+                df_in.loc[df_in.index[i],'$Centrifugal_Fan_Unbalance_Failure'] = 'Green'
     return df_in
-#------------------------------------------------------------------------------
- 
+#-----------------------------------------------------------------------------6
 def Severe_Misaligment(df_in):
     print('----------------------------Severe Mis. Failure--------------------')
     n_traces   = df_in.shape[0]
@@ -941,11 +817,11 @@ def Severe_Misaligment(df_in):
     
     for i in range (n_traces):
         none_list.append('None')
-    df_in['$Severe Mis. Failure'] = none_list
+    df_in['$Severe_Misaligment_Failure'] = none_list
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Severe Mis. Failure'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Severe_Misaligment_Failure'] = 'No vibration detected'
         else:
             counter_A = 0
             for m in [2,3,4,5,6,7,8,9,10]:
@@ -963,14 +839,131 @@ def Severe_Misaligment(df_in):
             C         = C_peaks and df_in.iloc[i]['RMS 2.0'] > df_in.iloc[i]['RMS 1.0']
             
             if not A:
-                df_in.loc[df_in.index[i],'$Severe Mis. Failure'] = 'Green'
+                df_in.loc[df_in.index[i],'$Severe_Misaligment_Failure'] = 'Green'
             if A or B:               #---27/2/19 Dammika por tlfn cambio Xor por or
-                df_in.loc[df_in.index[i],'$Severe Mis. Failure'] = 'Yellow'
+                df_in.loc[df_in.index[i],'$Severe_Misaligment_Failure'] = 'Yellow'
             if A and B and C:
-                df_in.loc[df_in.index[i],'$Severe Mis. Failure'] = 'Red'
+                df_in.loc[df_in.index[i],'$Severe_Misaligment_Failure'] = 'Red'
     #        print(df_in.loc[df_in.index[i],'$Severe Mis. Failure'])
     return df_in
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------7.1
+def Blade_Faults(df_in):
+    print('-----------------------Blade Faults Failure------------------------')
+    n_traces   = df_in.shape[0]
+    none_list  = []
+   
+    for i in range (n_traces):
+        none_list.append('None')
+    df_in['$Blade_Faults_Failure'] = none_list
+
+    for i in range (n_traces):
+        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
+            df_in.loc[df_in.index[i],'$Blade_Faults_Failure'] = 'No vibration detected'
+        else:
+            A = PK(E1,df_in.iloc[i]['RMS 12.0'])
+            B = PEAKS(E1,df_in.iloc[i]['RMS 12.0'],df_in.iloc[i]['RMS 24.0']) 
+            C = PK(E1,df_in.iloc[i]['RMS 12.0'])       and ( PK(df_in.iloc[i]['RMS 11.0']) or PK(df_in.iloc[i]['RMS 13.0']) )
+            D = C and PK(E1,df_in.iloc[i]['RMS 24.0']) 
+            E = C and PK(E1,df_in.iloc[i]['RMS 24.0']) and ( PK(df_in.iloc[i]['RMS 23.0']) or PK(df_in.iloc[i]['RMS 25.0']) )
+            F = df_in.iloc[i]['RMS 12.0'] < E1 and df_in.iloc[i]['RMS 24.0'] < E1
+            #print('Blade Faults         ',A,B,C,D,E,F)
+                                                 #  Tabla de verdad progresiva
+                                                 #  puede empezar siendo verde,
+                                                 #  acabar siendo rojo
+            df_in.loc[df_in.index[i],'$Blade_Faults_Failure'] = Truth_Table( A or B or F , C or D , E)
+
+    return df_in
+#---------------------------------------------------------------------------7.2
+ 
+def Flow_Turbulence(df_in):
+    print('---------------------Flow Turbulence Failure-----------------------')
+    n_traces   = df_in.shape[0]
+    none_list  = []
+    
+    for i in range (n_traces):
+        none_list.append('None')
+    df_in['$Flow_Turbulence_Failure'] = none_list
+
+    for i in range (n_traces):
+        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
+            df_in.loc[df_in.index[i],'$Flow_Turbulence_Failure'] = 'No vibration detected'
+        else:
+            A       = df_in.iloc[i]['RMS Flow T.'] <= 0.2
+            B_peaks = PK(E1,df_in.iloc[i]['RMS 1.0'])
+            B       = B_peaks and (0.2 <= df_in.iloc[i]['RMS Flow T.'] <= df_in.iloc[i]['RMS 1.0'])
+            C_peaks = PK(E1,df_in.iloc[i]['RMS 1.0'])
+            C       = C_peaks and (df_in.iloc[i]['RMS Flow T.'] >  df_in.iloc[i]['RMS 1.0'])
+            #print('Flow Tur.           ',A,B,C)
+            
+            df_in.loc[df_in.index[i],'$Flow_Turbulence_Failure'] = Truth_Table(A,B,C)
+           
+    return df_in
+#-----------------------------------------------------------------------------8 
+def Pressure_Pulsations(df_in):
+    print('-------------------------Pressure P. Failure------------------------')
+    n_traces   = df_in.shape[0]
+    none_list  = []
+    
+    for i in range (n_traces):
+        none_list.append('None')
+    df_in['$Pressure_Pulsations_Failure'] = none_list
+
+    for i in range (n_traces):
+        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
+            df_in.loc[df_in.index[i],'$Pressure_Pulsations_Failure'] = 'No vibration detected'
+        else:
+            A       = PEAKS(E1,df_in.iloc[i]['RMS 1/3'],df_in.iloc[i]['RMS 2/3'],df_in.iloc[i]['RMS 4/3'],df_in.iloc[i]['RMS 5/3'])
+            B_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1/3'],df_in.iloc[i]['RMS 4/3'],df_in.iloc[i]['RMS 8/3'],df_in.iloc[i]['RMS 4.0']) 
+            B       = B_peaks and (df_in.iloc[i]['RMS 4/3'] > df_in.iloc[i]['RMS 1/3']) and (df_in.iloc[i]['RMS 8/3'] > df_in.iloc[i]['RMS 1/3']) and (df_in.iloc[i]['RMS 4.0'] > df_in.iloc[i]['RMS 1/3'])
+            
+            df_in.loc[df_in.index[i],'$Pressure_Pulsations_Failure'] = Truth_Table(not A , A , A and B)
+       
+    return df_in
+#-----------------------------------------------------------------------------9 
+def Shaft_Misaligments(df_in):
+    print('--------------------------Shaft Mis. Failure-----------------------')
+    n_traces   = df_in.shape[0]
+    none_list  = []
+    
+    for i in range (n_traces):
+        none_list.append('None')
+    df_in['$Shaft_Misaligments_Failure'] = none_list
+
+    for i in range (n_traces):
+        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
+            df_in.loc[df_in.index[i],'$Shaft_Misaligments_Failure'] = 'No vibration detected'
+        else:
+            A_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'])
+            A       = A_peaks and df_in.iloc[i]['RMS 2.0'] < 0.5 *  df_in.iloc[i]['RMS 1.0']
+            B_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'])
+            B       = B_peaks and 1.5 *df_in.iloc[i]['RMS 1.0'] >        df_in.iloc[i]['RMS 2.0'] > 0.5 *df_in.iloc[i]['RMS 1.0']
+            C_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'])
+            C       = C_peaks and 1.5 *df_in.iloc[i]['RMS 1.0'] <        df_in.iloc[i]['RMS 2.0']
+            D       = PEAKS(E1,df_in.iloc[i]['RMS 2.0'],df_in.iloc[i]['RMS 3.0'],df_in.iloc[i]['RMS 4.0'],df_in.iloc[i]['RMS 5.0'])
+            
+            df_in.loc[df_in.index[i],'$Shaft_Misaligments_Failure'] = Truth_Table(A or not D , B and D , C and D)
+    return df_in
+
+#----------------------------------------------------------------------------10
+def Surge_Effect(df_in):
+    print('------------------------Surge E. Failure---------------------------')
+    n_traces   = df_in.shape[0]
+    none_list  = []
+    
+    for i in range (n_traces):
+        none_list.append('None')
+    df_in['$Surge_Effect_Failure'] = none_list
+
+    for i in range (n_traces):
+        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
+            df_in.loc[df_in.index[i],'$Surge_Effect_Failure'] = 'No vibration detected'
+        else:
+            A = PK(E1,df_in.iloc[i]['RMS Surge E. 0.33x 0.5x'])
+            B = PK(E1,df_in.iloc[i]['RMS Surge E. 12/20k'])
+            
+            df_in.loc[df_in.index[i],'$Surge_Effect_Failure'] = Truth_Table(not A , A , A and B)
+    return df_in
+#----------------------------------------------------------------------------11
  
 def Loose_Bedplate(df_in):
     print('------------------Loose Bedplate Failure---------------------------')
@@ -979,11 +972,11 @@ def Loose_Bedplate(df_in):
 
     for i in range (n_traces):
         none_list.append('None')
-    df_in['$Loose Bedplate Failure'] = none_list
+    df_in['$Loose_Bedplate_Failure'] = none_list
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Loose Bedplate Failure'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Loose_Bedplate_Failure'] = 'No vibration detected'
         else:
             A       =                                  2.0 > df_in.iloc[i]['RMS 1.0'] > 0
             B       = PK(E1,df_in.iloc[i]['RMS 1.0']) and 2.0 < df_in.iloc[i]['RMS 1.0'] < 5.0 
@@ -991,35 +984,13 @@ def Loose_Bedplate(df_in):
             D_peaks = PEAKS(E1,df_in.iloc[i]['RMS 2.0'],df_in.iloc[i]['RMS 3.0'])
             D       = D_peaks and df_in.iloc[i]['RMS 3.0'] > df_in.iloc[i]['RMS 2.0']
             #print ('Loose Bedplate',A,B,C,D)
-            df_in.loc[df_in.index[i],'$Loose Bedplate Failure'] = Truth_Table(A , B ^ C , C and D)              
-            if df_in.iloc[i]['$Loose Bedplate Failure'] == 'None':
+            df_in.loc[df_in.index[i],'$Loose_Bedplate_Failure'] = Truth_Table(A , B ^ C , C and D)              
+            if df_in.iloc[i]['$Loose_Bedplate_Failure'] == 'None':
                 print ('Fallo en:', i)
                 print ('Loose Bedplate',df_in.iloc[i]['RMS 1.0'],A,B,C,D)
     return df_in
 
-#------------------------------------------------------------------------------
- 
-def Pillow_Block_Loseness(df_in):
-    print('------------------------PB Loseness Failure------------------------')
-    n_traces   = df_in.shape[0]
-    none_list  = []
 
-    for i in range (n_traces):
-        none_list.append('None')
-    df_in['$PB Loseness Failure'] = none_list
-
-    for i in range (n_traces):
-        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$PB Loseness Failure'] = 'No vibration detected'
-        else:
-
-            A1 = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'],df_in.iloc[i]['RMS 3.0'])
-            A2 = df_in.iloc[i]['RMS 2.0'] < df_in.iloc[i]['RMS 1.0'] > df_in.iloc[i]['RMS 3.0'] 
-            A  = A1 and A2
-            B  = PEAKS(E1,df_in.iloc[i]['RMS 1/2'],df_in.iloc[i]['RMS 1/3'],df_in.iloc[i]['RMS 1/4'])
-            
-            df_in.loc[df_in.index[i],'$PB Loseness Failure'] = Truth_Table( (not A) and (not B) , A ^ B , A and B)
-    return df_in
 #==============================================================================
  
 def Ball_Bearing_Outer_Race_Defects_22217C(df_in):
@@ -1027,16 +998,16 @@ def Ball_Bearing_Outer_Race_Defects_22217C(df_in):
     n_traces   = df_in.shape[0]
     none_list  = []
     
-    if ('$Ball B. O. Race D. Failure_22217C' in df_in.columns) == False: 
+    if ('$Ball_Bearing_Outer_Race_Defects_22217C_Failure' in df_in.columns) == False: 
         for i in range (n_traces):
             none_list.append('None')
-        df_in['$Ball B. O. Race D. Failure_22217C'] = none_list
+        df_in['$Ball B. O. Race D. Failure_22217C_Failure'] = none_list
     else:
         print('Columna previemente creada')
         
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Ball B. O. Race D. Failure_22217C'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Outer_Race_Defects_22217C_Failure'] = 'No vibration detected'
         else:
 
             a1 = (df_in.iloc[i]['RMS BPFO1'] < E1) 
@@ -1046,9 +1017,9 @@ def Ball_Bearing_Outer_Race_Defects_22217C(df_in):
             C  = PEAKS(E1,df_in.iloc[i]['RMS BPFO1'],df_in.iloc[i]['RMS 2*BPFO1'],df_in.iloc[i]['RMS 3*BPFO1'])
             D  = PEAKS(E1,df_in.iloc[i]['RMS BPFO1'],df_in.iloc[i]['RMS 2*BPFO1'],df_in.iloc[i]['RMS 3*BPFO1'],df_in.iloc[i]['RMS 4*BPFO1'])
             
-            df_in.loc[df_in.index[i],'$Ball B. O. Race D. Failure_22217C']    = Truth_Table(A,B ^ C,D)
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Outer_Race_Defects_22217C_Failure']    = Truth_Table(A,B ^ C,D)
             
-            if df_in.iloc[i]['$Ball B. O. Race D. Failure_22217C'] == 'None':
+            if df_in.iloc[i]['$Ball_Bearing_Outer_Race_Defects_22217C_Failure'] == 'None':
                 print ('Fallo en:', i)
     return df_in
 #------------------------------------------------------------------------------    
@@ -1058,17 +1029,16 @@ def Ball_Bearing_Outer_Race_Defects_22219C(df_in):
     n_traces   = df_in.shape[0]
     none_list  = []
     
-    if ('$Ball B. O. Race D. Failure_22219C' in df_in.columns) == False: 
+    if ('$Ball_Bearing_Outer_Race_Defects_22219C_Failure' in df_in.columns) == False: 
         for i in range (n_traces):
             none_list.append('None')
-        df_in['$Ball B. O. Race D. Failure_22219C'] = none_list
+        df_in['$Ball B. O. Race D. Failure_22219C_Failure'] = none_list
     else:
         print('Columna previemente creada')
     
-
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Ball B. O. Race D. Failure_22219C'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$all_Bearing_Outer_Race_Defects_22219C_Failure'] = 'No vibration detected'
         else:
             a1 = (df_in.iloc[i]['RMS BPFO2'] < E1)
             a2 = (df_in.iloc[i]['RMS BPFO2'] > E1) and (df_in.iloc[i]['RMS 2*BPFO2'] < E1) and (df_in.iloc[i]['RMS 3*BPFO2'] < E1) and (df_in.iloc[i]['RMS 4*BPFO2'] < E1)
@@ -1077,9 +1047,9 @@ def Ball_Bearing_Outer_Race_Defects_22219C(df_in):
             C  = PEAKS(E1,df_in.iloc[i]['RMS BPFO2'],df_in.iloc[i]['RMS 2*BPFO2'],df_in.iloc[i]['RMS 3*BPFO2'])
             D  = PEAKS(E1,df_in.iloc[i]['RMS BPFO2'],df_in.iloc[i]['RMS 2*BPFO2'],df_in.iloc[i]['RMS 3*BPFO2'],df_in.iloc[i]['RMS 4*BPFO2'])
             
-            df_in.loc[df_in.index[i],'$Ball B. O. Race D. Failure_22219C'] = Truth_Table(A,B ^ C,D)
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Outer_Race_Defects_22219C_Failure'] = Truth_Table(A,B ^ C,D)
             
-            if df_in.iloc[i]['$Ball B. O. Race D. Failure_22219C'] == 'None':
+            if df_in.iloc[i]['$Ball_Bearing_Outer_Race_Defects_22219C_Failure'] == 'None':
                 print ('Fallo en:', i)
     return df_in
 #==============================================================================
@@ -1089,16 +1059,16 @@ def Ball_Bearing_Inner_Race_Defects_22217C(df_in):
     n_traces   = df_in.shape[0]
     none_list  = []
 
-    if ('$Ball B. I. Race D. Failure_22217C' in df_in.columns) == False: 
+    if ('$Ball_Bearing_Inner_Race_Defects_22217C_Failure' in df_in.columns) == False: 
         for i in range (n_traces):
             none_list.append('None')
-        df_in['$Ball B. I. Race D. Failure_22217C'] = none_list
+        df_in['$Ball_Bearing_Inner_Race_Defects_22217C_Failure'] = none_list
     else:
         print('Columna previemente creada')
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Ball B. I. Race D. Failure_22217C'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Inner_Race_Defects_22217C_Failure'] = 'No vibration detected'
         else:
             a1 = (df_in.iloc[i]['RMS BPFI1'] < E1)
             a2 = (df_in.iloc[i]['RMS BPFI1'] > E1) and (df_in.iloc[i]['RMS 2*BPFI1'] < E1)
@@ -1107,28 +1077,27 @@ def Ball_Bearing_Inner_Race_Defects_22217C(df_in):
             C  = (df_in.iloc[i]['RMS BPFI1']   > E1) and (df_in.iloc[i]['RMS BPFI1+f']   > E1) and (df_in.iloc[i]['RMS BPFI1-f']   > E1)
             D  = (df_in.iloc[i]['RMS 2*BPFI1'] > E1) and (df_in.iloc[i]['RMS 2*BPFI1+f'] > E1) and (df_in.iloc[i]['RMS 2*BPFI1-f'] > E1)      
     
-            df_in.loc[df_in.index[i],'$Ball B. I. Race D. Failure_22217C'] = Truth_Table(A,B ^ C,D)
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Inner_Race_Defects_22217C_Failure'] = Truth_Table(A,B ^ C,D)
             
-            if df_in.iloc[i]['$Ball B. I. Race D. Failure_22217C'] == 'None':
+            if df_in.iloc[i]['$Ball_Bearing_Inner_Race_Defects_22217C_Failure'] == 'None':
                 print ('Fallo en:', i)
     return df_in
-#------------------------------------------------------------------------------
- 
+#------------------------------------------------------------------------------ 
 def Ball_Bearing_Inner_Race_Defects_22219C(df_in):
     print('-------------Ball B. I. Race D. Failure_22219C-------------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
-    if ('$Ball B. I. Race D. Failure_22219C' in df_in.columns) == False: 
+    if ('$Ball_Bearing_Inner_Race_Defects_22219C_Failure' in df_in.columns) == False: 
         for i in range (n_traces):
             none_list.append('None')
-        df_in['$Ball B. I. Race D. Failure_22219C'] = none_list
+        df_in['$Ball_Bearing_Inner_Race_Defects_22219C_Failure'] = none_list
     else:
         print('Columna previemente creada')
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Ball B. I. Race D. Failure_22219C'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Inner_Race_Defects_22219C_Failure'] = 'No vibration detected'
         else:         
             a1 = (df_in.iloc[i]['RMS BPFI2'] < E1)
             a2 = (df_in.iloc[i]['RMS BPFI2'] > E1) and (df_in.iloc[i]['RMS 2*BPFI2'] < E1)
@@ -1137,9 +1106,9 @@ def Ball_Bearing_Inner_Race_Defects_22219C(df_in):
             C  = (df_in.iloc[i]['RMS BPFI2']   > E1) and (df_in.iloc[i]['RMS BPFI2+f']   > E1) and (df_in.iloc[i]['RMS BPFI2-f']   > E1)
             D  = (df_in.iloc[i]['RMS 2*BPFI2'] > E1) and (df_in.iloc[i]['RMS 2*BPFI2+f'] > E1) and (df_in.iloc[i]['RMS 2*BPFI2-f'] > E1)  
     
-            df_in.loc[df_in.index[i],'$Ball B. I. Race D. Failure_22219C'] = Truth_Table(A,B ^ C,D)
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Inner_Race_Defects_22219C_Failure'] = Truth_Table(A,B ^ C,D)
     
-            if df_in.iloc[i]['$Ball B. I. Race D. Failure_22219C'] == 'None':
+            if df_in.iloc[i]['$Ball_Bearing_Inner_Race_Defects_22219C_Failure'] == 'None':
                 print('Fallo en:', i, df_in.iloc[i]['RMS BPFI2'] ,df_in.iloc[i]['RMS 2*BPFI2'])
                 print(df_in.iloc[i]['f BPFI2'] ,df_in.iloc[i]['RMS BPFI2'])
                 print(df_in.iloc[i]['f 2*BPFI2'] ,df_in.iloc[i]['RMS 2*BPFI2'])
@@ -1150,21 +1119,21 @@ def Ball_Bearing_Inner_Race_Defects_22219C(df_in):
     return df_in
 #==============================================================================
  
-def Ball_Bearing_Defect_22217C(df_in):
+def Ball_Bearing_Ball_Defect_22217C(df_in):
     print('--------------------------Ball B D. Failure_22217C----------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
     
-    if ('$Ball B D. Failure_22217C' in df_in.columns) == False: 
+    if ('$Ball_Bearing_Ball_Defect_22217C_Failure' in df_in.columns) == False: 
         for i in range (n_traces):
             none_list.append('None')
-        df_in['$Ball B D. Failure_22217C'] = none_list
+        df_in['$Ball_Bearing_Ball_Defect_22217C_Failure'] = none_list
     else:
         print('Columna previemente creada')
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Ball B D. Failure_22217C'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Ball_Defect_22217C_Failure'] = 'No vibration detected'
         else:
     
             a1 = (df_in.iloc[i]['RMS BSF1']   < E1)
@@ -1174,9 +1143,9 @@ def Ball_Bearing_Defect_22217C(df_in):
             C  = PEAKS(E1,df_in.iloc[i]['RMS BSF1']  ,df_in.iloc[i]['RMS BSF1+FTF1']  ,df_in.iloc[i]['RMS BSF1-FTF1'])
             D  = PEAKS(E1,df_in.iloc[i]['RMS 2*BSF1'],df_in.iloc[i]['RMS 2*BSF1+FTF1'],df_in.iloc[i]['RMS 2*BSF1-FTF1'])
             
-            df_in.loc[df_in.index[i],'$Ball B D. Failure_22217C'] = Truth_Table(A,B ^ C,D)
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Ball_Defect_22217C_Failure'] = Truth_Table(A,B ^ C,D)
     
-            if df_in.iloc[i]['$Ball B D. Failure_22217C'] == 'None':
+            if df_in.iloc[i]['$Ball_Bearing_Ball_Defect_22217C_Failure'] == 'None':
                 print ('Fallo en:', i)
                 print ('No peak at BSF1           ',a1,df_in.iloc[i]['f BSF1']   ,df_in.iloc[i]['RMS BSF1'] )
                 print ('Peak at BSF1, no harmonics',a2,df_in.iloc[i]['f 2*BSF1'] ,df_in.iloc[i]['RMS 2*BSF1'] )
@@ -1188,20 +1157,20 @@ def Ball_Bearing_Defect_22217C(df_in):
     return df_in
 #------------------------------------------------------------------------------
  
-def Ball_Bearing_Defect_22219C(df_in):
+def Ball_Bearing_Ball_Defect_22219C(df_in):
     print('--------------------------Ball B D. Failure_22219C----------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
-    if ('$Ball B D. Failure_22219C' in df_in.columns) == False: 
+    if ('$Ball_Bearing_Ball_Defect_22219C_Failure' in df_in.columns) == False: 
         for i in range (n_traces):
             none_list.append('None')
-        df_in['$Ball B D. Failure_22219C'] = none_list
+        df_in['$Ball_Bearing_Ball_Defect_22219C_Failure'] = none_list
     else:
         print('Columna previemente creada')
 
     for i in range (n_traces): 
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Ball B D. Failure_22219C'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Ball_Defect_22219C_Failure'] = 'No vibration detected'
         else:
             a1 = (df_in.iloc[i]['RMS BSF2']   < E1)
             a2 = (df_in.iloc[i]['RMS BSF2']   > E1) and (df_in.iloc[i]['RMS 2*BSF2'] < E1)
@@ -1210,8 +1179,8 @@ def Ball_Bearing_Defect_22219C(df_in):
             C = PEAKS(E1,df_in.iloc[i]['RMS BSF2']  ,df_in.iloc[i]['RMS BSF2+FTF2']  ,df_in.iloc[i]['RMS BSF2-FTF2'])
             D = PEAKS(E1,df_in.iloc[i]['RMS 2*BSF2'],df_in.iloc[i]['RMS 2*BSF2+FTF2'],df_in.iloc[i]['RMS 2*BSF2-FTF2'])
             
-            df_in.loc[df_in.index[i],'$Ball B D. Failure_22219C'] = Truth_Table(A,B ^ C,D)
-            if  df_in.iloc[i]['$Ball B D. Failure_22219C'] == 'None':
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Ball_Defect_22219C_Failure'] = Truth_Table(A,B ^ C,D)
+            if  df_in.iloc[i]['$Ball_Bearing_Ball_Defect_22219C_Failure'] == 'None':
                 print ('Fallo en:', i)
             
     return df_in
@@ -1222,17 +1191,17 @@ def Ball_Bearing_Cage_Defect_22217C(df_in):
     n_traces   = df_in.shape[0]
     none_list  = []
 
-    if ('$Ball B. Cage D. Failure_22217C' in df_in.columns) == False: 
+    if ('$Ball_Bearing_Cage_Defect_22217C_Failure' in df_in.columns) == False: 
         for i in range (n_traces):
             none_list.append('None')
-        df_in['$Ball B. Cage D. Failure_22217C'] = none_list
+        df_in['$Ball_Bearing_Cage_Defect_22217C_Failure'] = none_list
     else:
         print('Columna previemente creada')
 
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Ball B. Cage D. Failure_22217C'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Cage_Defect_22217C_Failure'] = 'No vibration detected'
         else:
             a1 = PK(E1,df_in.iloc[i]['RMS 1.0'])  
             a2 = df_in.iloc[i]['RMS FTF1'] < df_in.iloc[i]['RMS 1.0']  
@@ -1242,8 +1211,8 @@ def Ball_Bearing_Cage_Defect_22217C(df_in):
             A  = a1 and a2
             B  = a1 and b2
             C  = a1 and c2
-            df_in.loc[df_in.index[i],'$Ball B. Cage D. Failure_22217C'] = Truth_Table(A,B,C)
-            if df_in.iloc[i]['$Ball B. Cage D. Failure_22217C'] == 'None':
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Cage_Defect_22217C_Failure'] = Truth_Table(A,B,C)
+            if df_in.iloc[i]['$Ball_Bearing_Cage_Defect_22217C_Failure'] == 'None':
                 print ('Fallo en:', i)
             
     return df_in
@@ -1255,16 +1224,16 @@ def Ball_Bearing_Cage_Defect_22219C(df_in):
     n_traces   = df_in.shape[0]
     none_list  = []
 
-    if ('$Ball B. Cage D. Failure_22219C' in df_in.columns) == False: 
+    if ('$Ball_Bearing_Cage_Defect_22219C_Failure' in df_in.columns) == False: 
         for i in range (n_traces):
             none_list.append('None')
-        df_in['$Ball B. Cage D. Failure_22219C'] = none_list
+        df_in['$Ball_Bearing_Cage_Defect_22219C_Failure'] = none_list
     else:
         print('Columna previemente creada')
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Ball B. Cage D. Failure_22219C'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Cage_Defect_22219C_Failure'] = 'No vibration detected'
         else:
             a1 = PK(E1,df_in.iloc[i]['RMS 1.0'])  
             a2 = df_in.iloc[i]['RMS FTF2'] < df_in.iloc[i]['RMS 1.0']  
@@ -1274,8 +1243,8 @@ def Ball_Bearing_Cage_Defect_22219C(df_in):
             B  = a1 and b2
             C  = a1 and c2
             
-            df_in.loc[df_in.index[i],'$Ball B. Cage D. Failure_22219C'] = Truth_Table(A,B,C)
-            if df_in.iloc[i]['$Ball B. Cage D. Failure_22219C'] == 'None':
+            df_in.loc[df_in.index[i],'$Ball_Bearing_Cage_Defect_22219C_Failure'] = Truth_Table(A,B,C)
+            if df_in.iloc[i]['$Ball_Bearing_Cage_Defect_22219C_Failure'] == 'None':
                 print ('Fallo en:', i)
             
     return df_in
@@ -2309,8 +2278,13 @@ def plot_waterfall_lines(title,df_in,df_harm,fs,fmin,fmax):
     ax.set_ylim3d(0, t_traces[np.size(t_traces)-1])
     ax.set_zlabel('RMS mm/s')
     #ax.set_zlim3d(np.min(color), np.max(color))
+<<<<<<< Updated upstream
     ax.set_title(title)
 
+=======
+    #ax.set_title(Parameters['IdAsset']+' '+Parameters['Localizacion']+' mm/sg RMS')
+    ax.set_title(title)
+>>>>>>> Stashed changes
     second_plot = plt.axes([.05, .75, .2, .2], facecolor='w')
     plt.plot(t_traces,df_harm.loc[:,'RMS (mm/s) f'].values)
     plt.legend(('Total RMS', 'Peak @1x'),loc='upper right')

@@ -30,10 +30,10 @@ if __name__ == '__main__':
     df_speed,df_SPEED           = Load_Vibration_Data_Global(parameters)
     harm                        = df_Harmonics(df_SPEED, fs,'blower')
    
-    harm                        = Blower_Wheel_Unbalance(harm)
+    harm                        = Centrifugal_Fan_Unbalance(harm)
     harm                        = Plain_Bearing_Clearance(harm)
-    harm                        = Oil_Whirl(harm)
-    harm                        = Oil_Whip(harm)
+    harm                        = Plain_earing_Lubrication_Whirl(harm)
+    harm                        = Plain_Bearing_Lubrication_Whip(harm)
     harm                        = Blade_Faults(harm)
     harm                        = Flow_Turbulence(harm)
     harm                        = Plain_Bearing_Block_Looseness(harm)

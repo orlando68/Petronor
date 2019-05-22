@@ -163,6 +163,106 @@ def Synth_feature(fc,BW,level,window,data_in):
     data_out = np.real(signal_math)
     return data_out
 
+
+
+
+
+class FailureMode:
+    def __init__(self,FailureName, 
+                 df_TI_signal, df_SP_SIGNAL,n_golden,
+                 Harmonics,rand_mean,rand_std,template_specs):
+        
+        self.FailureName         = FailureName
+    
+        self.df_TI_signal        = df_TI_signal             
+        self.df_SP_SIGNAL        = df_SP_SIGNAL             
+        self.n_golden            = n_golden
+        self.Harmonics           = Harmonics
+        self.rand_mean           = rand_mean
+        self.rand_std            = rand_std
+        self.template_specs      = template_specs
+        
+        self.df_FingerPrint      = 0
+        self.spectrum            = 0
+        self.spec_rand           = 0
+        self.df_gold_OUT     = 0
+        
+    def __func__(self):
+        
+        df_RD_specs_OUT             = pd.DataFrame(index = ['lon','mean','std'],columns = self.Harmonics, 
+                                        data = np.zeros((3,np.size(self.Harmonics))) )
+        df_RD_specs_OUT.loc['mean'] = self.rand_mean
+        df_RD_specs_OUT.loc['std']  = self.rand_std
+        df_env_specs_OUT            = pd.DataFrame(index = ['0'], columns = self.Harmonics, 
+                                                   data = np.zeros((1,np.size(self.Harmonics))) )
+        df_env_specs_OUT.loc['0']   = self.template_specs
+        self.df_FingerPrint         = df_Harmonics(self.df_SP_SIGNAL, fs,'blower')
+
+        exec('self.df_FingerPrint = '+self.FailureName+'(self.df_FingerPrint)')
+       
+        n_real_OUT                    = self.df_SP_SIGNAL.shape[0]
+        print('n_reales',n_real_OUT)
+        columnas_OUT                 = ['Type','Failure Type']+self.Harmonics+['Kurtosis','Skewness','Wnl','Entropy','Nnl']  
+        df_Values_OUT                = pd.DataFrame(index   = range( n_real_OUT + 3*n_random), #---output
+                                                                    columns = columnas_OUT, 
+                                                                    data    = np.zeros(( n_real_OUT + 3*n_random , np.size(columnas_OUT))) )
+                    #--Dataframe con valores de partida señal GOLDEN
+                         
+        self.df_gold_OUT                 = pd.DataFrame(index = ['RMS','n_s','n_e'],
+                                                   columns = self.Harmonics,
+                                                   data    = np.zeros([3,np.size(self.Harmonics)]) )
+        for k in self.Harmonics:
+            self.df_gold_OUT.loc['RMS',k] = self.df_FingerPrint.iloc[self.n_golden]['RMS '+ k]
+            self.df_gold_OUT.loc['n_s',k] = self.df_FingerPrint.iloc[self.n_golden]['n_s '+ k]
+            self.df_gold_OUT.loc['n_e',k] = self.df_FingerPrint.iloc[self.n_golden]['n_e '+ k]
+            
+        df_dice_OUT                  = pd.DataFrame(index = ['0'], 
+                                                   columns = self.Harmonics, 
+                                                   data = np.zeros((1,np.size(self.Harmonics))) )
+        
+        for counter,k in enumerate (self.df_FingerPrint.index):
+            signal                                    = Rms(df_speed.iloc[counter].values[start:end])
+            df_Values_OUT.loc[counter,'Type']         = 'Real'
+            df_Values_OUT.loc[counter,'Failure Type'] = self.df_FingerPrint.iloc[counter]['$'+self.FailureName+'_Failure']
+            df_Values_OUT                             = FP_Extraction(signal,df_Values_OUT,counter )       
+            
+            self.spectrum      = np.fft.fft(self.df_TI_signal.iloc[self.n_golden].values)/l #-----me quedo con la primera 
+            self.spec_rand     = np.copy(self.spectrum) 
+        
+#        print(df_Values_OUT)    
+#        print(df_gold_OUT)
+#        print(df_RD_specs_OUT)
+#        print(df_env_specs_OUT)
+#        print(df_dice_OUT)
+        print('----terminado-----')
+        return df_Values_OUT,self.df_gold_OUT,df_RD_specs_OUT,df_env_specs_OUT,df_dice_OUT,n_real_OUT
+        
+    def __func1__(self,df_Values1,n_reales):
+        a = 10
+
+        
+        for k in range(3*n_random): #----- IFFT de cada una de las señales sinteticas
+            for harm_nb,hrm_name in enumerate(self.Harmonics):
+                inic                        = int(self.df_gold_OUT.loc['n_s',hrm_name])
+                fin                         = int(self.df_gold_OUT.loc['n_e',hrm_name])
+                fact                        = df_Values1.iloc[k+n_reales][hrm_name]/self.df_gold_OUT.loc['RMS',hrm_name] 
+                self.spec_rand[inic:fin]         = fact          * self.spectrum[inic:fin]
+                self.spec_rand[l-fin+1:l-inic+1] = np.conj(fact) * self.spectrum[l-fin+1:l-inic+1]  #----espectro de la señal sintetica => spec_rand   
+            signal_math                                            = l*np.fft.ifft(self.spec_rand)
+            if np.max( np.abs( np.imag(signal_math) )  ) > 1e-10:
+                print('Cuidado señal no valida!!!!!!!!!!!!!!!')               
+                
+            signal                                                 = np.real(signal_math[start:end])
+            signal                                                 = Rms(signal)          #--signal => señal sintetica en tiempo   ESTA ALBERTO!!!
+            df_Values1.loc[ df_Values1.index[k + n_reales] , 'Type'] = 'Synth'
+            df_Values1                                              = FP_Extraction(signal,df_Values1,k + n_reales)
+
+        
+        return df_Values1
+    
+    def __func_2__(self):
+        b= 1
+        return b
 #==============================================================================
 #                           NOT WORKING                                                  1
 #==============================================================================
@@ -288,67 +388,13 @@ def Synth_Severe_Misaligment(df_speed_in,df_SPEED_in):
 #==============================================================================
 #                                                                             2
 #==============================================================================
-def Synth_Loose_Bedplate(df_speed_in,df_SPEED_in):
+def Synth_Loose_Bedplate(Process_var):
+    df_Values,df_golden,df_randn_spcs,df_envelope,df_dado,n_reales = Process_var.__func__()    
     
-    n_reales     = df_speed.shape[0]
-    label        = '$Loose Bedplate Failure'
-    harm         = df_Harmonics(df_SPEED_in, fs,'blower')
-    harm         = Loose_Bedplate(harm)
-    harmonics    = ['1.0','2.0','3.0']
-    columnas_out = ['Type','Failure Type']+harmonics+['Kurtosis','Skewness','Wnl','Entropy','Nnl']  
-    df_Values    = pd.DataFrame(index   = range( n_reales + 3*n_random), #---output
-                                columns = columnas_out, 
-                                data    = np.zeros(( n_reales + 3*n_random , np.size(columnas_out))) )
-
-                        #--Dataframe con valores de partida señal GOLDEN
-    n_golden      = 0                    
-    df_golden     = pd.DataFrame(index = ['RMS','n_s','n_e'],
-                                 columns = harmonics,
-                                 data = np.zeros([3,np.size(harmonics)]) )
-    for k in harmonics:
-        df_golden.loc['RMS',k] = harm.iloc[n_golden]['RMS '+ k]
-        df_golden.loc['n_s',k] = harm.iloc[n_golden]['n_s '+ k]
-        df_golden.loc['n_e',k] = harm.iloc[n_golden]['n_e '+ k]
-    
-    df_randn_spcs = pd.DataFrame(index = ['lon','mean','std'],
-                                 columns = harmonics, 
-                                 data = np.zeros((3,np.size(harmonics))) )    
-    
-    df_envelope   = pd.DataFrame(index = ['0'], columns = harmonics, 
-                                 data = np.zeros((1,np.size(harmonics))) )
-    
-    df_randn_spcs.loc['mean','1.0'] = 4.8
-    df_randn_spcs.loc['std','1.0']  = 1.2
-    df_randn_spcs.loc['mean','2.0'] = 0.9
-    df_randn_spcs.loc['std','2.0']  = 0.5
-    df_randn_spcs.loc['mean','3.0'] = 0.9
-    df_randn_spcs.loc['std','3.0']  = 0.5
-       
-    df_envelope.loc['0','1.0']      = 10
-    df_envelope.loc['0','2.0']      = 1.2
-    df_envelope.loc['0','3.0']      = 2.4
-    
-    spectrum      = np.fft.fft(df_speed_in.iloc[n_golden].values)/l #-----me quedo con la primera 
-    spec_rand     = np.copy(spectrum)
-    
-    for counter,k in enumerate (harm.index):
-        signal                                = Rms(df_speed.iloc[counter].values[start:end])
-        df_Values.loc[counter,'Type']         = 'Real'
-        df_Values.loc[counter,'Failure Type'] = harm.iloc[counter][label]
-        df_Values                             = FP_Extraction(signal,df_Values,counter)
-#        df_Values.loc[counter,'Kurtosis']     = stats.kurtosis(np.abs(signal),fisher = False)
-#        df_Values.loc[counter,'Skewness']     = stats.skew(signal)
-#        df_Values.loc[counter,'Wnl']          = Wnl(signal)
-#        df_Values.loc[counter,'Entropy']      = Entropy(signal)
-#        df_Values.loc[counter,'Nnl']          = Nnl(signal)
-    
-    l1 = l2 = l3  = 0
-    df_dado                         = pd.DataFrame(index = ['0'], columns = harmonics, data = np.zeros((1,np.size(harmonics))) )
-    
-    while True: #---------rellenamos df_random con "sucesos" aleatorios válidos
-                #----------------lanzamos el dado
+    l1 = l2 = l3 = 0
+    while not(l1 == n_random and l2 == n_random and l3 == n_random): #---------rellenamos df_random con "sucesos" aleatorios válido-
         bool_template = True
-        for k in harmonics:             #------lanzo el dado--
+        for k in Process_var.Harmonics:             #------lanzo el dado--
             df_dado.loc['0',k] = np.abs(df_randn_spcs.loc['mean'][k] + df_randn_spcs.loc['std'][k] * np.random.randn(1)) 
             bool_template      = bool_template and df_dado.loc['0'][k] < df_envelope.loc['0'][k]                            #---------------------
         #print(bool_template)
@@ -356,42 +402,29 @@ def Synth_Loose_Bedplate(df_speed_in,df_SPEED_in):
             A = 0   < df_dado.loc['0']['1.0'] < 2.0 
             B = 2.0 < df_dado.loc['0']['1.0'] < 5.0
             C = 5.0 < df_dado.loc['0']['1.0']
-            D = (PK(df_dado.loc['0']['2.0']) and PK(df_dado.loc['0']['2.0'])) and df_dado.loc['0']['3.0'] > 1*df_dado.loc['0']['2.0']
-
+            D = (PK(E2,df_dado.loc['0']['2.0']) and PK(E2,df_dado.loc['0']['2.0'])) and df_dado.loc['0']['3.0'] > 1*df_dado.loc['0']['2.0']
             df_Values,l1,l2,l3 = decision_table(A,l1,
                                                 (B ^ C),l2,
                                                 (C and D),l3,
-                                                df_Values,df_dado.loc['0'],harmonics,n_reales)
-
-            if l1 == n_random and l2 == n_random and l3 == n_random:
-                print(l1,l2,l3)
-                break                
-      
-    for k in range(3*n_random): #----- IFFT de cada una de las señales sinteticas
-        for harm_nb,hrm_name in enumerate(harmonics):
-            inic                        = int(df_golden.loc['n_s',hrm_name])
-            fin                         = int(df_golden.loc['n_e',hrm_name])
-            fact                        = df_Values.iloc[k+n_reales][hrm_name]/df_golden.loc['RMS',hrm_name] 
-            spec_rand[inic:fin]         = fact          * spectrum[inic:fin]
-            spec_rand[l-fin+1:l-inic+1] = np.conj(fact) * spectrum[l-fin+1:l-inic+1]
+                                                df_Values,df_dado.loc['0'],Process_var.Harmonics,n_reales)                   
+#    for k in range(3*n_random): #----- IFFT de cada una de las señales sinteticas
+#        for harm_nb,hrm_name in enumerate(Process_var.Harmonics):
+#            inic                        = int(df_golden.loc['n_s',hrm_name])
+#            fin                         = int(df_golden.loc['n_e',hrm_name])
+#            fact                        = df_Values.iloc[k+n_reales][hrm_name]/df_golden.loc['RMS',hrm_name] 
+#            Process_var.spec_rand[inic:fin]         = fact          * Process_var.spectrum[inic:fin]
+#            Process_var.spec_rand[l-fin+1:l-inic+1] = np.conj(fact) * Process_var.spectrum[l-fin+1:l-inic+1]  #----espectro de la señal sintetica => spec_rand   
+#        signal_math                                            = l*np.fft.ifft(Process_var.spec_rand)
+#        if np.max( np.abs( np.imag(signal_math) )  ) > 1e-10:
+#            print('Cuidado señal no valida!!!!!!!!!!!!!!!')               
+#            
+#        signal                                                 = np.real(signal_math[start:end])
+#        signal                                                 = Rms(signal)          #--signal => señal sintetica en tiempo   ESTA ALBERTO!!!
+#        df_Values.loc[ df_Values.index[k + n_reales] , 'Type'] = 'Synth'
+#        df_Values                                              = FP_Extraction(signal,df_Values,k + n_reales)
         
-        signal_math                       = l*np.fft.ifft(spec_rand)
-        if np.max( np.abs( np.imag(signal_math) )  ) > 1e-10:
-            print('Cuidado señal no valida!!!!!!!!!!!!!!!')
-            #----espectro de la señal sintetica => spec_rand
-            #----señal sintetica en el tiempo   => signal         
-        signal = np.real(signal_math[start:end])
-        signal = Rms(signal) #--ALBERTO, esta es tu señal ya normalizada!!!!!!!
-        
-        df_Values.loc[ df_Values.index[k + n_reales] , 'Type']        = 'Synth'
-        df_Values = FP_Extraction(signal,df_Values,k + n_reales)
-#        df_Values.loc[ df_Values.index[k + n_reales] , 'Kurtosis']    = stats.kurtosis(np.abs(signal),fisher = False)
-#        df_Values.loc[ df_Values.index[k + n_reales] , 'Skewness']    = stats.skew(signal)
-#        df_Values.loc[ df_Values.index[k + n_reales] , 'Wnl']         = Wnl(signal)
-#        df_Values.loc[ df_Values.index[k + n_reales] , 'Entropy']     = Entropy(signal)
-#        df_Values.loc[ df_Values.index[k + n_reales] , 'Nnl']         = Nnl(signal) 
-    Plot_3D(df_Values, 'Kurtosis', 'Wnl', 'Entropy',label)
-
+    df_Values= Process_var.__func1__(df_Values,n_reales)     
+    Plot_3D(df_Values, 'Kurtosis', 'Wnl', 'Entropy',Process_var.FailureName)
     return df_Values
 #==============================================================================
 #                                                                             3    
@@ -939,11 +972,11 @@ if __name__ == '__main__':
         'IdPlanta'     : 'BPT',
         'IdAsset'      : 'H4-FA-0002',
         'Localizacion' : 'SH4', #SH3/4
-        'Source'       : 'Local Database', # 'Petronor Server'/'Local Database'
+        'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
         'Fecha'        : '2019-02-20T00:20:00.9988564Z',
         'FechaInicio'  : '2019-02-12T00:52:46.9988564Z',
-        'NumeroTramas' : '1',
+        'NumeroTramas' : '10',
         'Parametros'   : 'waveform' ,
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
@@ -952,7 +985,7 @@ if __name__ == '__main__':
         'Hour'         : ''
         }
     
-    n_random = 100 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
+    n_random = 10 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
     df_speed,df_SPEED = Load_Vibration_Data_Global(parameters)
   
     #df_Values   = Synth_Severe_Misaligment(df_speed,df_SPEED)                  # 1. NOT WORKING
@@ -961,4 +994,28 @@ if __name__ == '__main__':
 #    df_Values   =Synth_Oil_Whip(df_speed,df_SPEED)                              # 4    
     #df_Values   = Synth_Plain_Bearing_Clearance(df_speed,df_SPEED)             # 5. 
 #    df_Values   = Synth_Centrifugal_Fan_unbalance(df_speed,df_SPEED)           # 6
-    df_Values   = Synth_Presure_Pulsations (df_speed,df_SPEED)                 # 7
+#    df_Values   = Synth_Presure_Pulsations (df_speed,df_SPEED)                 # 7
+    
+
+    
+    
+    #harm         = df_Harmonics(df_SPEED, fs,'blower')
+    Process_variable2 = FailureMode('Loose_Bedplate',df_speed,df_SPEED,0,
+                                    ['1.0','2.0','3.0'],[4.8,0.9,0.9],[1.2,0.5,0.5],[10,1.2,2.4]) 
+    df_Values   = Synth_Loose_Bedplate(Process_variable2)   
+   
+
+#class FailureMode:
+#    def __init__(self, FailureName, df_FingerPrint, Harmonics, signal, SIGNAL, random_specs, template_specs):
+#        self.FailureName         = FailureName
+#        self.df_FingerPrint      = df_FingerPrint
+#        self.Harmonics           = Harmonics
+#        self.signal              = signal
+#        self.SIGNAL               = SIGNAL
+#        self.random_specs        = random_specs
+#        self.template_specs      = template_specs
+#        
+#    def __func__(self):
+#        if self.FailureName == '$Loose Bedplate Failure':
+#            fs          = 5120
+#            df_FingerPrint = Loose_BedPlate(df_SIGNAL)

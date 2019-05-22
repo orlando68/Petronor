@@ -53,7 +53,7 @@ if __name__ == '__main__':
         
         check_test_results(harm_BH3)
         save_files(parameters,df_speed_BH3,df_SPEED_BH3,harm_BH3)
-        plot_waterfall_lines(parameters,df_SPEED_BH3,harm_BH3,fs,0,400)
+        plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED_BH3,harm_BH3,fs,0,400)
         
         Plot_Spectrum(0,df_SPEED_BH3,harm_BH3)
     
@@ -81,7 +81,7 @@ if __name__ == '__main__':
         
         check_test_results(harm_BV4)
         
-        plot_waterfall_lines(parameters,df_SPEED_BV4,harm_BV4,fs,0,400)
+        plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED_BV4,harm_BV4,fs,0,400)
         
         save_files(parameters,df_speed_BV4,df_SPEED_BV4,harm_BV4)
         Plot_Spectrum(0,df_SPEED_BV4,harm_BV4)
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         
         check_test_results(harm_BA4)
         
-        plot_waterfall_lines(parameters,df_SPEED_BA4,harm_BA4,fs,0,400)
+        plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED_BA4,harm_BA4,fs,0,400)
         
         save_files(parameters,df_speed_BA4,df_SPEED_BA4,harm_BA4)
         #Plot_Spectrum(0,df_SPEED_BH3,harm_BH3)

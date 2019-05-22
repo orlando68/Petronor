@@ -2266,7 +2266,7 @@ def plot_waterfall_poly(df_in,harm,fs,fmin,fmax):
     return color , verts
 #------------------------------------------------------------------------------
 
-def plot_waterfall_lines(Parameters,df_in,df_harm,fs,fmin,fmax):
+def plot_waterfall_lines(title,df_in,df_harm,fs,fmin,fmax):
 
     #col_list  = ['b','r']c='xkcd:baby poop green'
     col_list  = ['xkcd:light mustard','xkcd:maize',
@@ -2309,7 +2309,7 @@ def plot_waterfall_lines(Parameters,df_in,df_harm,fs,fmin,fmax):
     ax.set_ylim3d(0, t_traces[np.size(t_traces)-1])
     ax.set_zlabel('RMS mm/s')
     #ax.set_zlim3d(np.min(color), np.max(color))
-    ax.set_title(Parameters['IdAsset']+' '+Parameters['Localizacion']+' mm/sg RMS')
+    ax.set_title(title)
 
     second_plot = plt.axes([.05, .75, .2, .2], facecolor='w')
     plt.plot(t_traces,df_harm.loc[:,'RMS (mm/s) f'].values)

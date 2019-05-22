@@ -52,7 +52,7 @@ if __name__ == '__main__':
     Plot_Spectrum_log(0,df_SPEED,harm)
     #PETROspectro(df_speed.iloc[0], fs,'Velocidad','mm/s',Detection = 'Peak')
     #color,vertices = plot_waterfall(df_SPEED_abs,harm,fs,0,400)
-    plot_waterfall_lines(parameters,df_SPEED,harm,fs,0,400)
+    plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED,harm,fs,0,400)
     #plot_waterfall27(parameters,df_SPEED_abs,harm,fs,0,400)
     print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<FINNNNNNNNNNNNNNNN')
 

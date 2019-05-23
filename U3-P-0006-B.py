@@ -13,12 +13,12 @@ if __name__ == '__main__':
     parameters = {
         'IdPlanta'     : 'BPT',
         'IdAsset'      : 'U3-P-0006-B',
-        'Localizacion' : 'BA4', #BH3 (horizontal), BA4 (axial) y BV4 (vertical)
+        'Localizacion' : 'BH3', #BH3 (horizontal), BA4 (axial) y BV4 (vertical)
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
-        'Fecha'        : '2019-05-08T16:00:46.9988564Z',
+        'Fecha'        : '2019-05-21T20:00:46.9988564Z',
         'FechaInicio'  : '2018-10-12T00:52:46.9988564Z',
-        'NumeroTramas' : '2',
+        'NumeroTramas' : '10',
         'Parametros'   : 'waveform',
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         
         check_test_results(harm_BH3)
         save_files(parameters,df_speed_BH3,df_SPEED_BH3,harm_BH3)
-        plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED_BH3,harm_BH3,fs,0,400)
+        plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED_BH3,harm_BH3,fs,45,55)
         
         Plot_Spectrum(0,df_SPEED_BH3,harm_BH3)
     
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         
         check_test_results(harm_BA4)
         
-        plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED_BA4,harm_BA4,fs,0,400)
+        plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED_BA4,harm_BA4,fs,45,55)
         
         save_files(parameters,df_speed_BA4,df_SPEED_BA4,harm_BA4)
         #Plot_Spectrum(0,df_SPEED_BH3,harm_BH3)

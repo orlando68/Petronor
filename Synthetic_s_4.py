@@ -346,22 +346,23 @@ class FailureMode:
                 if 2*n_random <= k < 3*n_random:
                     self.df_speed_r.iloc[k-2*n_random] = signal   
         #-----------------ls velocidad en freq CON recorte---------------------    
-        stop_time = time.time()
-        print('Wasted time to synthesize synthetic signals:',stop_time-start_time) 
-        
         self.df_cmplx_g = df_FFT(self.df_speed_g)
         self.df_cmplx_y = df_FFT(self.df_speed_y)
         self.df_cmplx_r = df_FFT(self.df_speed_r)
         
         self.df_SP_FingerPrint_g = df_Harmonics(self.df_cmplx_g, fs,'blower')
         self.df_SP_FingerPrint_y = df_Harmonics(self.df_cmplx_y, fs,'blower')
-        self.df_SP_FingerPrint_r = df_Harmonics(self.df_cmplx_r, fs,'blower')
-    
+        self.df_SP_FingerPrint_r = df_Harmonics(self.df_cmplx_r, fs,'blower') 
+        
+        
+        stop_time = time.time()
+        print('Wasted time to synthesize synthetic signals:',stop_time-start_time) 
         Plot_3D(self.df_Values_OUT, 'Kurtosis', 'Wnl', 'Entropy',self.FailureName)
         return self.df_Values_OUT
     
     def __func_2__(self):
         b= 1
+                
         plot_waterfall_lines('espectro de la señal normalizada en el tiempo',self.df_cmplx_g,self.df_SP_FingerPrint_g,fs,0,400)
         plot_waterfall_lines('espectro modificado',self.df_CMPLX_G,self.df_SP_FingerPrint_g,fs,0,400)
         plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',self.df_SP_SIGNAL,self.df_FingerPrint_Real,fs,0,400)
@@ -384,19 +385,51 @@ def DecissionTable_Severe_Misaligment(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN
 #        print(bool_template)
         if bool_template:#-----------------TEMPLATE
             
-            N_picos_A = Number_PEAKS(E2,df_dice_IN.iloc[0]['2.0'],df_dice_IN.iloc[0]['3.0'],df_dice_IN.iloc[0]['4.0'], 
+            N_picos_A = Number_PEAKS(E1,df_dice_IN.iloc[0]['2.0'],df_dice_IN.iloc[0]['3.0'],df_dice_IN.iloc[0]['4.0'])
+            
+            A         = N_picos_A >= 3 and  PK(E1,df_dice_IN.iloc[0]['1.0'] )
+
+            N_picos_B = Number_PEAKS(E1,df_dice_IN.iloc[0]['5/2'],df_dice_IN.iloc[0]['7/2'],df_dice_IN.iloc[0]['9/2'])
+            
+            B         = N_picos_B >= 3 and  PK(E1,df_dice_IN.iloc[0]['1.0'] )
+            C         = df_dice_IN.iloc[0]['2.0'] > df_dice_IN.iloc[0]['1.0']
+            print(l1,l2,l3,A,'(',N_picos_A,')',B,'(',N_picos_B,')',C)
+            df_Values_IN,l1,l2,l3 = decision_table( not A,l1,
+                                                A or B,l2,
+                                                A and B and C,l3,
+                                                df_Values_IN,df_dice_IN.loc['0'],Harmonics_IN,n_reales_IN)
+    return df_Values_IN
+"""
+#-----------------------------------------------------------------------------1   
+@jit
+def DecissionTable_Severe_Misaligment(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,df_env_specs_IN,df_Values_IN,n_reales_IN,n_golden):
+    
+    l1 = l2 = l3  = 0
+    df_dice_IN = pd.DataFrame(index = ['0'], columns = Harmonics_IN, data = np.zeros((1,np.size(Harmonics_IN))) )
+    
+    while not(l1 == n_random and l2 == n_random and l3 == n_random): #---------rellenamos df_random con "sucesos" aleatorios válidos
+                #----------------lanzamos el dado
+        bool_template = True
+        for k in Harmonics_IN:             #------lanzo el dado--
+            df_dice_IN.loc['0',k] = np.abs(df_RD_specs_IN.loc['mean'][k] + df_RD_specs_IN.loc['std'][k] * np.random.randn(1)) 
+            bool_template      = bool_template and df_dice_IN.loc['0'][k] < df_env_specs_IN.loc['0'][k] 
+#            print(       df_dice_IN.loc['0'][k] , df_env_specs_IN.loc['0'][k],'==>',df_dice_IN.loc['0'][k] < df_env_specs_IN.loc['0'][k])                    #---------------------
+#        print(bool_template)
+        if bool_template:#-----------------TEMPLATE
+            
+            N_picos_A = Number_PEAKS(E1,df_dice_IN.iloc[0]['2.0'],df_dice_IN.iloc[0]['3.0'],df_dice_IN.iloc[0]['4.0'], 
                                   SP_FingerPrint.iloc[n_golden]['RMS 5.0'],SP_FingerPrint.iloc[n_golden]['RMS 6.0'],
                                   SP_FingerPrint.iloc[n_golden]['RMS 7.0'],SP_FingerPrint.iloc[n_golden]['RMS 8.0'],
                                   SP_FingerPrint.iloc[n_golden]['RMS 9.0'],SP_FingerPrint.iloc[n_golden]['RMS 10.0'])
             
-            A         = N_picos_A >= 3 and  PK(E2,df_dice_IN.iloc[0]['1.0'] )
+            A         = N_picos_A >= 3 and  PK(E1,df_dice_IN.iloc[0]['1.0'] )
 
-            N_picos_B = Number_PEAKS(E2,df_dice_IN.iloc[0]['5/2'],df_dice_IN.iloc[0]['7/2'],df_dice_IN.iloc[0]['9/2'],
+            N_picos_B = Number_PEAKS(E1,df_dice_IN.iloc[0]['5/2'],df_dice_IN.iloc[0]['7/2'],df_dice_IN.iloc[0]['9/2'],
                                   SP_FingerPrint.iloc[n_golden]['RMS 11/2'],SP_FingerPrint.iloc[n_golden]['RMS 13/2'],
                                   SP_FingerPrint.iloc[n_golden]['RMS 15/2'],SP_FingerPrint.iloc[n_golden]['RMS 17/2'],
                                   SP_FingerPrint.iloc[n_golden]['RMS 19/2'])
             
-            B         = N_picos_B >= 3 and  PK(E2,df_dice_IN.iloc[0]['1.0'] )
+            B         = N_picos_B >= 3 and  PK(E1,df_dice_IN.iloc[0]['1.0'] )
             C         = df_dice_IN.iloc[0]['2.0'] > df_dice_IN.iloc[0]['1.0']
             print(SP_FingerPrint.iloc[n_golden]['RMS 5.0'],SP_FingerPrint.iloc[n_golden]['RMS 6.0'],
                                   SP_FingerPrint.iloc[n_golden]['RMS 7.0'],SP_FingerPrint.iloc[n_golden]['RMS 8.0'],
@@ -407,8 +440,7 @@ def DecissionTable_Severe_Misaligment(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN
                                                 A and B and C,l3,
                                                 df_Values_IN,df_dice_IN.loc['0'],Harmonics_IN,n_reales_IN)
     return df_Values_IN
-
-
+"""
 #-----------------------------------------------------------------------------1   
 """
 @jit
@@ -427,19 +459,19 @@ def DecissionTable_Severe_Misaligment(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN
 #        print(bool_template)
         if bool_template:#-----------------TEMPLATE
             
-            N_picos_A = Number_PEAKS(E2,df_dice_IN.iloc[0]['2.0'],df_dice_IN.iloc[0]['3.0'],df_dice_IN.iloc[0]['4.0'], 
+            N_picos_A = Number_PEAKS(E1,df_dice_IN.iloc[0]['2.0'],df_dice_IN.iloc[0]['3.0'],df_dice_IN.iloc[0]['4.0'], 
                                   df_dice_IN.iloc[0]['5.0'],df_dice_IN.iloc[0]['6.0'],
                                   df_dice_IN.iloc[0]['7.0'],df_dice_IN.iloc[0]['8.0'],
                                   df_dice_IN.iloc[0]['9.0'],df_dice_IN.iloc[0]['10.0'])
             
-            A         = N_picos_A >= 3 and  PK(E2,df_dice_IN.iloc[0]['1.0'] )
+            A         = N_picos_A >= 3 and  PK(E1,df_dice_IN.iloc[0]['1.0'] )
 
-            N_picos_B = Number_PEAKS(E2,df_dice_IN.iloc[0]['5/2'],df_dice_IN.iloc[0]['7/2'],df_dice_IN.iloc[0]['9/2'],
+            N_picos_B = Number_PEAKS(E1,df_dice_IN.iloc[0]['5/2'],df_dice_IN.iloc[0]['7/2'],df_dice_IN.iloc[0]['9/2'],
                                   df_dice_IN.iloc[0]['11/2'],df_dice_IN.iloc[0]['13/2'],
                                   df_dice_IN.iloc[0]['15/2'],df_dice_IN.iloc[0]['17/2'],
                                   df_dice_IN.iloc[0]['19/2'])
             
-            B         = N_picos_B >= 3 and  PK(E2,df_dice_IN.iloc[0]['1.0'] )
+            B         = N_picos_B >= 3 and  PK(E1,df_dice_IN.iloc[0]['1.0'] )
             C         = df_dice_IN.iloc[0]['2.0'] > df_dice_IN.iloc[0]['1.0']
             
             print(l1,l2,l3,A,'(',N_picos_A,')',B,'(',N_picos_B,')',C)
@@ -469,7 +501,7 @@ def DecissionTable_Loose_Bedplate(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,df_
             A = 0   < df_dice_IN.loc['0']['1.0'] < 2.0 
             B = 2.0 < df_dice_IN.loc['0']['1.0'] < 5.0
             C = 5.0 < df_dice_IN.loc['0']['1.0']
-            D = (PK(E2,df_dice_IN.loc['0']['2.0']) and PK(E2,df_dice_IN.loc['0']['2.0'])) and df_dice_IN.loc['0']['3.0'] > 1*df_dice_IN.loc['0']['2.0']
+            D = (PK(E1,df_dice_IN.loc['0']['2.0']) and PK(E1,df_dice_IN.loc['0']['2.0'])) and df_dice_IN.loc['0']['3.0'] > 1*df_dice_IN.loc['0']['2.0']
             #print(l1_IN,l2_IN,l3_IN,A,B,C)
             df_Values_IN,l1_IN,l2_IN,l3_IN = decision_table(A,l1_IN,
                                                 (B ^ C),l2_IN,
@@ -491,8 +523,8 @@ def DecissionTable_Surge_Effect(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,df_en
             bool_template      = bool_template and df_dado.loc['0'][k] < df_env_specs_IN.loc['0'][k]                            #---------------------
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
-            A = PK(E2,df_dado.loc['0']['Surge E. 0.33x 0.5x'])
-            B = PK(E2,df_dado.loc['0']['Surge E. 12/20k'])
+            A = PK(E1,df_dado.loc['0']['Surge E. 0.33x 0.5x'])
+            B = PK(E1,df_dado.loc['0']['Surge E. 12/20k'])
             df_Values_IN,l1,l2,l3 = decision_table(not A,l1,
                                                 (A or B),l2,
                                                 (A and B),l3,
@@ -514,9 +546,9 @@ def DecissionTable_Plain_Bearing_Lubrication_Whip(SP_FingerPrint,Harmonics_IN,df
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
             #print(df_dado)
-            A =    PK(E2,df_dado.loc['0']['1/2']) and PK(E2,df_dado.loc['0']['5/2'])
-            B = PEAKS(E2,df_dado.loc['0']['1/2'],SP_FingerPrint.iloc[n_golden]['RMS 1.0']) and df_dado.loc['0']['1/2'] > 0.02 * SP_FingerPrint.iloc[n_golden]['RMS 1.0']
-            C = PEAKS(E2,df_dado.loc['0']['5/2'],SP_FingerPrint.iloc[n_golden]['RMS 1.0']) and df_dado.loc['0']['5/2'] > 0.02 * SP_FingerPrint.iloc[n_golden]['RMS 1.0']
+            A =    PK(E1,df_dado.loc['0']['1/2']) and PK(E1,df_dado.loc['0']['5/2'])
+            B = PEAKS(E1,df_dado.loc['0']['1/2'],SP_FingerPrint.iloc[n_golden]['RMS 1.0']) and df_dado.loc['0']['1/2'] > 0.02 * SP_FingerPrint.iloc[n_golden]['RMS 1.0']
+            C = PEAKS(E1,df_dado.loc['0']['5/2'],SP_FingerPrint.iloc[n_golden]['RMS 1.0']) and df_dado.loc['0']['5/2'] > 0.02 * SP_FingerPrint.iloc[n_golden]['RMS 1.0']
 #            print(l1,l2,l3,A,B,C)
             df_Values,l1,l2,l3 = decision_table(not A and ( not(B and C)),l1,
                                                 A ^ (B ^ C),l2,
@@ -540,12 +572,12 @@ def DecissionTable_Plain_Bearing_Clearance(SP_FingerPrint,Harmonics_IN,df_RD_spe
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
             
-            a1 = PEAKS(E2,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'],df_dado.iloc[0]['3.0']) and (df_dado.iloc[0]['1.0'] > df_dado.iloc[0]['2.0'] > df_dado.iloc[0]['3.0'])
-            a2 = PEAKS(E2,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'],df_dado.iloc[0]['3.0']) and (df_dado.iloc[0]['2.0'] > 0.02 * df_dado.iloc[0]['1.0']) and (df_dado.iloc[0]['3.0'] > 0.02 * df_dado.iloc[0]['1.0'])
+            a1 = PEAKS(E1,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'],df_dado.iloc[0]['3.0']) and (df_dado.iloc[0]['1.0'] > df_dado.iloc[0]['2.0'] > df_dado.iloc[0]['3.0'])
+            a2 = PEAKS(E1,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'],df_dado.iloc[0]['3.0']) and (df_dado.iloc[0]['2.0'] > 0.02 * df_dado.iloc[0]['1.0']) and (df_dado.iloc[0]['3.0'] > 0.02 * df_dado.iloc[0]['1.0'])
             A         = a1 and a2
 
-            b1 = PEAKS(E2,df_dado.iloc[0]['1/2'],df_dado.iloc[0]['3/2'],df_dado.iloc[0]['5/2']) and (df_dado.iloc[0]['1/2'] > df_dado.iloc[0]['3/2'] > df_dado.iloc[0]['5/2'])
-            b2 = PEAKS(E2,df_dado.iloc[0]['1/2'],df_dado.iloc[0]['1.0'],df_dado.iloc[0]['3/2'],df_dado.iloc[0]['5/2']) and (df_dado.iloc[0]['1/2'] > 0.02 * df_dado.iloc[0]['1.0']) and (df_dado.iloc[0]['3/2'] > 0.02 * df_dado.iloc[0]['1.0']) and (df_dado.iloc[0]['5/2'] > 0.02 * df_dado.iloc[0]['1.0']) 
+            b1 = PEAKS(E1,df_dado.iloc[0]['1/2'],df_dado.iloc[0]['3/2'],df_dado.iloc[0]['5/2']) and (df_dado.iloc[0]['1/2'] > df_dado.iloc[0]['3/2'] > df_dado.iloc[0]['5/2'])
+            b2 = PEAKS(E1,df_dado.iloc[0]['1/2'],df_dado.iloc[0]['1.0'],df_dado.iloc[0]['3/2'],df_dado.iloc[0]['5/2']) and (df_dado.iloc[0]['1/2'] > 0.02 * df_dado.iloc[0]['1.0']) and (df_dado.iloc[0]['3/2'] > 0.02 * df_dado.iloc[0]['1.0']) and (df_dado.iloc[0]['5/2'] > 0.02 * df_dado.iloc[0]['1.0']) 
             B         = b1 and b2
             
 #            print(l1,l2,l3,A,B)
@@ -591,8 +623,8 @@ def DecissionTable_Pressure_Pulsations(SP_FingerPrint,Harmonics_IN,df_RD_specs_I
             #print(       df_dado.loc['0'][k] , df_envelope.loc['0'][k],'==>',df_dado.loc['0'][k] < df_envelope.loc['0'][k])                    #---------------------
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
-            A       = PEAKS(E2,df_dado.iloc[0]['1/3'],df_dado.iloc[0]['2/3'],df_dado.iloc[0]['4/3'],df_dado.iloc[0]['5/3'])
-            B_peaks = PEAKS(E2,df_dado.iloc[0]['1/3'],df_dado.iloc[0]['4/3'],df_dado.iloc[0]['8/3'],df_dado.iloc[0]['4.0']) 
+            A       = PEAKS(E1,df_dado.iloc[0]['1/3'],df_dado.iloc[0]['2/3'],df_dado.iloc[0]['4/3'],df_dado.iloc[0]['5/3'])
+            B_peaks = PEAKS(E1,df_dado.iloc[0]['1/3'],df_dado.iloc[0]['4/3'],df_dado.iloc[0]['8/3'],df_dado.iloc[0]['4.0']) 
             B       = B_peaks and (df_dado.iloc[0]['4/3']> df_dado.iloc[0]['1/3']) and (df_dado.iloc[0]['8/3'] > df_dado.iloc[0]['1/3']) and (df_dado.iloc[0]['4.0'] > df_dado.iloc[0]['1/3'])
 #            print(l1,l2,l3,A,B)
             df_Values_IN,l1,l2,l3 = decision_table(not A,l1,
@@ -616,13 +648,13 @@ def DecissionTable_Shaft_Misaligments(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
             
-            A_peaks = PEAKS(E2,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'])
+            A_peaks = PEAKS(E1,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'])
             A       = A_peaks and df_dado.iloc[0]['2.0'] < 0.5 *  df_dado.iloc[0]['1.0']
-            B_peaks = PEAKS(E2,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'])
+            B_peaks = PEAKS(E1,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'])
             B       = B_peaks and 1.5 *df_dado.iloc[0]['1.0'] >        df_dado.iloc[0]['2.0'] > 0.5 *df_dado.iloc[0]['1.0']
-            C_peaks = PEAKS(E2,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'])
+            C_peaks = PEAKS(E1,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'])
             C       = C_peaks and 1.5 *df_dado.iloc[0]['1.0'] <        df_dado.iloc[0]['2.0']
-            D       = PEAKS(E2,df_dado.iloc[0]['2.0'],df_dado.iloc[0]['3.0'],df_dado.iloc[0]['4.0'],df_dado.iloc[0]['5.0'])
+            D       = PEAKS(E1,df_dado.iloc[0]['2.0'],df_dado.iloc[0]['3.0'],df_dado.iloc[0]['4.0'],df_dado.iloc[0]['5.0'])
                         
 #            print(l1,l2,l3,A,B)
             df_Values_IN,l1,l2,l3 = decision_table(A or not D,l1,
@@ -646,9 +678,9 @@ def  DecissionTable_Plain_Bearing_Block_Looseness(SP_FingerPrint,Harmonics_IN,df
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
             
-            A_peaks = PEAKS(E2,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'],df_dado.iloc[0]['3.0'])
+            A_peaks = PEAKS(E1,df_dado.iloc[0]['1.0'],df_dado.iloc[0]['2.0'],df_dado.iloc[0]['3.0'])
             A       = A_peaks and df_dado.iloc[0]['1.0'] <df_dado.iloc[0]['2.0'] > df_dado.iloc[0]['3.0']
-            B       = PEAKS(E2,df_dado.iloc[0]['1/2'],df_dado.iloc[0]['1/3'],df_dado.iloc[0]['1/4'])
+            B       = PEAKS(E1,df_dado.iloc[0]['1/2'],df_dado.iloc[0]['1/3'],df_dado.iloc[0]['1/4'])
      
 #            print(l1,l2,l3,A,B)
 
@@ -673,11 +705,11 @@ def  DecissionTable_Blade_Faults(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,df_e
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
             
-            A = PK(E2,df_dado.loc['0']['12.0'])
-            B = PEAKS(E2,df_dado.loc['0']['12.0'],df_dado.loc['0']['24.0']) 
-            C = PK(E2,df_dado.loc['0']['12.0'])       and ( PK(E2,df_dado.loc['0']['11.0']) or PK(E2,df_dado.loc['0']['13.0']) )
-            D = C and PK(E2,df_dado.loc['0']['24.0']) 
-            E = C and PK(E2,df_dado.loc['0']['24.0']) and ( PK(E2,df_dado.loc['0']['23.0']) or PK(E2,df_dado.loc['0']['25.0']) )
+            A = PK(E1,df_dado.loc['0']['12.0'])
+            B = PEAKS(E1,df_dado.loc['0']['12.0'],df_dado.loc['0']['24.0']) 
+            C = PK(E1,df_dado.loc['0']['12.0'])       and ( PK(E1,df_dado.loc['0']['11.0']) or PK(E1,df_dado.loc['0']['13.0']) )
+            D = C and PK(E1,df_dado.loc['0']['24.0']) 
+            E = C and PK(E1,df_dado.loc['0']['24.0']) and ( PK(E1,df_dado.loc['0']['23.0']) or PK(E1,df_dado.loc['0']['25.0']) )
             F = df_dado.loc['0']['12.0'] < E2 and df_dado.loc['0']['24.0'] < E2
      
             print(l1,l2,l3,A,B)
@@ -705,9 +737,9 @@ def  DecissionTable_Flow_Turbulence(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,d
         if bool_template:#-----------------TEMPLATE
             
             A       = df_dado.iloc[0]['Flow T.'] <= 0.2
-            B_peaks = PK(E2,df_dado.iloc[0]['1.0'])
+            B_peaks = PK(E1,df_dado.iloc[0]['1.0'])
             B       = B_peaks and (0.2 <= df_dado.iloc[0]['Flow T.'] <= df_dado.iloc[0]['1.0'])
-            C_peaks = PK(E2,df_dado.iloc[0]['1.0'])
+            C_peaks = PK(E1,df_dado.iloc[0]['1.0'])
             C       = C_peaks and (df_dado.iloc[0]['Flow T.'] >  df_dado.iloc[0]['1.0'])
      
             print(l1,l2,l3,A,B)
@@ -739,7 +771,7 @@ def  DecissionTable_Plain_Bearing_Lubrication_Whirl(SP_FingerPrint,Harmonics_IN,
                                                 # Detected Peak in '0.38-0.48'
                                                 #         but
                                                 # Peak in '0.38-0.48' < 2% 1.0x
-            B_peaks = PEAKS(E2,df_dado.iloc[0]['Oil Whirl'],df_dado.iloc[0]['1.0']) 
+            B_peaks = PEAKS(E1,df_dado.iloc[0]['Oil Whirl'],df_dado.iloc[0]['1.0']) 
             B       = B_peaks and df_dado.iloc[0]['Oil Whirl'] > 0.02 * df_dado.iloc[0]['1.0']
      
             print(l1,l2,l3,A,B)
@@ -768,9 +800,9 @@ def  DecissionTable_Ball_Bearing_Outer_Race_Defects_22217C(SP_FingerPrint,Harmon
             a1 = (df_dado.iloc[0]['BPFO1'] < E2) 
             a2 = (df_dado.iloc[0]['BPFO1'] > E2) and (df_dado.iloc[0]['2*BPFO1'] < E2) and (df_dado.iloc[0]['3*BPFO1'] < E2) and (df_dado.iloc[0]['4*BPFO1'] < E2)
             A  = a1 or a2
-            B  = PEAKS(E2,df_dado.iloc[0]['BPFO1'],df_dado.iloc[0]['2*BPFO1'])
-            C  = PEAKS(E2,df_dado.iloc[0]['BPFO1'],df_dado.iloc[0]['2*BPFO1'],df_dado.iloc[0]['3*BPFO1'])
-            D  = PEAKS(E2,df_dado.iloc[0]['BPFO1'],df_dado.iloc[0]['2*BPFO1'],df_dado.iloc[0]['3*BPFO1'],df_dado.iloc[0]['4*BPFO1'])
+            B  = PEAKS(E1,df_dado.iloc[0]['BPFO1'],df_dado.iloc[0]['2*BPFO1'])
+            C  = PEAKS(E1,df_dado.iloc[0]['BPFO1'],df_dado.iloc[0]['2*BPFO1'],df_dado.iloc[0]['3*BPFO1'])
+            D  = PEAKS(E1,df_dado.iloc[0]['BPFO1'],df_dado.iloc[0]['2*BPFO1'],df_dado.iloc[0]['3*BPFO1'],df_dado.iloc[0]['4*BPFO1'])
             print(l1,l2,l3,A,B)
 
             df_Values_IN,l1,l2,l3 = decision_table(A     ,l1,
@@ -798,9 +830,9 @@ def  DecissionTable_Ball_Bearing_Outer_Race_Defects_22219C(SP_FingerPrint,Harmon
             a1 = (df_dado.iloc[0]['BPFO2'] < E2) 
             a2 = (df_dado.iloc[0]['BPFO2'] > E2) and (df_dado.iloc[0]['2*BPFO2'] < E2) and (df_dado.iloc[0]['3*BPFO2'] < E2) and (df_dado.iloc[0]['4*BPFO2'] < E2)
             A  = a1 or a2
-            B  = PEAKS(E2,df_dado.iloc[0]['BPFO2'],df_dado.iloc[0]['2*BPFO2'])
-            C  = PEAKS(E2,df_dado.iloc[0]['BPFO2'],df_dado.iloc[0]['2*BPFO2'],df_dado.iloc[0]['3*BPFO2'])
-            D  = PEAKS(E2,df_dado.iloc[0]['BPFO2'],df_dado.iloc[0]['2*BPFO2'],df_dado.iloc[0]['3*BPFO2'],df_dado.iloc[0]['4*BPFO2'])
+            B  = PEAKS(E1,df_dado.iloc[0]['BPFO2'],df_dado.iloc[0]['2*BPFO2'])
+            C  = PEAKS(E1,df_dado.iloc[0]['BPFO2'],df_dado.iloc[0]['2*BPFO2'],df_dado.iloc[0]['3*BPFO2'])
+            D  = PEAKS(E1,df_dado.iloc[0]['BPFO2'],df_dado.iloc[0]['2*BPFO2'],df_dado.iloc[0]['3*BPFO2'],df_dado.iloc[0]['4*BPFO2'])
             print(l1,l2,l3,A,B)
 
             df_Values_IN,l1,l2,l3 = decision_table(A     ,l1,
@@ -886,9 +918,9 @@ def  DecissionTable_Ball_Bearing_Ball_Defect_22217C(SP_FingerPrint,Harmonics_IN,
             a1 = (df_dado.iloc[0]['BSF1']   < E2)
             a2 = (df_dado.iloc[0]['BSF1']   > E2) and (df_dado.iloc[0]['2*BSF1'] < E2)
             A  = a1 or a2 
-            B  = PEAKS(E2,df_dado.iloc[0]['BSF1'],df_dado.iloc[0]['2*BSF1'])
-            C  = PEAKS(E2,df_dado.iloc[0]['BSF1']  ,df_dado.iloc[0]['BSF1+FTF1']  ,df_dado.iloc[0]['BSF1-FTF1'])
-            D  = PEAKS(E2,df_dado.iloc[0]['2*BSF1'],df_dado.iloc[0]['2*BSF1+FTF1'],df_dado.iloc[0]['2*BSF1-FTF1'])
+            B  = PEAKS(E1,df_dado.iloc[0]['BSF1'],df_dado.iloc[0]['2*BSF1'])
+            C  = PEAKS(E1,df_dado.iloc[0]['BSF1']  ,df_dado.iloc[0]['BSF1+FTF1']  ,df_dado.iloc[0]['BSF1-FTF1'])
+            D  = PEAKS(E1,df_dado.iloc[0]['2*BSF1'],df_dado.iloc[0]['2*BSF1+FTF1'],df_dado.iloc[0]['2*BSF1-FTF1'])
             print(l1,l2,l3,A,B)
 
             df_Values_IN,l1,l2,l3 = decision_table(A     ,l1,
@@ -915,9 +947,9 @@ def  DecissionTable_Ball_Bearing_Ball_Defect_22219C(SP_FingerPrint,Harmonics_IN,
             a1 = (df_dado.iloc[0]['BSF2']   < E2)
             a2 = (df_dado.iloc[0]['BSF2']   > E2) and (df_dado.iloc[0]['2*BSF2'] < E2)
             A  = a1 or a2 
-            B  = PEAKS(E2,df_dado.iloc[0]['BSF2'],df_dado.iloc[0]['2*BSF2'])
-            C  = PEAKS(E2,df_dado.iloc[0]['BSF2']  ,df_dado.iloc[0]['BSF2+FTF2']  ,df_dado.iloc[0]['BSF2-FTF2'])
-            D  = PEAKS(E2,df_dado.iloc[0]['2*BSF2'],df_dado.iloc[0]['2*BSF2+FTF2'],df_dado.iloc[0]['2*BSF2-FTF2'])
+            B  = PEAKS(E1,df_dado.iloc[0]['BSF2'],df_dado.iloc[0]['2*BSF2'])
+            C  = PEAKS(E1,df_dado.iloc[0]['BSF2']  ,df_dado.iloc[0]['BSF2+FTF2']  ,df_dado.iloc[0]['BSF2-FTF2'])
+            D  = PEAKS(E1,df_dado.iloc[0]['2*BSF2'],df_dado.iloc[0]['2*BSF2+FTF2'],df_dado.iloc[0]['2*BSF2-FTF2'])
             print(l1,l2,l3,A,B)
             
             df_Values_IN,l1,l2,l3 = decision_table(A     ,l1,
@@ -941,7 +973,7 @@ def  DecissionTable_Ball_Bearing_Cage_Defect_22217C(SP_FingerPrint,Harmonics_IN,
             #print(       df_dado.loc['0'][k] , df_envelope.loc['0'][k],'==>',df_dado.loc['0'][k] < df_envelope.loc['0'][k])                    #---------------------
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
-            a1 = PK(E2,SP_FingerPrint.iloc[n_golden]['RMS 1.0'])  
+            a1 = PK(E1,SP_FingerPrint.iloc[n_golden]['RMS 1.0'])  
             a2 = df_dado.iloc[0]['FTF1'] < SP_FingerPrint.iloc[n_golden]['RMS 1.0']  
             b2 = df_dado.iloc[0]['FTF1'] > df_dado.iloc[0]['2*FTF1'] < SP_FingerPrint.iloc[n_golden]['RMS 1.0'] 
             c2 = df_dado.iloc[0]['FTF1'] > df_dado.iloc[0]['2*FTF1'] > SP_FingerPrint.iloc[n_golden]['RMS 1.0'] > df_dado.iloc[0]['3*FTF1'] > df_dado.iloc[0]['4*FTF1']
@@ -972,7 +1004,7 @@ def  DecissionTable_Ball_Bearing_Cage_Defect_22219C(SP_FingerPrint,Harmonics_IN,
             #print(       df_dado.loc['0'][k] , df_envelope.loc['0'][k],'==>',df_dado.loc['0'][k] < df_envelope.loc['0'][k])                    #---------------------
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
-            a1 = PK(E2,SP_FingerPrint.iloc[n_golden]['RMS 1.0'])  
+            a1 = PK(E1,SP_FingerPrint.iloc[n_golden]['RMS 1.0'])  
             a2 = df_dado.iloc[0]['FTF2'] < SP_FingerPrint.iloc[n_golden]['RMS 1.0']  
             b2 = df_dado.iloc[0]['FTF2'] > df_dado.iloc[0]['2*FTF2'] < SP_FingerPrint.iloc[n_golden]['RMS 1.0'] 
             c2 = df_dado.iloc[0]['FTF2'] > df_dado.iloc[0]['2*FTF2'] > SP_FingerPrint.iloc[n_golden]['RMS 1.0'] > df_dado.iloc[0]['3*FTF2'] > df_dado.iloc[0]['4*FTF2']
@@ -991,8 +1023,7 @@ def  DecissionTable_Ball_Bearing_Cage_Defect_22219C(SP_FingerPrint,Harmonics_IN,
 
 if __name__ == '__main__':   
     pi       = np.pi
-    E1       = 0.15
-    E2       = 0.10
+    E1       = 0.10
     fs       = 5120
     l        = 16384
     l_2      = np.int(l/2)
@@ -1026,24 +1057,17 @@ if __name__ == '__main__':
         'Hour'         : ''
         }
     
-    n_random = 10 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
+    n_random = 100 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
     df_speed,df_SPEED = Load_Vibration_Data_Global(parameters)
     
     
     Process_variable1 = FailureMode('Severe_Misaligment',df_speed,df_SPEED)    #------tarda mucho en generar señales verdes
     Process_variable1.__func__(0,['1.0','2.0','3.0','4.0','5/2','7/2','9/2'],
-                                 [4.6  ,4.6   ,1.0  ,0.2  ,0.1  ,0.1  , 0.1],
-                                 [0.85 ,4     ,0.5  ,0.7  ,0.5  ,0.5  , 0.5],
+                                 [4.6  ,4.6   ,1.0  ,0.5  ,0.1  ,0.1  , 0.1],
+                                 [0.85 ,0.85  ,0.5  ,0.5  ,0.5  ,0.5  , 0.5],
                                  [10   ,10    ,1.4  ,0.9  ,0.2  ,0.2  , 0.2])
     
-    """
-    Process_variable1 = FailureMode('Severe_Misaligment',df_speed,df_SPEED)    #------tarda mucho en generar señales verdes
-    Process_variable1.__func__(0,['1.0','2.0','3.0','4.0','5/2','7/2','9/2','5.0','6.0','7.0','8.0','9.0','10.0','11/2','13/2','15/2','17/2','19/2'],
-                                 [2.5  ,1  ,0.5  ,0.2  ,0.8  ,0.8  ,0.8  ,0.02  ,0.02  , 0.02 ,0.02  ,0.02  ,0.02   ,0.02   ,0.02   ,0.02  ,0.02   ,0.02],
-                                 [2    ,2    ,1    ,0.5   ,0.5  ,0.5  ,0.5  ,0.1  ,0.1  ,0.1  ,0.1  ,0.1  ,0.1   ,0.1   ,0.1   ,0.1  ,0.1   ,0.1],
-                                 [10   ,10   ,1.4  ,0.9  ,0.2  ,0.2  ,0.2  ,1  ,1  ,1  ,1  ,1  ,1   ,1   ,1   ,1  ,1   ,1])
-    """
-    
+#
 #    Process_variable2 = FailureMode('Loose_Bedplate',df_speed,df_SPEED) 
 #    Process_variable2.__func__(0,['1.0','2.0','3.0'],
 #                                 [4.8  ,0.9  ,0.9],
@@ -1052,10 +1076,16 @@ if __name__ == '__main__':
 #    Process_variable2.__func_2__()
 #    
 #    Process_variable3 = FailureMode('Surge_Effect',df_speed,df_SPEED) 
-#    Process_variable3.__func__(0,['Surge E. 0.33x 0.5x','Surge E. 12/20k'],[0.05,0.05],[0.1,0.1],[0.7,0.7])
-
+#    Process_variable3.__func__(0,['Surge E. 0.33x 0.5x','Surge E. 12/20k'],
+#                                  [0.05                 ,0.05],
+#                                  [0.1                  ,0.1],
+#                                  [0.7                  ,0.7])
+#
 #    Process_variable4 = FailureMode('Plain_Bearing_Lubrication_Whip',df_speed,df_SPEED) 
-#    Process_variable4.__func__(0,['1/2','5/2'],[0.05,0.1],[0.5,0.5],[0.7,0.7])
+#    Process_variable4.__func__(0,['1/2','5/2'],
+#                                 [0.05 ,0.1],
+#                                 [0.5  ,0.5],
+#                                 [0.7  ,0.7])
 #
 #    Process_variable5 = FailureMode('Plain_Bearing_Clearance',df_speed,df_SPEED) 
 #    Process_variable5.__func__(0,['1.0','2.0','3.0','1/2','3/2','5/2'],
@@ -1071,7 +1101,7 @@ if __name__ == '__main__':
 #                                 [0.1  ,0.3  ,0.2  ,0.2  ,0.15 ,0.1],
 #                                 [0.5  ,0.5  ,0.5  ,0.5  ,0.5  ,0.5],
 #                                 [0.5  ,1.2  ,1    ,1    ,0.7  ,0.5])
-    
+#    
 #    Process_variable8 = FailureMode('Shaft_Misaligments',df_speed,df_SPEED) 
 #    Process_variable8.__func__(0,['1.0','2.0','3.0','4.0','5.0'],
 #                                 [3.5  ,5.2  ,1    ,0.5  ,0.1],
@@ -1083,27 +1113,27 @@ if __name__ == '__main__':
 #                                 [3.5  ,5.2  ,1    ,0.2  ,0.15 ,0.1],
 #                                 [0.85 ,0.85 ,0.5  ,0.5  ,0.5  ,0.5],
 #                                 [6    ,10   ,1.4  ,0.4  ,0.3  ,0.2])    
-
+#
 #  
 #    Process_variable10a = FailureMode('Blade_Faults',df_speed,df_SPEED) 
 #    Process_variable10a.__func__(0,['1.0','12.0','24.0','11.0','13.0','23.0','25.0'],    #OK modificado
 #                                   [3.5  ,0.3   ,0.2   ,0.1   ,0.1    ,0.1  ,0.1],
 #                                   [0.85 ,0.5   ,0.5   ,0.6   ,0.6    ,0.6   ,0.6],
 #                                   [6    ,1     ,0.8   ,0.2  ,0.2   ,0.2  ,0.2])
-    
+#    
 #    Process_variable10b = FailureMode('Flow_Turbulence',df_speed,df_SPEED)  # OK modificada
 #    Process_variable10b.__func__(0,['Flow T.','1.0'],
 #                                   [3        ,  3.5],
 #                                   [3        , 0.85],
 #                                   [8        , 6])
-  
+#  
 #    Process_variable11 = FailureMode('Plain_Bearing_Lubrication_Whirl',df_speed,df_SPEED)  # OK modificada
 #    Process_variable11.__func__(0,['Oil Whirl','1.0'],
 #                                  [0.1        ,3.5],
 #                                  [0.5        ,2],
 #                                  [0.7        ,6])
-
-    
+#
+#    
 #    Process_variable12a = FailureMode('Ball_Bearing_Outer_Race_Defects_22217C',df_speed,df_SPEED)  
 #    Process_variable12a.__func__(0,['BPFO1','2*BPFO1','3*BPFO1','4*BPFO1'],
 #                                  [1.5     ,1        ,0.5      , 0.35],
@@ -1132,8 +1162,8 @@ if __name__ == '__main__':
 #    Process_variable14b = FailureMode('Ball_Bearing_Ball_Defect_22217C',df_speed,df_SPEED)   #esta
 #    Process_variable14b.__func__(0,['BSF1','2*BSF1','BSF1-FTF1','BSF1+FTF1','2*BSF1-FTF1','2*BSF1+FTF1'],
 #                                  [1.5    ,1       ,0.1        ,0.1        ,0.1          ,0.1],
-#                                  [1      ,0.85    ,1        ,1        ,1          ,1],
-#                                  [4      ,2       ,0.5       ,0.5       ,0.5         ,0.5]) 
+#                                  [1      ,0.85    ,1          ,1          ,1            ,1],
+#                                  [4      ,2       ,0.5        ,0.5        ,0.5          ,0.5]) 
 #
 #    
 #    Process_variable14b = FailureMode('Ball_Bearing_Ball_Defect_22219C',df_speed,df_SPEED)  

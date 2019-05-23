@@ -31,7 +31,8 @@ from numba import jit
 
 
 pi        = np.pi
-E1        = 0.15
+E1        = 0.10
+E2        = 0.07
 fs        = 5120.0
 l         = 16384
 Path_out  = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\python\\outputs\\'
@@ -148,7 +149,7 @@ fprnt_list_blwrs = [
                     
                     fingerprint('BSF2'               ,'Peak',BSF2        ,0 ,'absoluto',1),
                     fingerprint('BSF2-FTF2'          ,'Peak',BSF2-FTF2   ,0 ,'absoluto',1),
-                    fingerprint('BSF2+FTF2'          ,'Peak',BSF2+FTF2   ,0 ,'absoluto',1),
+                    fingerprint('BSF2+FTF2'          ,'Peak',BSF2+FTFRMS 2   ,0 ,'absoluto',1),
                     fingerprint('2*BSF2'             ,'Peak',2*BSF2      ,0 ,'absoluto',1),
                     fingerprint('2*BSF2-FTF2'        ,'Peak',2*BSF2-FTF2 ,0 ,'absoluto',1),
                     fingerprint('2*BSF2+FTF2'        ,'Peak',2*BSF2+FTF2 ,0 ,'absoluto',1),
@@ -191,7 +192,7 @@ fprnt_list_pumps = [
                     
                     fingerprint('R. Pump'     ,'Span',0   ,10   ,'absoluto',1),
                     fingerprint('Hydr. Inst.' ,'Span',0.7 ,0.85 ,'relativo',1),
-                    fingerprint('Cavit. Noise','Span',1000,20000,'absoluto',1),
+                    fingerprint('Cavit. Noise','Span',1000,2500,'absoluto',1),
                     fingerprint('Rotat. Cavit','Span',1.1 ,1.25 ,'relativo',1),
                     fingerprint('R. R. Stall' ,'Span',0.5 ,0.75 ,'relativo',1),
                     
@@ -1333,9 +1334,10 @@ def Shaft_misaligment_Radial(df_in):
             D        = PEAKS(E1,df_in.iloc[i]['RMS 3.0'],df_in.iloc[i]['RMS 4.0'])
     
             #print (A,B,C,D)
-            df_in.loc[df_in.index[i],'$Shaft_misaligment_Radial'] = Truth_Table(A and (not D),B or D,C and D)
+            df_in.loc[df_in.index[i],'$Shaft_misaligment_Radial'] = Truth_Table(A and (not D),B or D,C )
             if df_in.iloc[i]['$Shaft_misaligment_Radial'] == 'None':
                 print ('Fallo en:', i)
+                print (A,B,C,D)
                 print (df_in.iloc[i]['RMS 1.0'])
                 print (df_in.iloc[i]['RMS 2.0'], )
                 print (df_in.iloc[i]['RMS 3.0'])
@@ -1381,12 +1383,12 @@ def Shaft_misaligment_Axial(df_in_H,df_in_V,df_in_A):
         if df_in_A.iloc[i]['RMS (mm/s) f'] < 0.3:
             df_in_A.loc[df_in_A.index[i],'$Shaft_misaligment_Axial'] = 'No vibration detected'
         else:     
-            A  = ( E1 < df_in_A.iloc[i]['RMS 1.0'] < 2.5) and PK(E1,df_in_A.iloc[i]['RMS 2.0']) or  (df_in_A.iloc[i]['RMS 2.0'] < E1 )
-            B  = (2.4 < df_in_A.iloc[i]['RMS 1.0'] < 4  ) and PK(E1,df_in_A.iloc[i]['RMS 2.0'])
-            C  = (  4 < df_in_A.iloc[i]['RMS 1.0']      ) and PEAKS(E1,df_in_A.iloc[i]['RMS 2.0'],df_in_A.iloc[i]['RMS 3.0'])
+            A  = ( E1 < df_in_A.iloc[i]['RMS 1.0'] < 2.5) and PK(E2,df_in_A.iloc[i]['RMS 2.0']) or  (df_in_A.iloc[i]['RMS 2.0'] < E1 )
+            B  = (2.4 < df_in_A.iloc[i]['RMS 1.0'] < 4  ) and PK(E2,df_in_A.iloc[i]['RMS 2.0'])
+            C  = (  4 < df_in_A.iloc[i]['RMS 1.0']      ) and PEAKS(E2,df_in_A.iloc[i]['RMS 2.0'],df_in_A.iloc[i]['RMS 3.0'])
             
             if i_H >= 0 and i_V >= 0 :
-                D = PEAKS(E1, df_in_H.iloc[i_H]['RMS 1.0'],df_in_H.iloc[i_H]['RMS 2.0']) or PEAKS(df_in_V.iloc[i_V]['RMS 1.0'],df_in_V.iloc[i_V]['RMS 2.0'])
+                D = PEAKS(E2, df_in_H.iloc[i_H]['RMS 1.0'],df_in_H.iloc[i_H]['RMS 2.0']) or PEAKS(df_in_V.iloc[i_V]['RMS 1.0'],df_in_V.iloc[i_V]['RMS 2.0'])
             else:
                 #print('no hya dtos radiales')
                 D = False
@@ -1415,8 +1417,8 @@ def Hydraulic_Instability(df_in):
             df_in.loc[df_in.index[i],'$Hydraulic_Instability'] = 'No vibration detected'
         else:     
             A  =  df_in.iloc[i]['RMS Hydr. Inst.'] < E1
-            B  = PK(E1,df_in.iloc[i]['RMS 1.0']) and (E1 < df_in.iloc[i]['RMS Hydr. Inst.'] < 0.5 * df_in.iloc[i]['RMS 1.0']) 
-            C  = PK(E1,df_in.iloc[i]['RMS 1.0']) and (     df_in.iloc[i]['RMS Hydr. Inst.'] > 0.5 * df_in.iloc[i]['RMS 1.0']) 
+            B  = PK(E2,df_in.iloc[i]['RMS 1.0']) and (E1 < df_in.iloc[i]['RMS Hydr. Inst.'] < 0.5 * df_in.iloc[i]['RMS 1.0']) 
+            C  = PK(E2,df_in.iloc[i]['RMS 1.0']) and (     df_in.iloc[i]['RMS Hydr. Inst.'] > 0.5 * df_in.iloc[i]['RMS 1.0']) 
             
             df_in.loc[df_in.index[i],'$Hydraulic_Instability'] = Truth_Table(A,B,C)
             
@@ -1447,9 +1449,9 @@ def Ball_Bearing_Outer_Race_Defects_7310BEP(df_in):
             a1 = (df_in.iloc[i]['RMS BPFO'] < E1) 
             a2 = (df_in.iloc[i]['RMS BPFO'] > E1) and (df_in.iloc[i]['RMS 2*BPFO'] < E1) and (df_in.iloc[i]['RMS 3*BPFO'] < E1) and (df_in.iloc[i]['RMS 4*BPFO'] < E1)
             A  = a1 or a2
-            B  = PEAKS(E1,df_in.iloc[i]['RMS BPFO'],df_in.iloc[i]['RMS 2*BPFO'])
-            C  = PEAKS(E1,df_in.iloc[i]['RMS BPFO'],df_in.iloc[i]['RMS 2*BPFO'],df_in.iloc[i]['RMS 3*BPFO'])
-            D  = PEAKS(E1,df_in.iloc[i]['RMS BPFO'],df_in.iloc[i]['RMS 2*BPFO'],df_in.iloc[i]['RMS 3*BPFO'],df_in.iloc[i]['RMS 4*BPFO'])
+            B  = PEAKS(E2,df_in.iloc[i]['RMS BPFO'],df_in.iloc[i]['RMS 2*BPFO'])
+            C  = PEAKS(E2,df_in.iloc[i]['RMS BPFO'],df_in.iloc[i]['RMS 2*BPFO'],df_in.iloc[i]['RMS 3*BPFO'])
+            D  = PEAKS(E2,df_in.iloc[i]['RMS BPFO'],df_in.iloc[i]['RMS 2*BPFO'],df_in.iloc[i]['RMS 3*BPFO'],df_in.iloc[i]['RMS 4*BPFO'])
             
             df_in.loc[df_in.index[i],'$Ball B. O. Race D. Failure_7310BEP']    = Truth_Table(A,B ^ C,D)
             
@@ -1508,9 +1510,9 @@ def Ball_Bearing_Defect_7310BEP(df_in):
             a1 = (df_in.iloc[i]['RMS BSF']   < E1)
             a2 = (df_in.iloc[i]['RMS BSF']   > E1) and (df_in.iloc[i]['RMS 2*BSF'] < E1)
             A  = a1 or a2 
-            B  = PEAKS(E1,df_in.iloc[i]['RMS BSF'],df_in.iloc[i]['RMS 2*BSF'])
-            C  = PEAKS(E1,df_in.iloc[i]['RMS BSF']  ,df_in.iloc[i]['RMS BSF+FTF']  ,df_in.iloc[i]['RMS BSF-FTF'])
-            D  = PEAKS(E1,df_in.iloc[i]['RMS 2*BSF'],df_in.iloc[i]['RMS 2*BSF+FTF'],df_in.iloc[i]['RMS 2*BSF-FTF'])
+            B  = PEAKS(E2,df_in.iloc[i]['RMS BSF'],df_in.iloc[i]['RMS 2*BSF'])
+            C  = PEAKS(E2,df_in.iloc[i]['RMS BSF']  ,df_in.iloc[i]['RMS BSF+FTF']  ,df_in.iloc[i]['RMS BSF-FTF'])
+            D  = PEAKS(E2,df_in.iloc[i]['RMS 2*BSF'],df_in.iloc[i]['RMS 2*BSF+FTF'],df_in.iloc[i]['RMS 2*BSF-FTF'])
             
             df_in.loc[df_in.index[i],'$Ball B D. Failure_7310BEP'] = Truth_Table(A,B ^ C,D)
     
@@ -1542,7 +1544,7 @@ def Ball_Bearing_Cage_Defect_7310BEP(df_in):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
             df_in.loc[df_in.index[i],'$Ball B. Cage D. Failure_7310BEP'] = 'No vibration detected'
         else:
-            a1 = PK(E1,df_in.iloc[i]['RMS 1.0'])  
+            a1 = PK(E2,df_in.iloc[i]['RMS 1.0'])  
             a2 = df_in.iloc[i]['RMS FTF'] < df_in.iloc[i]['RMS 1.0']  
             b2 = df_in.iloc[i]['RMS FTF'] > df_in.iloc[i]['RMS 2*FTF'] < df_in.iloc[i]['RMS 1.0'] 
             c2 = df_in.iloc[i]['RMS FTF'] > df_in.iloc[i]['RMS 2*FTF'] > df_in.iloc[i]['RMS 1.0'] > df_in.iloc[i]['RMS 3*FTF'] > df_in.iloc[i]['RMS 4*FTF']
@@ -1552,7 +1554,10 @@ def Ball_Bearing_Cage_Defect_7310BEP(df_in):
             C  = a1 and c2
             df_in.loc[df_in.index[i],'$Ball B. Cage D. Failure_7310BEP'] = Truth_Table(A,B,C)
             if df_in.iloc[i]['$Ball B. Cage D. Failure_7310BEP'] == 'None':
-                print ('Fallo en:', i)          
+                print(df_in.iloc[i]['RMS 1.0'])
+                print ('Fallo en:', i)
+                print(a1,a2,b2,c2)
+                print(A,B,C)
     return df_in
 
 #----------------------------------------------------------------------------10
@@ -1658,10 +1663,10 @@ def Piping_Vibration(df_in):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
             df_in.loc[df_in.index[i],'$Piping_Vibration'] = 'No vibration detected'
         else:     
-            A  = NO_PEAKS(E1,df_in.iloc[i]['RMS 1th Pip Vib.'],df_in.iloc[i]['RMS 2th Pip Vib.'],df_in.iloc[i]['RMS 3th Pip Vib.'])
+            A  = NO_PEAKS(E2,df_in.iloc[i]['RMS 1th Pip Vib.'],df_in.iloc[i]['RMS 2th Pip Vib.'],df_in.iloc[i]['RMS 3th Pip Vib.'])
             b0 =       df_in.iloc[i]['RMS 1th Pip Vib.'] < 2.8 and df_in.iloc[i]['RMS 2th Pip Vib.'] < 2.8 # ninguna mayor de 2.8
-            b1 = PK(E1,df_in.iloc[i]['RMS 1th Pip Vib.'])      and df_in.iloc[i]['RMS 1th Pip Vib.'] < 2.8
-            b2 = PK(E1,df_in.iloc[i]['RMS 2th Pip Vib.'])      and df_in.iloc[i]['RMS 2th Pip Vib.'] < 2.8
+            b1 = PK(E2,df_in.iloc[i]['RMS 1th Pip Vib.'])      and df_in.iloc[i]['RMS 1th Pip Vib.'] < 2.8
+            b2 = PK(E2,df_in.iloc[i]['RMS 2th Pip Vib.'])      and df_in.iloc[i]['RMS 2th Pip Vib.'] < 2.8
 
             B  = b0 and (b1 ^ b2)
             
@@ -1670,8 +1675,8 @@ def Piping_Vibration(df_in):
             C  = c1 ^ c2
             
             
-            d1 = PK(df_in.iloc[i]['RMS 1th Pip Vib.']) and df_in.iloc[i]['RMS 1th Pip Vib.'] < 2.8
-            d2 = PK(df_in.iloc[i]['RMS 2th Pip Vib.']) and df_in.iloc[i]['RMS 2th Pip Vib.'] < 2.8 
+            d1 = PK(E2,df_in.iloc[i]['RMS 1th Pip Vib.']) and df_in.iloc[i]['RMS 1th Pip Vib.'] < 2.8
+            d2 = PK(E2,df_in.iloc[i]['RMS 2th Pip Vib.']) and df_in.iloc[i]['RMS 2th Pip Vib.'] < 2.8 
             D  = d1 and d2
             
             e1 = df_in.iloc[i]['RMS 1th Pip Vib.'] > 2.8
@@ -1708,14 +1713,14 @@ def Plain_Bearing_Clearance_pumps(df_in):
             v_1_5x = df_in.iloc[i]['RMS 3/2']
             v_2_5x = df_in.iloc[i]['RMS 5/2']
                                                 #-------1.0x 2.0x 3.0x decreciente
-            a1 = PEAKS(E1,v_1x,v_2x,v_3x)            and v_1x >v_2x > v_3x
+            a1 = PEAKS(E2,v_1x,v_2x,v_3x)            and v_1x >v_2x > v_3x
                                                 # --2.0x >2% 1.0x and 3.0x >2% 1.0x
-            a2 = PEAKS(E1,v_1x,v_2x,v_3x)            and (v_2x > 0.02 * v_1x) and (v_3x > 0.02 * v_1x)
+            a2 = PEAKS(E2,v_1x,v_2x,v_3x)            and (v_2x > 0.02 * v_1x) and (v_3x > 0.02 * v_1x)
             A  = a1 and a2
                                                 #-------0.5x 1.5x 2.5x decreciente
-            b1 = PEAKS(E1,v_0_5x,v_1_5x,v_2_5x)      and v_0_5x > v_1_5x > v_2_5x
+            b1 = PEAKS(E2,v_0_5x,v_1_5x,v_2_5x)      and v_0_5x > v_1_5x > v_2_5x
                                                 # ------0.5x >2% 1.0x and 1.5x > 2% 1.0x and 2.5x > 2% 1.0x
-            b2 = PEAKS(E1,v_0_5x,v_1x,v_1_5x,v_2_5x) and (v_0_5x > 0.02 * v_1x) and (v_1_5x > 0.02 * v_1x) and (v_2_5x > 0.02 * v_1x)
+            b2 = PEAKS(E2,v_0_5x,v_1x,v_1_5x,v_2_5x) and (v_0_5x > 0.02 * v_1x) and (v_1_5x > 0.02 * v_1x) and (v_2_5x > 0.02 * v_1x)
             B  = b1 and b2
             
             df_in.loc[df_in.index[i],'$Plain Bearing Clearance Failure'] = Truth_Table( not(A) and not(B) , A or B , A and B)
@@ -1739,11 +1744,11 @@ def Vane_Failure(df_in):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
             df_in.loc[df_in.index[i],'$Vane_Failure'] = 'No vibration detected'
         else:     
-            A  = PK   (E1,df_in.iloc[i]['RMS VPF'] )
-            B  = PEAKS(E1,df_in.iloc[i]['RMS VPF'],df_in.iloc[i]['RMS 2*VPF']) 
-            C  = PEAKS(E1,df_in.iloc[i]['RMS VPF'],df_in.iloc[i]['RMS VPF-f'],df_in.iloc[i]['RMS VPF+f'])
-            D  = C and PEAKS(E1,df_in.iloc[i]['RMS 2*VPF'],df_in.iloc[i]['RMS 2*VPF-f'],df_in.iloc[i]['RMS 2*VPF+f'])
-            E  = NO_PEAKS(E1,df_in.iloc[i]['RMS VPF'],df_in.iloc[i]['RMS 2*VPF'])
+            A  = PK   (E2,df_in.iloc[i]['RMS VPF'] )
+            B  = PEAKS(E2,df_in.iloc[i]['RMS VPF'],df_in.iloc[i]['RMS 2*VPF']) 
+            C  = PEAKS(E2,df_in.iloc[i]['RMS VPF'],df_in.iloc[i]['RMS VPF-f'],df_in.iloc[i]['RMS VPF+f'])
+            D  = C and PEAKS(E2,df_in.iloc[i]['RMS 2*VPF'],df_in.iloc[i]['RMS 2*VPF-f'],df_in.iloc[i]['RMS 2*VPF+f'])
+            E  = NO_PEAKS(E2,df_in.iloc[i]['RMS VPF'],df_in.iloc[i]['RMS 2*VPF'])
             
             df_in.loc[df_in.index[i],'$Vane_Failure'] = Truth_Table(A or B or C,C or D, E)
             
@@ -1774,7 +1779,7 @@ def Oil_Whirl_pumps(df_in):
                                                 # Detected Peak in '0.38-0.48'
                                                 #         but
                                                 # Peak in '0.38-0.48' < 2% 1.0x
-            B_peaks = PEAKS(E1,df_in.iloc[i]['RMS Oil Whirl'],df_in.iloc[i]['RMS 1.0']) 
+            B_peaks = PEAKS(E2,df_in.iloc[i]['RMS Oil Whirl'],df_in.iloc[i]['RMS 1.0']) 
             B       = B_peaks and df_in.iloc[i]['RMS Oil Whirl'] > 0.02 * df_in.iloc[i]['RMS 1.0']
             
             df_in.loc[df_in.index[i],'$Oil Whirl Failure'] = Truth_Table( not(A) , A and (not B) , A and B)
@@ -1800,9 +1805,9 @@ def Oil_Whip_pumps(df_in):
             df_in.loc[df_in.index[i],'$Oil Whip Failure'] = 'No vibration detected'
         else:
             A       = (df_in.iloc[i]['RMS 1/2'] >= E1 and df_in.iloc[i]['BW 1/2'] >= 4)  and  ((df_in.iloc[i]['RMS 5/2'] >= E1) and df_in.iloc[i]['BW 2.5'] >= 4)
-            B_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 1/2']) 
+            B_peaks = PEAKS(E2,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 1/2']) 
             B       = B_peaks and df_in.iloc[i]['RMS 1/2' ] > 0.02 *  df_in.iloc[i]['RMS 1.0']
-            C_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 5/2'])
+            C_peaks = PEAKS(E2,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 5/2'])
             C       = C_peaks and df_in.iloc[i]['RMS 5/2' ] > 0.02 *  df_in.iloc[i]['RMS 1.0']
             #print(A,B,C)
                                                  #  Tabla de verdad progresiva
@@ -1863,7 +1868,7 @@ def Loosness_pumps(df_in_H,df_in_A):
             C  = ( 6   < df_in_H.iloc[i]['RMS 1.0']      ) or  ( 6   < df_in_A.iloc[i]['RMS 1.0']       )
                         #---------HORIZONTAL SENSOR
             if i_H >= 0 :
-                D = PEAKS(E1, df_in_H.iloc[i_H]['RMS 2.0'],df_in_H.iloc[i_H]['RMS 3.0']) 
+                D = PEAKS(E2, df_in_H.iloc[i_H]['RMS 2.0'],df_in_H.iloc[i_H]['RMS 3.0']) 
             else:
                 #print('no hya dtos radiales')
                 D = False
@@ -1902,7 +1907,7 @@ def Dynamic_instability(df_in_H,df_in_A):
 #            print(i)
 #            print (df_in_H.iloc[i]['RMS 1.0'],df_in_A.iloc[i]['RMS 1.0'])
 #            print ()
-            A  = PEAKS(E1,df_in_A.iloc[i]['RMS 1.0'], df_in_H.iloc[i]['RMS 1.0']) and (df_in_A.iloc[i]['RMS 1.0'] > df_in_H.iloc[i]['RMS 1.0'])
+            A  = PEAKS(E2,df_in_A.iloc[i]['RMS 1.0'], df_in_H.iloc[i]['RMS 1.0']) and (df_in_A.iloc[i]['RMS 1.0'] > df_in_H.iloc[i]['RMS 1.0'])
             B  = df_in_H.iloc[i]['RMS VPF'] > df_in_A.iloc[i]['RMS VPF'] >4.0
             C  = df_in_H.iloc[i]['RMS VPF'] < df_in_A.iloc[i]['RMS VPF']
             d1 = df_in_A.iloc[i]['RMS 1.0'] > df_in_A.iloc[i]['RMS 2.0'] > df_in_A.iloc[i]['RMS 3.0']
@@ -1936,10 +1941,10 @@ def Auto_Oscillation(df_in):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
             df_in.loc[df_in.index[i],'$Auto_Oscillation'] = 'No vibration detected'
         else:     
-            A  = NO_PEAKS(E1,df_in.iloc[i]['RMS 1th Auto Osc.'],df_in.iloc[i]['RMS 2th Auto Osc.'],df_in.iloc[i]['RMS 3th Auto Osc.'])
+            A  = NO_PEAKS(E2,df_in.iloc[i]['RMS 1th Auto Osc.'],df_in.iloc[i]['RMS 2th Auto Osc.'],df_in.iloc[i]['RMS 3th Auto Osc.'])
             b0 =       df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8 and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8 # ninguna mayor de 2.8
-            b1 = PK(E1,df_in.iloc[i]['RMS 1th Auto Osc.'])      and df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8
-            b2 = PK(E1,df_in.iloc[i]['RMS 2th Auto Osc.'])      and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8
+            b1 = PK(E2,df_in.iloc[i]['RMS 1th Auto Osc.'])      and df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8
+            b2 = PK(E2,df_in.iloc[i]['RMS 2th Auto Osc.'])      and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8
 
             B  = b0 and (b1 ^ b2)
             
@@ -1948,8 +1953,8 @@ def Auto_Oscillation(df_in):
             C  = c1 ^ c2
             
             
-            d1 = PK(E1,df_in.iloc[i]['RMS 1th Auto Osc.']) and df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8
-            d2 = PK(E1,df_in.iloc[i]['RMS 2th Auto Osc.']) and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8 
+            d1 = PK(E2,df_in.iloc[i]['RMS 1th Auto Osc.']) and df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8
+            d2 = PK(E2,df_in.iloc[i]['RMS 2th Auto Osc.']) and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8 
             D  = d1 and d2
             
             e1 = df_in.iloc[i]['RMS 1th Auto Osc.'] > 2.8
@@ -2033,11 +2038,11 @@ def df_Harmonics(df_FFT,fs,machine_type):
 
     for medida in range(n_traces):
                                 #--------N peaks within a certain bandwithd
-        #print ('Medida numero',df_harm.index[medida])
+#        print ('Medida numero-------------------------------------------------',medida,df_harm.index[medida])
         abs_line                             =                 np.abs(df_FFT.iloc[medida].values)
         RMS_freq                             = np.sqrt(np.sum( abs_line**2 ) )
         df_harm.iloc[medida]['RMS (mm/s) f'] = RMS_freq
-        sptrm_C                              =                 abs_line * np.sqrt(2) 
+        sptrm_C                              = abs_line * np.sqrt(2) 
                                               # integramos en 1º z Nyquist por eso el voltaje x raiz(2)         
         if RMS_freq > 0.06:
             for h in fingerprint_list:        
@@ -2048,20 +2053,12 @@ def df_Harmonics(df_FFT,fs,machine_type):
                     if h.f_norm == 'absoluto':   #-------------------------
                         fa = h.f1
                         fb = h.f2
-#                    if h.f_norm == 'relativo':   #-------------------------
-#                        fa = h.f1 * f_1x
-#                        fb = h.f2 * f_1x
+
                     i_fa                           = int(np.round(fa*l/fs))
                     i_fb                           = int(np.round(fb*l/fs))
                     indexes_excp, properties_excp  = find_peaks(sptrm_C[i_fa:i_fb],height  = 0.01 ,prominence = 0.01 , width=1 , rel_height = 0.75)
                     N_max_positions                = Nmaxelements(sptrm_C[i_fa+indexes_excp], 3)
                     
-#                    if h.label == 'Max Value.': # 'Pip Vib.','Max Value.'
-#                            print('==========================='       )
-#                            print('indices-----',indexes_excp         )
-#                            print('pikos-------',sptrm_C[i_fa+indexes_excp])
-#                            print('posicionde los indices',N_max_positions, indexes_excp [N_max_positions],sptrm_C[i_fa+indexes_excp [N_max_positions]])
-#                            print(word_bis+' i ' + word,fa,fb,'----',i_fa,i_fb)
                     for counter,position in enumerate(N_max_positions):
                         word = h.label
                         word_bis = str(counter+1)+'th '
@@ -2081,16 +2078,34 @@ def df_Harmonics(df_FFT,fs,machine_type):
                         df_harm.iloc[medida]['n_s '  + word_bis + word] = init
                         df_harm.iloc[medida]['n_e '  + word_bis + word] = end
             
-            indexes_f_1x, properties_f_1x        = find_peaks(sptrm_C[i_f_1x_low:i_f_1x_high],height  = 0 ,prominence = 0.03 , width=1 , rel_height = 0.75)
-            f_1x_exist                           = False
-            max_value_f_1x                       = max_value_f_1x_i
-                        # miramos si hay algun pico entre 48 y 51Hz y nos quedamos con el mas grande
-                        # y si lo encontramos entonces "f_1x_exist= True"
-            for k in indexes_f_1x:    
-                if f_1x_LOW < f[i_f_1x_low + k] < f_1x_HIGH and sptrm_C[i_f_1x_low + k] > max_value_f_1x:
-                    f_1x           = f[i_f_1x_low + k]
-                    max_value_f_1x = sptrm_C[i_f_1x_low + k]
-                    f_1x_exist     = True
+            if machine_type == 'blower':
+                indexes_f_1x, properties_f_1x        = find_peaks(sptrm_C[i_f_1x_low:i_f_1x_high],height  = 0 ,prominence = 0.03 , width=1 , rel_height = 0.75)
+                f_1x_exist                           = False
+                max_value_f_1x                       = max_value_f_1x_i
+                            # miramos si hay algun pico entre 48 y 51Hz y nos quedamos con el mas grande
+                            # y si lo encontramos entonces "f_1x_exist= True"
+                for k in indexes_f_1x:    
+                    if f_1x_LOW < f[i_f_1x_low + k] < f_1x_HIGH and sptrm_C[i_f_1x_low + k] > max_value_f_1x:
+                        f_1x           = f[i_f_1x_low + k]
+                        max_value_f_1x = sptrm_C[i_f_1x_low + k]
+                        f_1x_exist     = True
+#                print(f_1x)
+            if machine_type == 'pump':
+                indexes_f_1x, properties_f_1x        = find_peaks(sptrm_C[5*i_f_1x_low:5*i_f_1x_high],height  = 0 ,prominence = 0.03 , width=1 , rel_height = 0.75)
+                f_1x_exist                           = False
+                max_value_f_1x                       = max_value_f_1x_i
+                            # miramos si hay algun pico entre 48 y 51Hz y nos quedamos con el mas grande
+                            # y si lo encontramos entonces "f_1x_exist= True"
+                            
+                for k in indexes_f_1x:    
+#                    print('medida = ',medida,5*f_1x_LOW , f[5*i_f_1x_low + k] , 5*f_1x_HIGH , sptrm_C[5*i_f_1x_low + k] , max_value_f_1x)
+                    if 5*f_1x_LOW < f[5*i_f_1x_low + k] < 5*f_1x_HIGH and sptrm_C[5*i_f_1x_low + k] > max_value_f_1x:
+                        f_1x           = f[5*i_f_1x_low + k]
+#                        print(medida,f_1x,)
+                        f_1x           = f_1x  /5         
+#                        print(f_1x)
+                        max_value_f_1x = sptrm_C[i_f_1x_low + k]
+                        f_1x_exist     = True
                     
             if f_1x_exist :                
                 indexes, properties = find_peaks(sptrm_C[0:l_mitad],height  = 0 ,prominence = 0.01 , width=1 , rel_height = 0.75)
@@ -2269,7 +2284,8 @@ def plot_waterfall_lines(title,df_in,df_harm,fs,fmin,fmax):
         inic_day         = datetime.datetime.fromtimestamp(df_in.index[counter]).day
         #print(t_traces[counter])
         #ax.plot(f_portion ,y_portion*t_traces[counter],curva_p,color=col_list[np.mod(color_counter,7)], linewidth = 0.2)
-        ax.plot(f_portion ,y_portion*t_traces[counter],curva_p,color=col_list[datetime.datetime.fromtimestamp(df_in.index[counter]).weekday()], linewidth = 0.2)
+        #ax.plot(f_portion ,y_portion*t_traces[counter],curva_p,color=col_list[datetime.datetime.fromtimestamp(df_in.index[counter]).weekday()], linewidth = 0.2)
+        ax.plot(f_portion ,y_portion*t_traces[counter],curva_p,color='b', linewidth = 0.2)
 
     ax.view_init(40, 90)
     ax.set_xlabel('Hertz')

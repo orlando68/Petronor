@@ -149,7 +149,7 @@ fprnt_list_blwrs = [
                     
                     fingerprint('BSF2'               ,'Peak',BSF2        ,0 ,'absoluto',1),
                     fingerprint('BSF2-FTF2'          ,'Peak',BSF2-FTF2   ,0 ,'absoluto',1),
-                    fingerprint('BSF2+FTF2'          ,'Peak',BSF2+FTFRMS 2   ,0 ,'absoluto',1),
+                    fingerprint('BSF2+FTF2'          ,'Peak',BSF2+FTF2   ,0 ,'absoluto',1),
                     fingerprint('2*BSF2'             ,'Peak',2*BSF2      ,0 ,'absoluto',1),
                     fingerprint('2*BSF2-FTF2'        ,'Peak',2*BSF2-FTF2 ,0 ,'absoluto',1),
                     fingerprint('2*BSF2+FTF2'        ,'Peak',2*BSF2+FTF2 ,0 ,'absoluto',1),
@@ -2039,7 +2039,9 @@ def df_Harmonics(df_FFT,fs,machine_type):
     for medida in range(n_traces):
                                 #--------N peaks within a certain bandwithd
 #        print ('Medida numero-------------------------------------------------',medida,df_harm.index[medida])
-        abs_line                             =                 np.abs(df_FFT.iloc[medida].values)
+                                
+        f_1x                                 = 0
+        abs_line                             = np.abs(df_FFT.iloc[medida].values)
         RMS_freq                             = np.sqrt(np.sum( abs_line**2 ) )
         df_harm.iloc[medida]['RMS (mm/s) f'] = RMS_freq
         sptrm_C                              = abs_line * np.sqrt(2) 
@@ -2079,35 +2081,57 @@ def df_Harmonics(df_FFT,fs,machine_type):
                         df_harm.iloc[medida]['n_e '  + word_bis + word] = end
             
             if machine_type == 'blower':
-                indexes_f_1x, properties_f_1x        = find_peaks(sptrm_C[i_f_1x_low:i_f_1x_high],height  = 0 ,prominence = 0.03 , width=1 , rel_height = 0.75)
-                f_1x_exist                           = False
-                max_value_f_1x                       = max_value_f_1x_i
-                            # miramos si hay algun pico entre 48 y 51Hz y nos quedamos con el mas grande
-                            # y si lo encontramos entonces "f_1x_exist= True"
-                for k in indexes_f_1x:    
-                    if f_1x_LOW < f[i_f_1x_low + k] < f_1x_HIGH and sptrm_C[i_f_1x_low + k] > max_value_f_1x:
-                        f_1x           = f[i_f_1x_low + k]
-                        max_value_f_1x = sptrm_C[i_f_1x_low + k]
-                        f_1x_exist     = True
-#                print(f_1x)
+                i_f_1x_LOW                    = int(np.round(f_1x_LOW*l/fs))
+                i_f_1x_HIGH                   = int(np.round(f_1x_HIGH*l/fs))
+                indexes_f_1x, properties_f_1x = find_peaks(sptrm_C[i_f_1x_LOW:i_f_1x_HIGH],height  = 0 ,prominence = 0.03 , width=1 , rel_height = 0.75)
+                posicion                      = np.argmax( sptrm_C[i_f_1x_LOW+ indexes_f_1x] )
+                f_1x                          = f[i_f_1x_LOW+ indexes_f_1x[posicion]]
+                
+#                indexes_f_1x, properties_f_1x        = find_peaks(sptrm_C[i_f_1x_low:i_f_1x_high],height  = 0 ,prominence = 0.03 , width=1 , rel_height = 0.75)
+#                f_1x_exist                           = False
+#                max_value_f_1x                       = max_value_f_1x_i
+#                            # miramos si hay algun pico entre 48 y 51Hz y nos quedamos con el mas grande
+#                            # y si lo encontramos entonces "f_1x_exist= True"
+#                for k in indexes_f_1x:    
+#                    if f_1x_LOW < f[i_f_1x_low + k] < f_1x_HIGH and sptrm_C[i_f_1x_low + k] > max_value_f_1x:
+#                        f_1x           = f[i_f_1x_low + k]
+#                        max_value_f_1x = sptrm_C[i_f_1x_low + k]
+#                        f_1x_exist     = True
+
             if machine_type == 'pump':
-                indexes_f_1x, properties_f_1x        = find_peaks(sptrm_C[5*i_f_1x_low:5*i_f_1x_high],height  = 0 ,prominence = 0.03 , width=1 , rel_height = 0.75)
-                f_1x_exist                           = False
-                max_value_f_1x                       = max_value_f_1x_i
-                            # miramos si hay algun pico entre 48 y 51Hz y nos quedamos con el mas grande
-                            # y si lo encontramos entonces "f_1x_exist= True"
-                            
-                for k in indexes_f_1x:    
-#                    print('medida = ',medida,5*f_1x_LOW , f[5*i_f_1x_low + k] , 5*f_1x_HIGH , sptrm_C[5*i_f_1x_low + k] , max_value_f_1x)
-                    if 5*f_1x_LOW < f[5*i_f_1x_low + k] < 5*f_1x_HIGH and sptrm_C[5*i_f_1x_low + k] > max_value_f_1x:
-                        f_1x           = f[5*i_f_1x_low + k]
-#                        print(medida,f_1x,)
-                        f_1x           = f_1x  /5         
-#                        print(f_1x)
-                        max_value_f_1x = sptrm_C[i_f_1x_low + k]
-                        f_1x_exist     = True
+                ratio    = df_harm.iloc[medida]['f 1th Max Value.'] /48.75
+                dist = np.abs(np.round(ratio)-ratio)
+                if dist < 0.09 and ratio >1.5: #-----miro a ver si el pico mas grande es un armonco
+                    f_1x = df_harm.iloc[medida]['f 1th Max Value.'] /np.round(ratio)
+                    print(np.round(ratio),'th Harmonic. f1x =',f_1x)
+                else: # sino miro el 5th armonico
+                    i_f_1x_LOW                    = int(np.round(5*f_1x_LOW*l/fs))
+                    i_f_1x_HIGH                   = int(np.round(5*f_1x_HIGH*l/fs))
+                    indexes_f_1x, properties_f_1x = find_peaks(sptrm_C[i_f_1x_LOW:i_f_1x_HIGH],height  = 0 ,prominence = 0.03 , width=1 , rel_height = 0.75)
+                    if np.size(indexes_f_1x) >0 :
+                        posicion                      = np.argmax( sptrm_C[i_f_1x_LOW+ indexes_f_1x] )
+                        f_1x                          = f[i_f_1x_LOW+ indexes_f_1x[posicion]] /5
+                        print('5th harmonic, f1x=',f_1x)
+                    else: #---------si no existe el 5th armonico busco la fundamentla directamete
+                        indexes_f_1x, properties_f_1x = find_peaks(sptrm_C[i_f_1x_low:i_f_1x_high],height= 0,prominence = 0.03,width=1,rel_height = 0.75)
+                        posicion                      = np.argmax( sptrm_C[i_f_1x_LOW+ indexes_f_1x] )
+                        f_1x                          = f[i_f_1x_LOW+ indexes_f_1x[posicion]]
+                        print('directamente f1x=',f_1x)
+                        
+#                indexes_f_1x, properties_f_1x        = find_peaks(sptrm_C[5*i_f_1x_low:5*i_f_1x_high],height  = 0 ,prominence = 0.03 , width=1 , rel_height = 0.75)
+#                f_1x_exist                           = False
+#                max_value_f_1x                       = max_value_f_1x_i
+#                            # miramos si hay algun pico entre 48 y 51Hz y nos quedamos con el mas grande
+#                            # y si lo encontramos entonces "f_1x_exist= True"
+#                for k in indexes_f_1x:    
+#                    if 5*f_1x_LOW < f[5*i_f_1x_low + k] < 5*f_1x_HIGH and sptrm_C[5*i_f_1x_low + k] > max_value_f_1x:
+#                        f_1x           = f[5*i_f_1x_low + k]
+#                        f_1x           = f_1x  /5         
+#                        max_value_f_1x = sptrm_C[i_f_1x_low + k]
+#                        f_1x_exist     = True
                     
-            if f_1x_exist :                
+#            if f_1x_exist :  
+            if f_1x !=0:
                 indexes, properties = find_peaks(sptrm_C[0:l_mitad],height  = 0 ,prominence = 0.01 , width=1 , rel_height = 0.75)
                 delta               = 0.75 #-----------en Hz
                 fa                  = 0

@@ -18,7 +18,7 @@ if __name__ == '__main__':
         
         'Fecha'        : '2019-05-21T20:00:46.9988564Z',
         'FechaInicio'  : '2018-10-12T00:52:46.9988564Z',
-        'NumeroTramas' : '10',
+        'NumeroTramas' : '100',
         'Parametros'   : 'waveform',
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',

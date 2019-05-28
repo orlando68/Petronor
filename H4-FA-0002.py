@@ -13,12 +13,12 @@ if __name__ == '__main__':
     parameters = {
         'IdPlanta'     : 'BPT',
         'IdAsset'      : 'H4-FA-0002',
-        'Localizacion' : 'SH4', #SH3/4
+        'Localizacion' : 'SH3', #SH3/4
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
         'Fecha'        : '2019-05-08T16:00:00.9988564Z',
         'FechaInicio'  : '2019-02-12T00:52:46.9988564Z',
-        'NumeroTramas' : '50',
+        'NumeroTramas' : '5',
         'Parametros'   : 'waveform',
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     harm                        = Centrifugal_Fan_Unbalance(harm)
     harm                        = Plain_Bearing_Clearance(harm)
     harm                        = Plain_Bearing_Lubrication_Whirl(harm)
-    harm                        = Plain_Bearing_Lubrication_Whip(harm)
+    harm                        = Plain_Bearing_Lubrication_Whip (harm)
     harm                        = Blade_Faults(harm)
     harm                        = Flow_Turbulence(harm)
     harm                        = Plain_Bearing_Block_Looseness(harm)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     #color,vertices = plot_waterfall(df_SPEED_abs,harm,fs,0,400) 
     plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED,harm,fs,0,400)
     #plot_waterfall27(parameters,df_SPEED_abs,harm,fs,0,400)
-    print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<FINNNNNNNNNNNNNNNN')
+    print('-------------------------------FIN----------------------------------')
 
     ####POST
 

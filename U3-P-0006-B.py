@@ -13,12 +13,12 @@ if __name__ == '__main__':
     parameters = {
         'IdPlanta'     : 'BPT',
         'IdAsset'      : 'U3-P-0006-B',
-        'Localizacion' : 'BH3', #BH3 (horizontal), BA4 (axial) y BV4 (vertical)
+        'Localizacion' : 'BV4', #BH3 (horizontal), BA4 (axial) y BV4 (vertical)
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
         'Fecha'        : '2019-05-21T20:00:46.9988564Z',
         'FechaInicio'  : '2018-10-12T00:52:46.9988564Z',
-        'NumeroTramas' : '100',
+        'NumeroTramas' : '5',
         'Parametros'   : 'waveform',
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         harm_BV4                  = Vane_Failure(harm_BV4)
         harm_BV4                  = Oil_Whirl_pumps(harm_BV4)
         harm_BV4                  = Oil_Whip_pumps(harm_BV4)
-        harm_BH3                  = Auto_Oscillation(harm_BH3)
+        harm_BV4                  = Auto_Oscillation(harm_BV4)
         
         check_test_results(harm_BV4)
         
@@ -121,7 +121,7 @@ if __name__ == '__main__':
    
     #plot_waterfall27(parameters,df_SPEED_abs,fs,0,400)
     
-    print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<FINNNNNNNNNNNNNNNN')
+    print('-------------------------------FIN----------------------------------')
 
     ####POST
 

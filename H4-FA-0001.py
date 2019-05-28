@@ -18,7 +18,7 @@ if __name__ == '__main__':
         
         'Fecha'        : '2019-02-20T00:00:00.00Z',
         'FechaInicio'  : '2019-02-14T00:00:00Z',
-        'NumeroTramas' : '5',
+        'NumeroTramas' : '10',
         'Parametros'   : 'waveform',
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
@@ -48,11 +48,11 @@ if __name__ == '__main__':
     harm                  = Ball_Bearing_Inner_Race_Defects_22217C(harm) #ok
     harm                  = Ball_Bearing_Inner_Race_Defects_22219C(harm) #ok
     
-    harm                  = Ball_Bearing_Ball_Defect_22217C(harm) #ok
-    harm                  = Ball_Bearing_Ball_Defect_22219C(harm) #ok
+    harm                  = Ball_Bearing_Ball_Defect_22217C(harm)        #ok
+    harm                  = Ball_Bearing_Ball_Defect_22219C(harm)        #ok
     
-    harm                  = Ball_Bearing_Cage_Defect_22217C(harm)    #ok
-    harm                  = Ball_Bearing_Cage_Defect_22219C(harm) #ok
+    harm                  = Ball_Bearing_Cage_Defect_22217C(harm)        #ok
+    harm                  = Ball_Bearing_Cage_Defect_22219C(harm)        #ok
     
     check_test_results(harm)
     
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     
     plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED,harm,fs,0,400)
 
-    print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<FINNNNNNNNNNNNNNNN')
+    print('-------------------------------FIN----------------------------------')
 
     ####POST
 

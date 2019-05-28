@@ -523,12 +523,13 @@ def DecissionTable_Surge_Effect(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,df_en
             bool_template      = bool_template and df_dado.loc['0'][k] < df_env_specs_IN.loc['0'][k]                            #---------------------
         #print(bool_template)
         if bool_template:#-----------------TEMPLATE
-            A = PK(E1,df_dado.loc['0']['Surge E. 0.33x 0.5x'])
-            B = PK(E1,df_dado.loc['0']['Surge E. 12/20k'])
+            A = PK(E1,df_dado.loc['0']['Surge E. 0.33x 0.5x']) and PK (E1,df_dado.loc['0']['Surge E. 0.33x 0.5x']) <= df_dado.loc['0']['1.0'] 
+            C = PK(E1,df_dado.loc['0']['Surge E. 0.33x 0.5x']) and PK (E1,df_dado.loc['0']['Surge E. 0.33x 0.5x']) > df_dado.loc['0']['1.0'] 
             df_Values_IN,l1,l2,l3 = decision_table(not A,l1,
-                                                (A or B),l2,
-                                                (A and B),l3,
-                                                df_Values_IN,df_dado.loc['0'],Harmonics_IN,n_reales_IN)
+                                                   A    ,l2,
+                                                   C    ,l3,
+                                                   df_Values_IN,df_dado.loc['0'],Harmonics_IN,n_reales_IN)
+
     return df_Values_IN
 #-----------------------------------------------------------------------------4   
 @jit 
@@ -1057,29 +1058,29 @@ if __name__ == '__main__':
         'Hour'         : ''
         }
     
-    n_random = 100 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
+    n_random = 2 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
     df_speed,df_SPEED = Load_Vibration_Data_Global(parameters)
     
     
-    Process_variable1 = FailureMode('Severe_Misaligment',df_speed,df_SPEED)    #------tarda mucho en generar señales verdes
-    Process_variable1.__func__(0,['1.0','2.0','3.0','4.0','5/2','7/2','9/2'],
-                                 [4.6  ,4.6   ,1.0  ,0.5  ,0.1  ,0.1  , 0.1],
-                                 [0.85 ,0.85  ,0.5  ,0.5  ,0.5  ,0.5  , 0.5],
-                                 [10   ,10    ,1.4  ,0.9  ,0.2  ,0.2  , 0.2])
+#    Process_variable1 = FailureMode('Severe_Misaligment',df_speed,df_SPEED)    #------tarda mucho en generar señales verdes
+#    Process_variable1.__func__(0,['1.0','2.0','3.0','4.0','5/2','7/2','9/2'],
+#                                 [4.6  ,4.6   ,1.0  ,0.5  ,0.1  ,0.1  , 0.1],
+#                                 [0.85 ,0.85  ,0.5  ,0.5  ,0.5  ,0.5  , 0.5],
+#                                 [10   ,10    ,1.4  ,0.9  ,0.2  ,0.2  , 0.2])
     
 #
-#    Process_variable2 = FailureMode('Loose_Bedplate',df_speed,df_SPEED) 
-#    Process_variable2.__func__(0,['1.0','2.0','3.0'],
-#                                 [4.8  ,0.9  ,0.9],
-#                                 [1.2  ,0.5  ,0.5],
-#                                 [10   ,1.2  ,2.4])
+    Process_variable2 = FailureMode('Loose_Bedplate',df_speed,df_SPEED) 
+    Process_variable2.__func__(0,['1.0','2.0','3.0'],
+                                 [4.8  ,0.9  ,0.9],
+                                 [1.2  ,0.5  ,0.5],
+                                 [10   ,1.2  ,2.4])
 #    Process_variable2.__func_2__()
 #    
-#    Process_variable3 = FailureMode('Surge_Effect',df_speed,df_SPEED) 
-#    Process_variable3.__func__(0,['Surge E. 0.33x 0.5x','Surge E. 12/20k'],
-#                                  [0.05                 ,0.05],
-#                                  [0.1                  ,0.1],
-#                                  [0.7                  ,0.7])
+    Process_variable3 = FailureMode('Surge_Effect',df_speed,df_SPEED) 
+    Process_variable3.__func__(0,['1.0','Surge E. 0.33x 0.5x'],
+                                  [3,0.05                 ],
+                                  [3,0.1                 ],
+                                  [7,0.7                  ])
 #
 #    Process_variable4 = FailureMode('Plain_Bearing_Lubrication_Whip',df_speed,df_SPEED) 
 #    Process_variable4.__func__(0,['1/2','5/2'],

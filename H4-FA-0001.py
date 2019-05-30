@@ -3,7 +3,7 @@ from PETRONOR_lyb import *
 
 
 #------------------------------------------------------------------------------
-Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\python\\outputs\\'
+Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\outputs\\'
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
 
@@ -29,8 +29,7 @@ if __name__ == '__main__':
 
     
     df_speed,df_SPEED = Load_Vibration_Data_Global(parameters)
-    
-    harm                  = df_Harmonics(df_SPEED, fs,'blower')
+    harm              = df_Harmonics(df_SPEED, fs,'blower')
     
     if parameters['Localizacion'] == 'SH4':
         harm                  = Pillow_Block_Loseness(harm)           # not for MH2

@@ -3,7 +3,7 @@ from PETRONOR_lyb import *
 
 
 #--------------------------------------------------------------------------------
-Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\python\\outputs\\'
+Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\outputs\\'
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
 
@@ -16,9 +16,9 @@ if __name__ == '__main__':
         'Localizacion' : 'SH3', #SH3/4
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
-        'Fecha'        : '2019-05-08T16:00:00.9988564Z',
+        'Fecha'        : '2018-11-13T00:00:00.9988564Z',
         'FechaInicio'  : '2019-02-12T00:52:46.9988564Z',
-        'NumeroTramas' : '5',
+        'NumeroTramas' : '100',
         'Parametros'   : 'waveform',
         
         'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',

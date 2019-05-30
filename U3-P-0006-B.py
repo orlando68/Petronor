@@ -3,7 +3,7 @@ from PETRONOR_lyb import *
 
 
 #------------------------------------------------------------------------------
-Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\python\\outputs\\'
+Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\outputs\\'
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
 

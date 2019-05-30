@@ -35,7 +35,7 @@ E1        = 0.10
 E2        = 0.07
 fs        = 5120.0
 l         = 16384
-Path_out  = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\python\\outputs\\'
+Path_out  = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\outputs\\'
 #------------------------------------------------------------------------------
 
 
@@ -1546,7 +1546,7 @@ def Ball_Bearing_Cage_Defect_7310BEP(df_in):
             if df_in.iloc[i]['$Ball B. Cage D. Failure_7310BEP'] == 'None':
                 print(df_in.iloc[i]['RMS 1.0'])
                 print ('Fallo en:', i)
-                print(a1,a2,b2,c2)
+                
                 print(A,B,C)
     return df_in
 
@@ -1974,43 +1974,93 @@ def Distan_Armonico(i_f_in,fnom):
     d = np.abs(np.round(ratio)-ratio)
     return d
 
-def find_f1x(sptrm,indexes, properties ,fnom):
-    
-    Hz = f_in(1)
-    N_max_positions  = Nmaxelements(sptrm[indexes], 3)
-    found            = False
-    N_harmonic_found = 0 
 
-    for counter,k in enumerate(N_max_positions): #---lo busco entre los 3 mayores
-        dist = Distan_Armonico(indexes[k],fnom)
-        if dist < 0.01:
-            N_harmonic_found = N_harmonic_found + 1
-            f_found          = f(indexes[k])/np.round( f(indexes[k]) / fnom )
-#            print (k,f(indexes[k]),'Hz',sptrm[indexes[k]],'mm/s',Distan_Armonico(indexes[k],fnom) )
-            print ('El', counter+1,'th maximo es el :',np.round( f(indexes[k]) / fnom ),'th harmonic. f1x =',f_found)
-            found = True
-            break
-#    found = False
+def find_f1x_bis(sptrm,indexes, properties ,fnom,machine_type):
+    if machine_type == 'blower':
+        HarmonicList = [1,2,3]
+
+    if machine_type == 'pump':
+        HarmonicList = [1,5]
+    
+    df_harmonics= pd.DataFrame(np.nan,index = ['i-','Value','Hz','f1x'],columns = HarmonicList)
+   
+    Hz = f_in(1)
+#    N_max_positions  = Nmaxelements(sptrm[indexes], 3)
+#    found            = False
+#    
+#    for counter,k in enumerate(N_max_positions):      #---lo busco entre los 3 mayores
+#        dist = Distan_Armonico(indexes[k],fnom)
+#        if dist < 0.01:                               #----se trata de un armonico
+#            if np.round( f(indexes[k]) / fnom ) == 5: #--quinto armocnico
+#                f_found          = f(indexes[k])/np.round( f(indexes[k]) / fnom )
+#                found = True
+#                print ('El quinto armonico encontrado',f_found)
+    found = False
     if not found:                               #---lo busco entre los 10 primeros armonicos
-        N_harmo       = 11
         highest_value = 0
-        for i in range(1,N_harmo):
-            #print(i*fnom,'===>',f_in(i*fnom)-Hz,f_in(i*fnom),f_in(i*fnom)+Hz)
+        for i in  HarmonicList:
+        
+#            print(i*fnom,'===>',f_in(i*fnom)-Hz,f_in(i*fnom),f_in(i*fnom)+Hz)
             a = indexes[indexes >= f_in(i*fnom)-Hz]
-            b = a [a <= f_in(i*fnom)+Hz] 
-            #print('armonico',i,'valores de b',b)
+            b = a [a <= f_in(i*fnom) + Hz ] 
+            print('armonico',i,'valores de b',b,f(b))
+            print( b[np.argmax(sptrm[b])])
+            df_harmonics.loc['i-',i]        =  b[np.argmax(sptrm[b])]
+            df_harmonics.loc['Value',i]     = sptrm[ b[np.argmax(sptrm[b])]]
+            df_harmonics.loc['Hz',i]        = f( b[np.argmax(sptrm[b])])
+            df_harmonics.loc['f1x',i]       = f(b[np.argmax(sptrm[b])]) /np.round( f(b[np.argmax(sptrm[b])]) / fnom )
+            df_harmonics.loc['distancia',i] = Distan_Armonico(b[np.argmax(sptrm[b])],fnom)
+            
             if np.size(b) == 1:
                 dist = Distan_Armonico(b,fnom)
-    
                 if dist < 0.01:
-    
+                    
                     found = True
                     if sptrm[b] > highest_value:
                         highest_value = sptrm[b]
                         i_highest     = b
-        print(highest_value,i_highest)
+        if found:
+            f_found       = f(i_highest) /np.round( f(i_highest) / fnom )       
+            print('El',np.round( f(i_highest) / fnom) ,'th armonico el el mayor', f_found)
+        else:
+            f_found = 0
+            print('Fundamental f1x not found')
+    print(df_harmonics)
+#        print('indices',indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz])
+#        print('valores',sptrm[indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz]])
+                        
+    return f_found,found
+
+def find_f1x(sptrm,indexes, properties ,fnom,machine_type):
+    if machine_type == 'blower':
+        HarmonicList = [1,2,3]
+    if machine_type == 'pump':
+        HarmonicList = [1,5]
+    Hz    = f_in(.35)
+    found = False
+                              #---lo busco entre los 10 primeros armonicos
+    highest_value = 0
+#    df_harmonics= pd.DataFrame(np.nan,index = HarmonicList ,columns = range(4))
+    for i in  HarmonicList:   
+#            print(i*fnom,'===>',f_in(i*fnom)-Hz,f_in(i*fnom),f_in(i*fnom)+Hz)
+        a = indexes[indexes >= f_in(i*fnom)-Hz]
+        b = a [a <= f_in(i*fnom)+Hz]
+#        df_harmonics.loc[i][0:np.size(b)] = b
+#        print (b)
+        if np.size(b) == 1:
+            dist = Distan_Armonico(b,fnom)
+            if dist < 0.01:         
+                found = True
+                if sptrm[b] > highest_value:
+                    highest_value = sptrm[b]
+                    i_highest     = b
+    if found:
         f_found       = f(i_highest) /np.round( f(i_highest) / fnom )       
         print('El',np.round( f(i_highest) / fnom) ,'th armonico el el mayor', f_found)
+    else:
+        f_found = 0
+        print('Fundamental f1x not found')
+#    print (df_harmonics)
 #        print('indices',indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz])
 #        print('valores',sptrm[indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz]])
                         
@@ -2280,73 +2330,70 @@ def df_Harmonics(df_FFT,fs,machine_type):
         abs_line                             = np.abs(df_FFT.iloc[medida].values)
         RMS_freq                             = np.sqrt(np.sum( abs_line**2 ) )
         df_harm.iloc[medida]['RMS (mm/s) f'] = RMS_freq
-        sptrm_C                              = abs_line * np.sqrt(2) 
-                                              # integramos en 1º z Nyquist por eso el voltaje x raiz(2) 
-        indexes, properties                  = find_peaks(sptrm_C[0:l_mitad],height  = 1*0.01 ,prominence = 0.01 , width=1 , rel_height = 0.75)
-        f_1x , f_1x_exist                    = find_f1x(sptrm_C,indexes, properties ,fnom)
-        if RMS_freq > 0.06 and f_1x_exist:
-            for h in fingerprint_list:        
-                if  h.order >1:
-                    word = h.label
-
-                    if h.f_norm == 'absoluto':   #-------------------------
-                        fa = h.f1
-                        fb = h.f2
-                    i_fa            = int(np.round(fa*l/fs))
-                    i_fb            = int(np.round(fb*l/fs))                   
-                    upper           = indexes[indexes >= i_fa]
-                    inner           = upper  [upper   <= i_fb] 
-                    N_max_positions = Nmaxelements(sptrm_C[inner], h.order)                    
-                    for counter,position in enumerate(N_max_positions):
-                        word                                            = h.label
-                        word_bis                                        = str(counter+1)+'th '            
-                        init                                            = int(np.round(properties["left_ips"][position]))                                                                     
-                        end                                             = int(np.round(properties["right_ips"][position]))  
-                        piko                                            = np.sqrt(np.sum( sptrm_C[init : end+1]**2 )) 
-                        df_harm.iloc[medida]['i '    + word_bis + word] = int(indexes[position])
-                        df_harm.iloc[medida]['Point '+ word_bis + word] = sptrm_C[int(indexes[position])]
-                        df_harm.iloc[medida]['RMS '  + word_bis + word] = piko #/ Max_value
-                        df_harm.iloc[medida]['f '    + word_bis + word] = f[int(indexes[position])]
-                        df_harm.iloc[medida]['BW '   + word_bis + word] = f[int(properties["widths"][position]) ]
-                        df_harm.iloc[medida]['n_s '  + word_bis + word] = init
-                        df_harm.iloc[medida]['n_e '  + word_bis + word] = end
-            
-            for counter,k in enumerate(indexes) :
-                for h in fingerprint_list:
-                    if h.order ==1:
-
+        if  RMS_freq > 0.06: #-------------------------esta la máquina apagada?
+            sptrm_C             = abs_line * np.sqrt(2)  # integramos en 1º z Nyquist por eso el voltaje x raiz(2) 
+            indexes, properties = find_peaks(sptrm_C[0:l_mitad],height  = 1*0.01 ,prominence = 0.01 , width=1 , rel_height = 0.75)
+            f_1x , f_1x_exist   = find_f1x(sptrm_C,indexes, properties ,fnom,machine_type)
+            if f_1x_exist:   #----------hemos identificado f1x-----------------
+                for h in fingerprint_list:        
+                    if  h.order >1:
+                        word = h.label
                         if h.f_norm == 'absoluto':   #-------------------------
-                            if h.tipo == 'Peak':
-                                fa = (h.f1 - delta) / f_1x
-                                fb = (h.f1 + delta) / f_1x
-                            if h.tipo == 'Span':
-                                fa = h.f1 / f_1x
-                                fb = h.f2 / f_1x                            
-                        if h.f_norm == 'relativo':   #-------------------------
-                            if h.tipo == 'Peak':
-                                fa = h.f1 - delta / f_1x
-                                fb = h.f1 + delta / f_1x
-                            if h.tipo == 'Span':
-                                fa = h.f1 
-                                fb = h.f2                               
-                        if h.f_norm == 'mixto':      #-------------------------
-                            if h.tipo == 'Peak':
-                                fa = (h.f1 + h.f2*f_1x - delta) / f_1x
-                                fb = (h.f1 + h.f2*f_1x + delta) / f_1x                  
-                        if fa  <= f[k]/f_1x <= fb:
-                            word = h.label
-                            init = int(np.round(properties["left_ips" ][counter]))
-                            end  = int(np.round(properties["right_ips"][counter]))
-                            piko = np.sqrt(np.sum( sptrm_C[init : end+1]**2 )) #--estos valores son RMS mm/s
-                            if piko > df_harm.iloc[medida]['RMS '+word]:
-                                df_harm.iloc[medida]['i '     + word] = k
-                                df_harm.iloc[medida]['Point ' + word] = sptrm_C[k]
-                                df_harm.iloc[medida]['RMS '   + word] = piko #/ Max_value
-                                df_harm.iloc[medida]['f '     + word] = f[k]
-                                df_harm.iloc[medida]['BW '    + word] = f[int(properties["widths"][counter]) ]
-                                df_harm.iloc[medida]['n_s '   + word] = init
-                                df_harm.iloc[medida]['n_e '   + word] = end
-                                #df_harm.iloc[medida]['S/N '   + word] = 10*np.log10(piko**2/(df_harm.iloc[medida]['RMS (mm/s) f']**2-piko**2))           
+                            fa = h.f1
+                            fb = h.f2
+                        i_fa            = int(np.round(fa*l/fs))
+                        i_fb            = int(np.round(fb*l/fs))                   
+                        upper           = indexes[indexes >= i_fa]
+                        inner           = upper  [upper   <= i_fb] 
+                        N_max_positions = Nmaxelements(sptrm_C[inner], h.order)                    
+                        for counter,position in enumerate(N_max_positions):
+                            word                                            = h.label
+                            word_bis                                        = str(counter+1)+'th '            
+                            init                                            = int(np.round(properties["left_ips"][position]))                                                                     
+                            end                                             = int(np.round(properties["right_ips"][position]))  
+                            piko                                            = np.sqrt(np.sum( sptrm_C[init : end+1]**2 )) 
+                            df_harm.iloc[medida]['i '    + word_bis + word] = int(indexes[position])
+                            df_harm.iloc[medida]['Point '+ word_bis + word] = sptrm_C[int(indexes[position])]
+                            df_harm.iloc[medida]['RMS '  + word_bis + word] = piko #/ Max_value
+                            df_harm.iloc[medida]['f '    + word_bis + word] = f[int(indexes[position])]
+                            df_harm.iloc[medida]['BW '   + word_bis + word] = f[int(properties["widths"][position]) ]
+                            df_harm.iloc[medida]['n_s '  + word_bis + word] = init
+                            df_harm.iloc[medida]['n_e '  + word_bis + word] = end            
+                for counter,k in enumerate(indexes) :
+                    for h in fingerprint_list:
+                        if h.order ==1:
+                            if h.f_norm == 'absoluto':   #-------------------------
+                                if h.tipo == 'Peak':
+                                    fa = (h.f1 - delta) / f_1x
+                                    fb = (h.f1 + delta) / f_1x
+                                if h.tipo == 'Span':
+                                    fa = h.f1 / f_1x
+                                    fb = h.f2 / f_1x                            
+                            if h.f_norm == 'relativo':   #-------------------------
+                                if h.tipo == 'Peak':
+                                    fa = h.f1 - delta / f_1x
+                                    fb = h.f1 + delta / f_1x
+                                if h.tipo == 'Span':
+                                    fa = h.f1 
+                                    fb = h.f2                               
+                            if h.f_norm == 'mixto':      #-------------------------
+                                if h.tipo == 'Peak':
+                                    fa = (h.f1 + h.f2*f_1x - delta) / f_1x
+                                    fb = (h.f1 + h.f2*f_1x + delta) / f_1x                  
+                            if fa  <= f[k]/f_1x <= fb:
+                                word = h.label
+                                init = int(np.round(properties["left_ips" ][counter]))
+                                end  = int(np.round(properties["right_ips"][counter]))
+                                piko = np.sqrt(np.sum( sptrm_C[init : end+1]**2 )) #--estos valores son RMS mm/s
+                                if piko > df_harm.iloc[medida]['RMS '+word]:
+                                    df_harm.iloc[medida]['i '     + word] = k
+                                    df_harm.iloc[medida]['Point ' + word] = sptrm_C[k]
+                                    df_harm.iloc[medida]['RMS '   + word] = piko #/ Max_value
+                                    df_harm.iloc[medida]['f '     + word] = f[k]
+                                    df_harm.iloc[medida]['BW '    + word] = f[int(properties["widths"][counter]) ]
+                                    df_harm.iloc[medida]['n_s '   + word] = init
+                                    df_harm.iloc[medida]['n_e '   + word] = end
+                                    #df_harm.iloc[medida]['S/N '   + word] = 10*np.log10(piko**2/(df_harm.iloc[medida]['RMS (mm/s) f']**2-piko**2))           
                                 
     print('-----------------------Fingerprints extracted-----------------------')
     return df_harm

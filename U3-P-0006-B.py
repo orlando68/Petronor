@@ -3,7 +3,6 @@ from PETRONOR_lyb import *
 
 
 #------------------------------------------------------------------------------
-Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\outputs\\'
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
 
@@ -13,17 +12,18 @@ if __name__ == '__main__':
     parameters = {
         'IdPlanta'     : 'BPT',
         'IdAsset'      : 'U3-P-0006-B',
-        'Localizacion' : 'BV4', #BH3 (horizontal), BA4 (axial) y BV4 (vertical)
+        'Localizacion' : 'BH3', #BH3 (horizontal), BA4 (axial) y BV4 (vertical)
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
-        'Fecha'        : '2019-05-21T20:00:46.9988564Z',
+        'Fecha'        : '2019-02-21T20:00:46.9988564Z',
         'FechaInicio'  : '2018-10-12T00:52:46.9988564Z',
-        'NumeroTramas' : '5',
+        'NumeroTramas' : '10',
         'Parametros'   : 'waveform',
         
-        'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
-        'Month'        : '10',
-        'Day'          : '11',#'12'
+#        'Path'         : 'C://OPG106300//TRABAJO//Proyectos//Petronor-075879.1 T 20000//Trabajo//data//Petronor//data//vibrations//2018',
+        'Path'         : '//home//instalador//Mantenimiento//data//2018',
+        'Month'        : '1',
+        'Day'          : '',#'12'
         'Hour'         : ''    
     }
 
@@ -85,6 +85,7 @@ if __name__ == '__main__':
         
         save_files(parameters,df_speed_BV4,df_SPEED_BV4,harm_BV4)
         Plot_Spectrum(0,df_SPEED_BV4,harm_BV4)
+        ""
     
     if parameters['Localizacion'] == 'BA4':    #--------Axial
         harm_BA4                  = df_Harmonics(df_SPEED_BA4, fs,'pump')

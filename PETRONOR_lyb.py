@@ -28,6 +28,7 @@ from matplotlib.colors import colorConverter
 import pandas as pd
 from numba import jit
 
+from itertools import combinations
 
 
 pi        = np.pi
@@ -35,7 +36,8 @@ E1        = 0.10
 E2        = 0.07
 fs        = 5120.0
 l         = 16384
-Path_out  = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\outputs\\'
+Path_out  ='C://OPG106300//TRABAJO//Proyectos//Petronor-075879.1 T 20000//Trabajo//data//outputs//'
+Path_out  ='//home//instalador//Mantenimiento//data//outputs//' 
 #------------------------------------------------------------------------------
 
 
@@ -183,6 +185,7 @@ fprnt_list_pumps = [
                     fingerprint('3.0'         ,'Peak',3   ,0    ,'relativo',1),
                     fingerprint('4.0'         ,'Peak',4   ,0    ,'relativo',1),
                     fingerprint('5.0'         ,'Peak',5   ,0    ,'relativo',1),
+                    fingerprint('10.0'        ,'Peak',10  ,0    ,'relativo',1),
                     
                     fingerprint('1/2'         ,'Peak',1/2 ,0,'relativo',1),
                     fingerprint('3/2'         ,'Peak',1.5 ,0,'relativo',1),
@@ -324,8 +327,6 @@ def Truth_Table (A,B,C):
     if C:
         out = 'Red'
     return out
-
-
 #------------------------------------------------------------------------------ 
 # Python program to find N largest element from given list of integers  
 def Nmaxelements(x, N):
@@ -354,13 +355,12 @@ def Nmaxelements(x, N):
    # print(list_index)
     return list_index
 #------------------------------------------------------------------------------        
- 
 def find_file(file1,file2):
     
     found1 = False
     found2 = False
     files  = os.listdir(Path_out)
-    
+#    print(files)
     for name in files:
         
         if file1 == name:
@@ -417,7 +417,7 @@ def Load_Vibration_Data_Global(parameters):
             df_SPEED           = pd.read_pickle(Path_out + fichero_SPEED)
         else:
             print('------------------------------------Accediendo ficheros json desde BaseDatos')
-            df_accel           = Load_Vibration_Data_From_DB(parameters['Path']+'\\'+month+'\\'+day+'\\'+hour,parameters['IdAsset'],parameters['Localizacion'])
+            df_accel           = Load_Vibration_Data_From_DB(parameters['Path']+'//'+month+'//'+day+'//'+hour,parameters['IdAsset'],parameters['Localizacion'])
             df_speed,df_SPEED  = velocity(df_accel)
  
     return df_speed,df_SPEED
@@ -500,8 +500,8 @@ def Load_Vibration_Data_From_Get(input_data, Parameters):#MeasurePointId, num_tr
 
         if res.AssetId.values[0] == assetId and res.MeasurePointId.values[0] == MeasurePointId:
             #print(root)
-            print(res.Props.iloc[0][0]['Value'])
-            print(res.Props.iloc[0][4]['Value'])
+#            print(res.Props.iloc[0][0]['Value'])
+#            print(res.Props.iloc[0][4]['Value'])
             cal_factor = np.float(res.Props.iloc[0][4]['Value'])
             data.append(np.asarray(res.Value.values[0])*cal_factor)
 
@@ -578,8 +578,8 @@ def Load_Vibration_Data_From_Get_Pumps(input_data, Parameters):#MeasurePointId, 
     
             if res.AssetId.values[0] == assetId:# and res.MeasurePointId.values[0] == MeasurePointId:
                 #print(root)
-                print(res.Props.iloc[0][0]['Value'])
-                print(res.Props.iloc[0][4]['Value'])
+#                print(res.Props.iloc[0][0]['Value'])
+#                print(res.Props.iloc[0][4]['Value'])
                 cal_factor = np.float(res.Props.iloc[0][4]['Value'])
                 #data.append(np.asarray(res.Value.values[0])*cal_factor)
                 lista_data[flag_pos].append(np.asarray(res.Value.values[0])*cal_factor)
@@ -1506,10 +1506,10 @@ def Ball_Bearing_Defect_7310BEP(df_in):
             C  = PEAKS(E2,df_in.iloc[i]['RMS BSF']  ,df_in.iloc[i]['RMS BSF+FTF']  ,df_in.iloc[i]['RMS BSF-FTF'])
             D  = PEAKS(E2,df_in.iloc[i]['RMS 2*BSF'],df_in.iloc[i]['RMS 2*BSF+FTF'],df_in.iloc[i]['RMS 2*BSF-FTF'])
             
-            df_in.loc[df_in.index[i],'$Ball B D. Failure_7310BEP'] = Truth_Table(A,B ^ C,D)
+            df_in.loc[df_in.index[i],'$Ball B D. Failure_7310BEP'] = Truth_Table(A,B or  C,D)
     
             if df_in.iloc[i]['$Ball B D. Failure_7310BEP'] == 'None':
-                print ('Fallo en:', i)
+                print ('Fallo en:', i,df_in.index[i])
                 print ('No peak at BSF           ',a1,df_in.iloc[i]['f BSF']   ,df_in.iloc[i]['RMS BSF'] )
                 print ('Peak at BSF, no harmonics',a2,df_in.iloc[i]['f 2*BSF'] ,df_in.iloc[i]['RMS 2*BSF'] )
                 print('A=',A)
@@ -1932,29 +1932,48 @@ def Auto_Oscillation(df_in):
             df_in.loc[df_in.index[i],'$Auto_Oscillation'] = 'No vibration detected'
         else:     
             A  = NO_PEAKS(E2,df_in.iloc[i]['RMS 1th Auto Osc.'],df_in.iloc[i]['RMS 2th Auto Osc.'],df_in.iloc[i]['RMS 3th Auto Osc.'])
-            b0 =       df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8 and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8 # ninguna mayor de 2.8
-            b1 = PK(E2,df_in.iloc[i]['RMS 1th Auto Osc.'])      and df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8
-            b2 = PK(E2,df_in.iloc[i]['RMS 2th Auto Osc.'])      and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8
+#            b0 =       df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8 and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8 # ninguna mayor de 2.8
+#            b1 = PK(E2,df_in.iloc[i]['RMS 1th Auto Osc.'])      and df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8
+#            b2 = PK(E2,df_in.iloc[i]['RMS 2th Auto Osc.'])      and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.
+#            B  = b0 and (b1 ^ b2)
+            
+#            c1 = df_in.iloc[i]['RMS 1th Auto Osc.'] > 2.8
+#            c2 = df_in.iloc[i]['RMS 2th Auto Osc.'] > 2.8
+#            C  = c1 ^ c2
+            
+#            d1 = PK(E2,df_in.iloc[i]['RMS 1th Auto Osc.']) and df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8
+#            d2 = PK(E2,df_in.iloc[i]['RMS 2th Auto Osc.']) and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8 
+#            D  = d1 and d2
+   
+          
+#            e1 = df_in.iloc[i]['RMS 1th Auto Osc.'] > 2.8
+#            e2 = df_in.iloc[i]['RMS 2th Auto Osc.'] > 2.8
+            
+#            E  = e1 ^ e2
+            counter1 = 0
+            counter2 = 0
+            for name in ['RMS 1th Auto Osc.','RMS 2th Auto Osc.','RMS 3th Auto Osc.']:
+                if E2 < df_in.iloc[i][name] < 2.8:
+                    counter1 = counter1 +1
+                if      df_in.iloc[i][name] > 2.8:
+                    counter2 = counter2 +1            
+            B = False
+            if counter1 == 1:
+                B = True            
+            C = False
+            if counter2 == 1:
+                C = True          
+            D = False
+            if counter1 > 1:
+                D = True
+            E = False
+            if counter2 > 1:
+                E = True
 
-            B  = b0 and (b1 ^ b2)
-            
-            c1 = df_in.iloc[i]['RMS 1th Auto Osc.'] > 2.8
-            c2 = df_in.iloc[i]['RMS 2th Auto Osc.'] > 2.8
-            C  = c1 ^ c2
-            
-            
-            d1 = PK(E2,df_in.iloc[i]['RMS 1th Auto Osc.']) and df_in.iloc[i]['RMS 1th Auto Osc.'] < 2.8
-            d2 = PK(E2,df_in.iloc[i]['RMS 2th Auto Osc.']) and df_in.iloc[i]['RMS 2th Auto Osc.'] < 2.8 
-            D  = d1 and d2
-            
-            e1 = df_in.iloc[i]['RMS 1th Auto Osc.'] > 2.8
-            e2 = df_in.iloc[i]['RMS 2th Auto Osc.'] > 2.8
-            E  = e1 ^ e2
-            
             df_in.loc[df_in.index[i],'$Auto_Oscillation'] = Truth_Table(A^B,C^D,E)
             
             if df_in.iloc[i]['$Auto_Oscillation'] == 'None':
-                print ('Fallo en:', i)
+                print ('Fallo en:', i,df_in.index[i])
                 print( A,B,C,D,E)
                 
     return df_in
@@ -1963,108 +1982,6 @@ def Auto_Oscillation(df_in):
     #==============================================================================
     #-------ATENCION: df_FFT ya viene multiplicada por la ventana de hanning 
     #-------y corregido en potencia, es decir multiplicado por 1.63
-def f(x):
-    return x*fs/(l-0)
-def f_in(x):
-    return int(np.round(x*(l-0)/fs))
-
-def Distan_Armonico(i_f_in,fnom):
-    f_in = f(i_f_in)
-    ratio    = f_in / fnom
-    d = np.abs(np.round(ratio)-ratio)
-    return d
-
-
-def find_f1x_bis(sptrm,indexes, properties ,fnom,machine_type):
-    if machine_type == 'blower':
-        HarmonicList = [1,2,3]
-
-    if machine_type == 'pump':
-        HarmonicList = [1,5]
-    
-    df_harmonics= pd.DataFrame(np.nan,index = ['i-','Value','Hz','f1x'],columns = HarmonicList)
-   
-    Hz = f_in(1)
-#    N_max_positions  = Nmaxelements(sptrm[indexes], 3)
-#    found            = False
-#    
-#    for counter,k in enumerate(N_max_positions):      #---lo busco entre los 3 mayores
-#        dist = Distan_Armonico(indexes[k],fnom)
-#        if dist < 0.01:                               #----se trata de un armonico
-#            if np.round( f(indexes[k]) / fnom ) == 5: #--quinto armocnico
-#                f_found          = f(indexes[k])/np.round( f(indexes[k]) / fnom )
-#                found = True
-#                print ('El quinto armonico encontrado',f_found)
-    found = False
-    if not found:                               #---lo busco entre los 10 primeros armonicos
-        highest_value = 0
-        for i in  HarmonicList:
-        
-#            print(i*fnom,'===>',f_in(i*fnom)-Hz,f_in(i*fnom),f_in(i*fnom)+Hz)
-            a = indexes[indexes >= f_in(i*fnom)-Hz]
-            b = a [a <= f_in(i*fnom) + Hz ] 
-            print('armonico',i,'valores de b',b,f(b))
-            print( b[np.argmax(sptrm[b])])
-            df_harmonics.loc['i-',i]        =  b[np.argmax(sptrm[b])]
-            df_harmonics.loc['Value',i]     = sptrm[ b[np.argmax(sptrm[b])]]
-            df_harmonics.loc['Hz',i]        = f( b[np.argmax(sptrm[b])])
-            df_harmonics.loc['f1x',i]       = f(b[np.argmax(sptrm[b])]) /np.round( f(b[np.argmax(sptrm[b])]) / fnom )
-            df_harmonics.loc['distancia',i] = Distan_Armonico(b[np.argmax(sptrm[b])],fnom)
-            
-            if np.size(b) == 1:
-                dist = Distan_Armonico(b,fnom)
-                if dist < 0.01:
-                    
-                    found = True
-                    if sptrm[b] > highest_value:
-                        highest_value = sptrm[b]
-                        i_highest     = b
-        if found:
-            f_found       = f(i_highest) /np.round( f(i_highest) / fnom )       
-            print('El',np.round( f(i_highest) / fnom) ,'th armonico el el mayor', f_found)
-        else:
-            f_found = 0
-            print('Fundamental f1x not found')
-    print(df_harmonics)
-#        print('indices',indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz])
-#        print('valores',sptrm[indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz]])
-                        
-    return f_found,found
-
-def find_f1x(sptrm,indexes, properties ,fnom,machine_type):
-    if machine_type == 'blower':
-        HarmonicList = [1,2,3]
-    if machine_type == 'pump':
-        HarmonicList = [1,5]
-    Hz    = f_in(.35)
-    found = False
-                              #---lo busco entre los 10 primeros armonicos
-    highest_value = 0
-#    df_harmonics= pd.DataFrame(np.nan,index = HarmonicList ,columns = range(4))
-    for i in  HarmonicList:   
-#            print(i*fnom,'===>',f_in(i*fnom)-Hz,f_in(i*fnom),f_in(i*fnom)+Hz)
-        a = indexes[indexes >= f_in(i*fnom)-Hz]
-        b = a [a <= f_in(i*fnom)+Hz]
-#        df_harmonics.loc[i][0:np.size(b)] = b
-#        print (b)
-        if np.size(b) == 1:
-            dist = Distan_Armonico(b,fnom)
-            if dist < 0.01:         
-                found = True
-                if sptrm[b] > highest_value:
-                    highest_value = sptrm[b]
-                    i_highest     = b
-    if found:
-        f_found       = f(i_highest) /np.round( f(i_highest) / fnom )       
-        print('El',np.round( f(i_highest) / fnom) ,'th armonico el el mayor', f_found)
-    else:
-        f_found = 0
-        print('Fundamental f1x not found')
-#    print (df_harmonics)
-#        print('indices',indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz])
-#        print('valores',sptrm[indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz]])
-                        
-    return f_found,found
 
 
 #def df_Harmonics(df_speed,df_FFT,fs,machine_type):
@@ -2277,6 +2194,388 @@ def df_Harmonics_old(df_FFT,fs,machine_type):
 
     return df_harm
 
+#==============================================================================
+
+def f(x):
+    return x*fs/(l-0)
+#------------------------------------------------------------------------------
+def f_in(x):
+    return int(np.round(x*(l-0)/fs))
+#------------------------------------------------------------------------------
+#def Distan_Armonico(i_f_in,fnom):
+#    f_in = f(i_f_in)
+#    ratio    = f_in / fnom
+#    d = np.abs(np.round(ratio)-ratio)
+#    return d
+#------------------------------------------------------------------------------
+def find_f1x_bis(sptrm,indexes, properties ,fnom,machine_type):
+    if machine_type == 'blower':
+        HarmonicList = [1,2,3]
+
+    if machine_type == 'pump':
+        HarmonicList = [1,5]
+    
+    df_harmonics= pd.DataFrame(np.nan,index = ['i-','Value','Hz','f1x'],columns = HarmonicList)
+   
+    Hz = f_in(1)
+#    N_max_positions  = Nmaxelements(sptrm[indexes], 3)
+#    found            = False
+#    
+#    for counter,k in enumerate(N_max_positions):      #---lo busco entre los 3 mayores
+#        dist = Distan_Armonico(indexes[k],fnom)
+#        if dist < 0.01:                               #----se trata de un armonico
+#            if np.round( f(indexes[k]) / fnom ) == 5: #--quinto armocnico
+#                f_found          = f(indexes[k])/np.round( f(indexes[k]) / fnom )
+#                found = True
+#                print ('El quinto armonico encontrado',f_found)
+    found = False
+    if not found:                               #---lo busco entre los 10 primeros armonicos
+        highest_value = 0
+        for i in  HarmonicList:
+        
+#            print(i*fnom,'===>',f_in(i*fnom)-Hz,f_in(i*fnom),f_in(i*fnom)+Hz)
+            a = indexes[indexes >= f_in(i*fnom)-Hz]
+            b = a [a <= f_in(i*fnom) + Hz ] 
+            print('armonico',i,'valores de b',b,f(b))
+            print( b[np.argmax(sptrm[b])])
+            df_harmonics.loc['i-',i]        =  b[np.argmax(sptrm[b])]
+            df_harmonics.loc['Value',i]     = sptrm[ b[np.argmax(sptrm[b])]]
+            df_harmonics.loc['Hz',i]        = f( b[np.argmax(sptrm[b])])
+            df_harmonics.loc['f1x',i]       = f(b[np.argmax(sptrm[b])]) /np.round( f(b[np.argmax(sptrm[b])]) / fnom )
+            df_harmonics.loc['distancia',i] = Distan_Armonico(b[np.argmax(sptrm[b])],fnom)
+            
+            if np.size(b) == 1:
+                dist = Distan_Armonico(b,fnom)
+                if dist < 0.01:
+                    
+                    found = True
+                    if sptrm[b] > highest_value:
+                        highest_value = sptrm[b]
+                        i_highest     = b
+        if found:
+            f_found       = f(i_highest) /np.round( f(i_highest) / fnom )       
+            print('El',np.round( f(i_highest) / fnom) ,'th armonico el el mayor', f_found)
+        else:
+            f_found = 0
+            print('Fundamental f1x not found')
+    print(df_harmonics)
+#        print('indices',indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz])
+#        print('valores',sptrm[indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz]])
+                        
+    return f_found,found
+#------------------------------------------------------------------------------
+def find_f1x(sptrm,indexes, properties ,fnom,machine_type):
+    if machine_type == 'blower':
+        HarmonicList = [1,2,3]
+    if machine_type == 'pump':
+        HarmonicList = [1,5,10]
+#    Hz    = f_in(.95)
+    found = False
+#    print(f(indexes))
+                              #---lo busco entre los 10 primeros armonicos
+    highest_value = 0
+#    df_harmonics= pd.DataFrame(np.nan,index = HarmonicList ,columns = range(4))
+    for i in  HarmonicList:   
+        delta_Hz = f_in(.95*i)
+#            print(i*fnom,'===>',f_in(i*fnom)-Hz,f_in(i*fnom),f_in(i*fnom)+Hz)
+        a = indexes[indexes >= f_in(i*fnom)-delta_Hz]
+        b = a [a <= f_in(i*fnom)+delta_Hz]
+#        df_harmonics.loc[i][0:np.size(b)] = b
+        
+#        print (b,'=>',f(b),sptrm[b])
+        max_value = np.max(sptrm[b])
+        indx      = np.argmax(sptrm[b])
+        b_sel     = b[indx]
+#        print('b seleccionado',b_sel)
+
+        if max_value > highest_value:
+            highest_value = max_value
+            i_highest     = b_sel
+            
+    if highest_value > 0:
+        
+        if sptrm[i_highest-1] > sptrm[i_highest+1]:
+            f1 = f(i_highest-1)
+            f2 = f(i_highest)
+            x1 = sptrm[i_highest-1]
+            x2 = sptrm[i_highest]
+        else:
+            f1 = f(i_highest)
+            f2 = f(i_highest+1)
+            x1 = sptrm[i_highest]
+            x2 = sptrm[i_highest+1]
+            
+        f_found = x1*f1/(x1+x2)  + x2*f2/(x1+x2)
+        f_found = f(i_highest) /np.round( f(i_highest) / fnom )       
+        print('El',np.round( f(i_highest) / fnom) ,'th armonico el el mayor', f_found)
+        found   = True
+    else:
+        f_found = 0
+        print('Fundamental f1x not found',b)
+#    print (df_harmonics)
+#        print('indices',indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz])
+#        print('valores',sptrm[indexes[f_in(i*fnom)-Hz:f_in(i*fnom)+Hz]])
+    print()                    
+    return f_found,found
+
+#------------------------------------------------------------------------------
+def df_Maxvalue(df_in):
+    a       = df_in.max(axis=0)
+    b       = df_in.idxmax(axis=0)
+    value   = np.max(a)
+    columna = a.index[np.argmax(a.values)]
+    fila    = b.values[np.argmax(a.values)]
+    df_out  = df_in.drop( [columna],axis= 1 )
+    df_out  = df_out.drop( [fila])
+    return value,fila,columna,df_out
+
+#------------------------------------------------------------------------------
+def Df_Dismount(df_in):
+    orden = np.min(df_in.shape)
+    max_list = []
+    row_list = []
+    col_list = []
+    #print(orden)
+    for k in range (orden):
+        maximo,fila,columna,df_in = df_Maxvalue(df_in)
+        #print(df_in)
+        max_list.append(maximo)
+        row_list.append(fila)
+        col_list.append(columna)
+    return max_list,row_list,col_list
+#------------------------------------------------------------------------------
+def decision_taking(fila,ratio_fila,columna,ratio_col):
+    value_col  = columna/ratio_col
+    value_fila = fila/ratio_fila
+    decimal    = np.round(value_col)-value_col
+    
+#    if decimal == 0.5 and np.abs(value_fila-value_col) < 1:
+##        print('hay singularidad','value_fila',value_fila,'value_col',value_col)
+#        if value_fila < value_col:
+#            value_col = np.floor(value_col)
+#        else:
+#            value_col = np.round(value_col)
+##        print('value_col',value_col)
+#    else:
+#         value_col = np.round(value_col)
+
+    if 0 < np.abs(value_fila-value_col) < 1:
+        #print('hay singularidad','value_fila',value_fila,'value_col',value_col)
+        value_col = np.round((value_fila + value_col)/2)
+
+     
+    return int(value_col) #----posible freq fundamental
+
+def Remove_duplicate(duplicate): 
+    final_list = np.array([]) 
+    for num in duplicate:
+        if (num not in final_list) and (np.isnan(num) == False): 
+            final_list= np.append(final_list,num) 
+    return final_list 
+#------------------------------------------------------------------------------
+def find_f1x_robust(sptrm,RMS,indexes, properties ,fnom):
+#    print('--------------Buscando frecuencia fundamental---------------')
+    HarmonicList = [1,2,3,4,5,6,7,8,9,10] #---lo busco entre los 10 primeros armonicos
+    Hz            = f_in(2)
+    found         = False
+    freq          = np.arange(l)/l*fs
+    lista         = []                                           #------- akmeceno las combinaciones de indexex de peaks
+    for i in  HarmonicList:   
+#            print(i*fnom,'===>',f_in(i*fnom)-Hz,f_in(i*fnom),f_in(i*fnom)+Hz)
+        a = indexes[indexes >= f_in(i*fnom) - f_in(i*1)]
+        b = a [a <= f_in(i*fnom) + f_in(i*1)]
+        lista.append(b)
+        #print (b)
+    #print(lista)
+    listab = []                                                  #--- almaceno los numeros naturales de las combinaciones
+    for counter,item in enumerate(combinations(HarmonicList,2)):
+        listab.append(item)
+     
+    #print(listab)
+#    potential         = np.array([])
+    df_Num_Ocurrences = pd.DataFrame(index=['Hits'])             # contador de multiplicidades
+    df_Ocurrences     = pd.DataFrame()                           # indice de multiplicidades
+    df_RMS            = pd.DataFrame()
+    for counter,item in enumerate(combinations(lista,2)):
+#        print (counter,item)
+#        print('i----',listab[counter],'----k')
+        df = pd.DataFrame(np.zeros ((np.size(item[0]),np.size(item[1]))),index = item[0],columns = item[1] )
+        
+        for i in df.index:                #-------------valores pequeños = filas
+            for k in df.columns:          #-------------valores grandes  = columnas
+                parecido     = 1- (np.abs((k/i) - (listab[counter][1]/listab[counter][0]))/(listab[counter][1]/listab[counter][0]))
+                df.loc[i][k] = parecido
+#        print('--Hemos construido df')  
+#        print(df  )  
+        valores,filas,columnas = Df_Dismount(df)                                     # extraemos los máximos de casa cruce fila/columna
+
+        for counter2,k in enumerate(columnas):            
+            parecido = valores[counter2]
+#            elemento = np.round(columnas[counter2]/listab[counter][1]) # columna/orden de combinatoria. elemento = f1x Potencial
+            elemento = decision_taking(filas[counter2]    , listab[counter][0],
+                                       columnas[counter2] , listab[counter][1])
+#            print(filas[counter2],columnas[counter2],'parecido',parecido)
+#            print('elemento selecionado',elemento)
+            
+            if parecido > 0.99 : #----------tenemos un multiplo              1. Incrementamos df_Num_Ocurrences
+                                 #                                           2. Intorducimos k y i en la lista de df_Ocurrences
+#                print ('se mete',int(filas[counter2]),int(columnas[counter2]),'en =>',elemento)
+                indx_fila = np.where(indexes ==    filas[counter2])[0][0] 
+                indx_col  = np.where(indexes == columnas[counter2])[0][0] 
+                
+                init_fila = int(np.round(properties["left_ips"][indx_fila]))                                                                     
+                end_fila  = int(np.round(properties["right_ips"][indx_fila]))  
+                piko_fila = np.sqrt(np.sum( sptrm[init_fila : end_fila+1]**2 )) 
+                
+                init_col  = int(np.round(properties["left_ips"][indx_col]))                                                                     
+                end_col   = int(np.round(properties["right_ips"][indx_col]))  
+                piko_col  = np.sqrt(np.sum( sptrm[init_col : end_col+1]**2 ))   
+
+#                print(filas[counter2], 'en ',np.where(df_Num_Ocurrences.columns.values ==    filas[counter2])[0], 'de ',df_Num_Ocurrences.columns.values)                              
+                condition = (elemento in df_Num_Ocurrences.columns.values)             #----elemento (potencial valor de f1x) esta ya intorducido??
+#                print(elemento,df_Num_Ocurrences.columns.values,condition)
+                if condition == False:# and  (  (int(filas[counter2]) in df_Ocurrences.columns.values)  == False) :                                     # NO => creo una nueva columna en df_potencial y df_potencial_bis 
+#                    print('añadimos una columna')
+                    df_Num_Ocurrences[elemento]          = 1                           #  nueva columna en df_Num_Ocurrences
+                    Nfilas                               = 0
+                    df_Ocurrences.loc[Nfilas,elemento]   = int(filas[counter2])        #--añado i en df_Ocurrences
+                    df_Ocurrences.loc[Nfilas+1,elemento] = int(columnas[counter2])     #--añado k en df_Ocurrences
+                
+                    df_RMS.loc[Nfilas,elemento]          = piko_fila
+                    df_RMS.loc[Nfilas+1,elemento]        = piko_col  
+
+                if condition == True:                                                  #--Si ya esta introducido
+                    df_Num_Ocurrences.loc['Hits',elemento] = df_Num_Ocurrences.loc['Hits',elemento] + 1 #incremento un valor 
+                    
+                    indice = np.argwhere (df_Ocurrences.columns.values == elemento )[0][0]              # indice para meter valores en df_potencial_bis
+#                    print('contadores',df_Ocurrences.count(axis=0).values)
+#                    print(indice,'=>',df_Ocurrences.count(axis=0).values[indice] )
+                    indi = df_Ocurrences.count(axis=0).values[indice]
+                    
+                    cond1 = filas[counter2] in df_Ocurrences[elemento].values                           #--esta i en df_Ocurrences
+                    if cond1 == False:
+                        df_Ocurrences.loc[indi,elemento] = int(filas[counter2])
+                        df_RMS.loc       [indi,elemento] = piko_fila
+                        
+                    cond2 = columnas[counter2] in df_Ocurrences[elemento].values                        #--esta k en df_Ocurrences
+                    if cond2 == False:
+                        df_Ocurrences.loc[indi,elemento] = int(columnas[counter2])
+                        df_RMS.loc       [indi,elemento] = piko_col
+                
+    elemento_power = int(df_RMS.sum().index       [np.argmax(df_RMS.sum().values)                 ])    #nombre de la columna con mas POWER
+    elemento_hits  = int(df_Num_Ocurrences.columns[np.argmax(df_Num_Ocurrences.loc['Hits'].values)])    #nombre de la columna con mas HITS
+#    hits_hits      = df_Num_Ocurrences[elemento_hits].values                                            # HITS del elemento con mas HITS
+#    hits_power     = df_Num_Ocurrences[elemento_power].values                                           # HITS del elemento con mas POWER
+
+    if abs(elemento_power - elemento_hits) == 0 or abs(elemento_power - elemento_hits) == 1:
+        probability                   = 0
+        multiplos                     = np.sort(np.append(df_Ocurrences[elemento_hits].values , df_Ocurrences[elemento_power].values))
+        multiplos                     = Remove_duplicate(multiplos)
+        df_ListHarmonics              = pd.DataFrame(index= HarmonicList, columns = ['Sample','Distancia','RMS'])
+        df_ListHarmonics['Distancia'] = np.ones(10)
+
+        for counter in HarmonicList:
+            found_harm = False
+            for k in multiplos:
+                multp     = k/ elemento_hits
+                distancia = abs(multp-counter)
+                if distancia < 0.05 and distancia < df_ListHarmonics.loc[counter]['Distancia']:
+                    df_ListHarmonics.loc[counter,'Sample']    = k
+                    df_ListHarmonics.loc[counter,'Distancia'] = distancia    
+                    indx_k                                    = np.where(indexes == k)[0][0] 
+                    init_k                                    = int(np.round(properties["left_ips"][indx_k]))                                                                     
+                    end_k                                     = int(np.round(properties["right_ips"][indx_k]))  
+                    piko_k                                    = np.sqrt(np.sum( sptrm[init_k : end_k+1]**2 ))
+                    df_ListHarmonics.loc[counter,'RMS']       = piko_k
+                    found_harm                                = True
+                    
+            if found_harm == False:
+                df_ListHarmonics.loc[counter,'Sample']    = 'NoF'
+                df_ListHarmonics.loc[counter,'Distancia'] = 'NoF'
+            else:
+                probability                               = probability +1
+        
+#        print('---------------------------------------df_ListHarmonics')
+#        print(df_ListHarmonics)
+        Highest_Harmonic   = int(np.argmax(df_ListHarmonics['RMS'].values)+1)
+        i_Highest_harmonic = int(df_ListHarmonics.loc[Highest_Harmonic]['Sample'])
+        found              = True
+       
+        if sptrm[i_Highest_harmonic-1] > sptrm[i_Highest_harmonic+1]:
+            f1 = f(i_Highest_harmonic-1)
+            f2 = f(i_Highest_harmonic)
+            x1 = sptrm[i_Highest_harmonic-1]
+            x2 = sptrm[i_Highest_harmonic]
+        else:
+            f1 = f(i_Highest_harmonic)
+            f2 = f(i_Highest_harmonic+1)
+            x1 = sptrm[i_Highest_harmonic]
+            x2 = sptrm[i_Highest_harmonic+1]
+            
+        f_found = x1*f1/(x1+x2)  + x2*f2/(x1+x2)
+        f_found = f_found / Highest_Harmonic
+        print('F. Freq.=',format(f_found,'.03f' ),
+              'at Harm N=',Highest_Harmonic,'=>',i_Highest_harmonic,'sample =>',
+              format(df_ListHarmonics.loc[Highest_Harmonic]['RMS'],'.02f' ),'|',format(RMS,'.02f'),'RMS',
+              '| [',probability,'] Harm. identified')
+    else:        
+        found   = False
+        f_found = 0
+        print()
+        print('Fundamental frequency ----------NOT FOUND!!!!!!!!!!!!!!')
+
+#    print()
+#    print('-------------------------------------------df_Num_Ocurrences')        
+#    print(df_Num_Ocurrences)
+#    print('---------------------------------------df_Ocurrences')
+#    print(df_Ocurrences)
+#    print('---------------------------------------df_RMS')
+#    print(df_RMS)
+#    print(df_RMS.sum().values)
+#    print('elemento con mayor POWER',elemento_power, 'with',df_RMS.pow(2).sum().pow(0.5)[elemento_power],'and',hits_power,'Hits')  
+#    print('elemento con mas HITS   ',elemento_hits ,'with', df_RMS.pow(2).sum().pow(0.5)[elemento_hits],'and',hits_hits ,'Hits')
+#    print('====================================================================') 
+
+       
+    return  f_found,found
+
+#------------------ESTO ES BASURILLA SE PODRA BORRAR---------------------------
+def df_shortcut(df_FFT,fs,machine_type):   
+    print('------------------------Extracting fingerprint----------------------')
+    l        = df_FFT.shape[1]
+    n_traces = df_FFT.shape[0]    
+    if machine_type == 'blower':
+        print('----------------------------BLOWER----------------------')
+        fingerprint_list = fprnt_list_blwrs
+        fnom             = 24.9
+    if machine_type == 'pump':
+        print('--------------------------------------------------')
+        fingerprint_list = fprnt_list_pumps
+        fnom             = 48.75        
+    fecha    = []
+    for k in df_FFT.index:
+        #print (k,datetime.datetime.fromtimestamp(k))
+        fecha.append(datetime.datetime.fromtimestamp(k))
+    columnas = []
+   
+    columnas    = ['RMS (mm/s) f'] + columnas
+    df_harm     = pd.DataFrame(index = fecha,columns = columnas,data = np.zeros((n_traces,len(columnas))))
+    l_mitad     = int(l/2)
+    f           = np.arange(l)/l*fs
+    delta       = 0.75 #-----------en Hz
+    for medida in range(n_traces):
+#        print ('Medida numero-------------------------------------------------',medida,df_harm.index[medida])
+        f_1x                                 = 0
+        abs_line                             = np.abs(df_FFT.iloc[medida].values)
+        RMS_freq                             = np.sqrt(np.sum( abs_line**2 ) )
+        df_harm.iloc[medida]['RMS (mm/s) f'] = RMS_freq
+        if  RMS_freq > 0.06: #-------------------------esta la máquina apagada?
+            sptrm_C             = abs_line * np.sqrt(2)  # integramos en 1º z Nyquist por eso el voltaje x raiz(2) 
+            indexes, properties = find_peaks(sptrm_C[0:l_mitad],height  = 1*0.01 ,prominence = 0.01 , width=1 , rel_height = 0.75)
+            print(medida,fnom)
+            xx,yy               = find_f1x_robust(sptrm_C,RMS_freq,indexes, properties ,fnom)
+            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',xx,yy)
+    return xx
 #------------------------------------------------------------------------------
 def df_Harmonics(df_FFT,fs,machine_type):
     print('------------------------Extracting fingerprint----------------------')
@@ -2333,7 +2632,8 @@ def df_Harmonics(df_FFT,fs,machine_type):
         if  RMS_freq > 0.06: #-------------------------esta la máquina apagada?
             sptrm_C             = abs_line * np.sqrt(2)  # integramos en 1º z Nyquist por eso el voltaje x raiz(2) 
             indexes, properties = find_peaks(sptrm_C[0:l_mitad],height  = 1*0.01 ,prominence = 0.01 , width=1 , rel_height = 0.75)
-            f_1x , f_1x_exist   = find_f1x(sptrm_C,indexes, properties ,fnom,machine_type)
+#            f_1x , f_1x_exist   = find_f1x(sptrm_C,indexes, properties ,fnom,machine_type)
+            f_1x , f_1x_exist   = find_f1x_robust(sptrm_C,RMS_freq,indexes, properties ,fnom)
             if f_1x_exist:   #----------hemos identificado f1x-----------------
                 for h in fingerprint_list:        
                     if  h.order >1:
@@ -2379,7 +2679,8 @@ def df_Harmonics(df_FFT,fs,machine_type):
                             if h.f_norm == 'mixto':      #-------------------------
                                 if h.tipo == 'Peak':
                                     fa = (h.f1 + h.f2*f_1x - delta) / f_1x
-                                    fb = (h.f1 + h.f2*f_1x + delta) / f_1x                  
+                                    fb = (h.f1 + h.f2*f_1x + delta) / f_1x  
+#                            print(h.label,fa ,f[k]/f_1x, fb,sptrm_C[k])
                             if fa  <= f[k]/f_1x <= fb:
                                 word = h.label
                                 init = int(np.round(properties["left_ips" ][counter]))
@@ -2645,11 +2946,8 @@ def Plot_Spectrum(captura,df_VELOCITY,df_harm):
                 offset = 0
                 #plt.plot(f[index] , df_harm.iloc[captura][str(df_harm.columns[counter+2])]  ,'o')
                 #plt.vlines(x=f[index], ymin=SPTRM_P[index] - properties["prominences"],ymax = df_harm.iloc[captura][str(df_harm.columns[counter+2])], color = "C1")
-                plt.plot(f[index] , SPTRM_P[index]  ,'o')
-                
-                if index in plotted:
-                    offset = 0.02
-#                    print(k)
+                plt.plot(f[index] , SPTRM_P[index]  ,'o')               
+                offset = 0.02*plotted.count(index)
                 plotted.append(index)
                 #plt.text(f[index] , SPTRM_P[index],str(k))
                 #plt.text(f[index] ,df_harm.iloc[captura][str(df_harm.columns[counter+2])]+offset,str(df_harm.columns[counter+2])+' '+str( format ( df_harm.iloc[captura][str(df_harm.columns[counter+2])],'.02f'  ) ) )

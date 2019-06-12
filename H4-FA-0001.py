@@ -3,7 +3,6 @@ from PETRONOR_lyb import *
 
 
 #------------------------------------------------------------------------------
-Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\outputs\\'
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
 
@@ -18,10 +17,11 @@ if __name__ == '__main__':
         
         'Fecha'        : '2019-02-20T00:00:00.00Z',
         'FechaInicio'  : '2019-02-14T00:00:00Z',
-        'NumeroTramas' : '10',
+        'NumeroTramas' : '100',
         'Parametros'   : 'waveform',
         
-        'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
+#        'Path'         : 'C://OPG106300//TRABAJO//Proyectos//Petronor-075879.1 T 20000//Trabajo//data//Petronor//data//vibrations//2018',
+        'Path'         : '//home//instalador//Mantenimiento//data//2018',
         'Month'        : '10',
         'Day'          : '',#'12'
         'Hour'         : ''    

@@ -1,9 +1,9 @@
 import requests
 from PETRONOR_lyb import *
+import pandas as pd
 
 
-#--------------------------------------------------------------------------------
-Path_out = 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\outputs\\'
+#--------------------------------------------------------------------------------' 
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
 
@@ -16,20 +16,21 @@ if __name__ == '__main__':
         'Localizacion' : 'SH3', #SH3/4
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
-        'Fecha'        : '2018-11-13T00:00:00.9988564Z',
-        'FechaInicio'  : '2019-02-12T00:52:46.9988564Z',
+        'Fecha'        : '2019-02-13T00:00:00.9988564Z',
+        'FechaInicio'  : '2019-02-13T00:52:46.9988564Z',
         'NumeroTramas' : '100',
         'Parametros'   : 'waveform',
         
-        'Path'         : 'C:\\OPG106300\\TRABAJO\\Proyectos\\Petronor-075879.1 T 20000\\Trabajo\\data\\Petronor\\data\\vibrations\\2018',
-        'Month'        : '11',
-        'Day'          : '26',#'12'
-        'Hour'         : '10' 
+#        'Path'         : 'C://OPG106300//TRABAJO//Proyectos//Petronor-075879.1 T 20000//Trabajo//data//Petronor//data//vibrations//2018',
+        'Path'         : '//home//instalador//Mantenimiento//data//2018',
+        'Month'        : '10',
+        'Day'          : '01',#'12'
+        'Hour'         : '01' 
     }
 
     df_speed,df_SPEED           = Load_Vibration_Data_Global(parameters)
     harm                        = df_Harmonics(df_SPEED, fs,'blower')
-   
+
     harm                        = Centrifugal_Fan_Unbalance(harm)
     harm                        = Plain_Bearing_Clearance(harm)
     harm                        = Plain_Bearing_Lubrication_Whirl(harm)
@@ -49,14 +50,37 @@ if __name__ == '__main__':
     #find_closest(datetime.datetime(2018, int(month), int(day), 0, 0),df_SPEED_abs,harm)
     
     Plot_Spectrum(0,df_SPEED,harm)
-    Plot_Spectrum_log(0,df_SPEED,harm)
+    #Plot_Spectrum_log(0,df_SPEED,harm)
     #PETROspectro(df_speed.iloc[0], fs,'Velocidad','mm/s',Detection = 'Peak')
     #color,vertices = plot_waterfall(df_SPEED_abs,harm,fs,0,400) 
     plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED,harm,fs,0,400)
     #plot_waterfall27(parameters,df_SPEED_abs,harm,fs,0,400)
+    
+    
+    AVG = df_SPEED.abs().sum().div(df_SPEED.shape[0]).values
+    df_SPEED_AVG = pd.DataFrame(data     = AVG,
+                                 index   = df_SPEED.columns.values, 
+                                 columns = [df_SPEED.index[0]]  )
+    df_SPEED_AVG = df_SPEED_AVG.T
+    harm_AVG                        = df_Harmonics(df_SPEED_AVG, fs,'blower')
+
+    harm_AVG                        = Centrifugal_Fan_Unbalance(harm_AVG)
+    harm_AVG                        = Plain_Bearing_Clearance(harm_AVG)
+    harm_AVG                        = Plain_Bearing_Lubrication_Whirl(harm_AVG)
+    harm_AVG                        = Plain_Bearing_Lubrication_Whip (harm_AVG)
+    harm_AVG                        = Blade_Faults(harm_AVG)
+    harm_AVG                        = Flow_Turbulence(harm_AVG)
+    harm_AVG                        = Plain_Bearing_Block_Looseness(harm_AVG)
+    harm_AVG                        = Shaft_Misaligments(harm_AVG)
+    harm_AVG                        = Pressure_Pulsations(harm_AVG)
+    harm_AVG                        = Surge_Effect(harm_AVG)
+    harm_AVG                        = Severe_Misaligment(harm_AVG)
+    harm_AVG                        = Loose_Bedplate(harm_AVG)
+    Plot_Spectrum(0,df_SPEED_AVG,harm_AVG)
     print('-------------------------------FIN----------------------------------')
 
     ####POST
 
     # WE ARE NOT ALLOWED TO POST DATA TO THE SERVER YET
     #requests.post('/api/Models/SetResultModel', output=OUTPUT)
+    

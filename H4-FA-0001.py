@@ -15,9 +15,9 @@ if __name__ == '__main__':
         'Localizacion' : 'MH2', #SH4/MH2
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
-        'Fecha'        : '2019-02-20T00:00:00.00Z',
+        'Fecha'        : '2019-04-20T00:00:00.00Z',
         'FechaInicio'  : '2019-02-14T00:00:00Z',
-        'NumeroTramas' : '100',
+        'NumeroTramas' : '1',
         'Parametros'   : 'waveform',
         
 #        'Path'         : 'C://OPG106300//TRABAJO//Proyectos//Petronor-075879.1 T 20000//Trabajo//data//Petronor//data//vibrations//2018',
@@ -32,8 +32,8 @@ if __name__ == '__main__':
     harm              = df_Harmonics(df_SPEED, fs,'blower')
     
     if parameters['Localizacion'] == 'SH4':
-        harm                  = Pillow_Block_Loseness(harm)           # not for MH2
-        harm                  = Blower_Wheel_Unbalance(harm)          # not for MH2
+        harm                  = Plain_Bearing_Block_Looseness(harm)   # not for MH2
+        harm                  = Centrifugal_Fan_Unbalance(harm)       # not for MH2
         harm                  = Blade_Faults(harm)                    # not for MH2
         harm                  = Flow_Turbulence(harm)                 # not for MH2
         harm                  = Pressure_Pulsations(harm)             # not for MH2

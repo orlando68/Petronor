@@ -12,7 +12,7 @@ if __name__ == '__main__':
     parameters = {
         'IdPlanta'     : 'BPT',
         'IdAsset'      : 'U3-P-0006-B',
-        'Localizacion' : 'BH3', #BH3 (horizontal), BA4 (axial) y BV4 (vertical)
+        'Localizacion' : 'BV4', #BH3 (horizontal), BA4 (axial) y BV4 (vertical)
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
         'Fecha'        : '2019-02-21T20:00:46.9988564Z',
@@ -22,7 +22,7 @@ if __name__ == '__main__':
         
 #        'Path'         : 'C://OPG106300//TRABAJO//Proyectos//Petronor-075879.1 T 20000//Trabajo//data//Petronor//data//vibrations//2018',
         'Path'         : '//home//instalador//Mantenimiento//data//2018',
-        'Month'        : '1',
+        'Month'        : '10',
         'Day'          : '',#'12'
         'Hour'         : ''    
     }

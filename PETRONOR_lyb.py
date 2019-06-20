@@ -856,9 +856,9 @@ def Blade_Faults(df_in):
         else:
             A = PK(E1,df_in.iloc[i]['RMS 12.0'])
             B = PEAKS(E1,df_in.iloc[i]['RMS 12.0'],df_in.iloc[i]['RMS 24.0']) 
-            C = PK(E1,df_in.iloc[i]['RMS 12.0'])       and ( PK(df_in.iloc[i]['RMS 11.0']) or PK(df_in.iloc[i]['RMS 13.0']) )
+            C = PK(E1,df_in.iloc[i]['RMS 12.0'])       and ( PK(E1,df_in.iloc[i]['RMS 11.0']) or PK(E1,df_in.iloc[i]['RMS 13.0']) )
             D = C and PK(E1,df_in.iloc[i]['RMS 24.0']) 
-            E = C and PK(E1,df_in.iloc[i]['RMS 24.0']) and ( PK(df_in.iloc[i]['RMS 23.0']) or PK(df_in.iloc[i]['RMS 25.0']) )
+            E = C and PK(E1,df_in.iloc[i]['RMS 24.0']) and ( PK(E1,df_in.iloc[i]['RMS 23.0']) or PK(E1,df_in.iloc[i]['RMS 25.0']) )
             F = df_in.iloc[i]['RMS 12.0'] < E1 and df_in.iloc[i]['RMS 24.0'] < E1
             #print('Blade Faults         ',A,B,C,D,E,F)
                                                  #  Tabla de verdad progresiva
@@ -960,7 +960,7 @@ def Surge_Effect(df_in):
 #----------------------------------------------------------------------------11
  
 def Loose_Bedplate(df_in):
-    print('-------------------Loose Bedplate Failure---------------------------')
+    print('---------------------Loose Bedplate Failure-------------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1051,7 +1051,7 @@ def Ball_Bearing_Outer_Race_Defects_22219C(df_in):
 #==============================================================================
  
 def Ball_Bearing_Inner_Race_Defects_22217C(df_in):
-    print('-------------Ball B. I. Race D. Failure_22217C----------------------')
+    print('---------------Ball B. I. Race D. Failure_22217C--------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1080,7 +1080,7 @@ def Ball_Bearing_Inner_Race_Defects_22217C(df_in):
     return df_in
 #------------------------------------------------------------------------------ 
 def Ball_Bearing_Inner_Race_Defects_22219C(df_in):
-    print('-------------Ball B. I. Race D. Failure_22219C----------------------')
+    print('------------------Ball B. I. Race D. Failure_22219C-----------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1183,7 +1183,7 @@ def Ball_Bearing_Ball_Defect_22219C(df_in):
 #==============================================================================
  
 def Ball_Bearing_Cage_Defect_22217C(df_in):
-    print('------------Ball B. Cage D. Failure_22217C--------------------------')
+    print('----------------Ball B. Cage D. Failure_22217C----------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1213,7 +1213,7 @@ def Ball_Bearing_Cage_Defect_22217C(df_in):
 #------------------------------------------------------------------------------
  
 def Ball_Bearing_Cage_Defect_22219C(df_in):
-    print('------------Ball B. Cage D. Failure_22219C--------------------------')
+    print('----------------Ball B. Cage D. Failure_22219C----------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1243,7 +1243,7 @@ def Ball_Bearing_Cage_Defect_22219C(df_in):
 #-----------------------------------------------------------------------------1
  
 def Recirculation_in_pump(df_in):
-    print('------------------Recirculation_in_pump-----------------------------')
+    print('---------------------Recirculation_in_pump-------------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1272,7 +1272,7 @@ def Recirculation_in_pump(df_in):
 
  
 def Impeller_Rotor_Unbalance(df_in):
-    print('------------------Impeller_Rotor_Unbalance--------------------------')
+    print('----------------------Impeller_Rotor_Unbalance----------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1300,7 +1300,7 @@ def Impeller_Rotor_Unbalance(df_in):
 #-----------------------------------------------------------------------------3
  
 def Shaft_misaligment_Radial(df_in):
-    print('------------------Shaft_misaligment_Radial--------------------------')
+    print('---------------------Shaft_misaligment_Radial-----------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1393,7 +1393,7 @@ def Shaft_misaligment_Axial(df_in_H,df_in_V,df_in_A):
 #-----------------------------------------------------------------------------5
  
 def Hydraulic_Instability(df_in):
-    print('---------------------Hydraulic_Instability--------------------------')
+    print('------------------------Hydraulic_Instability-----------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1453,7 +1453,7 @@ def Ball_Bearing_Outer_Race_Defects_7310BEP(df_in):
 #-----------------------------------------------------------------------------7
  
 def Ball_Bearing_Inner_Race_Defects_7310BEP(df_in):
-    print('-------------Ball B. I. Race D. Failure_7310BEP---------------------')
+    print('---------------Ball B. I. Race D. Failure_7310BEP-------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1521,7 +1521,7 @@ def Ball_Bearing_Defect_7310BEP(df_in):
 #-----------------------------------------------------------------------------9
  
 def Ball_Bearing_Cage_Defect_7310BEP(df_in):
-    print('------------Ball B. Cage D. Failure_7310BEP-------------------------')
+    print('-----------------Ball B. Cage D. Failure_7310BEP--------------------')
     n_traces   = df_in.shape[0]
     none_list  = []
 
@@ -1654,16 +1654,15 @@ def Piping_Vibration(df_in):
             df_in.loc[df_in.index[i],'$Piping_Vibration'] = 'No vibration detected'
         else:     
             A  = NO_PEAKS(E2,df_in.iloc[i]['RMS 1th Pip Vib.'],df_in.iloc[i]['RMS 2th Pip Vib.'],df_in.iloc[i]['RMS 3th Pip Vib.'])
+            
             b0 =       df_in.iloc[i]['RMS 1th Pip Vib.'] < 2.8 and df_in.iloc[i]['RMS 2th Pip Vib.'] < 2.8 # ninguna mayor de 2.8
             b1 = PK(E2,df_in.iloc[i]['RMS 1th Pip Vib.'])      and df_in.iloc[i]['RMS 1th Pip Vib.'] < 2.8
             b2 = PK(E2,df_in.iloc[i]['RMS 2th Pip Vib.'])      and df_in.iloc[i]['RMS 2th Pip Vib.'] < 2.8
-
             B  = b0 and (b1 ^ b2)
             
             c1 = df_in.iloc[i]['RMS 1th Pip Vib.'] > 2.8
             c2 = df_in.iloc[i]['RMS 2th Pip Vib.'] > 2.8
             C  = c1 ^ c2
-            
             
             d1 = PK(E2,df_in.iloc[i]['RMS 1th Pip Vib.']) and df_in.iloc[i]['RMS 1th Pip Vib.'] < 2.8
             d2 = PK(E2,df_in.iloc[i]['RMS 2th Pip Vib.']) and df_in.iloc[i]['RMS 2th Pip Vib.'] < 2.8 
@@ -1803,7 +1802,6 @@ def Oil_Whip_pumps(df_in):
                                                  #  Tabla de verdad progresiva
                                                  #  puede empezar siendo verde,
                                                  #  acabar siendo rojo
-    
                                                  #-----------green-----------------
                                                  # 2H BW at 0.5 = 0 and 2H BW at 2.5 = 0
     
@@ -1975,7 +1973,6 @@ def Auto_Oscillation(df_in):
             if df_in.iloc[i]['$Auto_Oscillation'] == 'None':
                 print ('Fallo en:', i,df_in.index[i])
                 print( A,B,C,D,E)
-                
     return df_in
 
 #==============================================================================
@@ -2196,18 +2193,6 @@ def df_Harmonics_old(df_FFT,fs,machine_type):
 
 #==============================================================================
 
-def f(x):
-    return x*fs/(l-0)
-#------------------------------------------------------------------------------
-def f_in(x):
-    return int(np.round(x*(l-0)/fs))
-#------------------------------------------------------------------------------
-#def Distan_Armonico(i_f_in,fnom):
-#    f_in = f(i_f_in)
-#    ratio    = f_in / fnom
-#    d = np.abs(np.round(ratio)-ratio)
-#    return d
-#------------------------------------------------------------------------------
 def find_f1x_bis(sptrm,indexes, properties ,fnom,machine_type):
     if machine_type == 'blower':
         HarmonicList = [1,2,3]
@@ -2276,24 +2261,22 @@ def find_f1x(sptrm,indexes, properties ,fnom,machine_type):
     highest_value = 0
 #    df_harmonics= pd.DataFrame(np.nan,index = HarmonicList ,columns = range(4))
     for i in  HarmonicList:   
+        
         delta_Hz = f_in(.95*i)
 #            print(i*fnom,'===>',f_in(i*fnom)-Hz,f_in(i*fnom),f_in(i*fnom)+Hz)
         a = indexes[indexes >= f_in(i*fnom)-delta_Hz]
         b = a [a <= f_in(i*fnom)+delta_Hz]
 #        df_harmonics.loc[i][0:np.size(b)] = b
-        
-#        print (b,'=>',f(b),sptrm[b])
-        max_value = np.max(sptrm[b])
-        indx      = np.argmax(sptrm[b])
-        b_sel     = b[indx]
-#        print('b seleccionado',b_sel)
-
-        if max_value > highest_value:
-            highest_value = max_value
-            i_highest     = b_sel
+#        print (i,b,'=>',f(b),sptrm[b],np.size(b))
+        if np.size(b) > 0:
+            max_value = np.max(sptrm[b])
+            indx      = np.argmax(sptrm[b])
+            b_sel     = b[indx]
+            if max_value > highest_value:
+                highest_value = max_value
+                i_highest     = b_sel
             
-    if highest_value > 0:
-        
+    if highest_value > 0:        
         if sptrm[i_highest-1] > sptrm[i_highest+1]:
             f1 = f(i_highest-1)
             f2 = f(i_highest)
@@ -2318,6 +2301,18 @@ def find_f1x(sptrm,indexes, properties ,fnom,machine_type):
     print()                    
     return f_found,found
 
+#------------------------------------------------------------------------------
+def f(x):
+    return x*fs/(l-0)
+#------------------------------------------------------------------------------
+def f_in(x):
+    return int(np.round(x*(l-0)/fs))
+#------------------------------------------------------------------------------
+def Distan_Armonico(i_f_in,fnom):
+    f_in = f(i_f_in)
+    ratio    = f_in / fnom
+    d = np.abs(np.round(ratio)-ratio)
+    return d
 #------------------------------------------------------------------------------
 def df_Maxvalue(df_in):
     a       = df_in.max(axis=0)
@@ -2347,25 +2342,27 @@ def Df_Dismount(df_in):
 def decision_taking(fila,ratio_fila,columna,ratio_col):
     value_col  = columna/ratio_col
     value_fila = fila/ratio_fila
-    decimal    = np.round(value_col)-value_col
-    
-#    if decimal == 0.5 and np.abs(value_fila-value_col) < 1:
-##        print('hay singularidad','value_fila',value_fila,'value_col',value_col)
-#        if value_fila < value_col:
-#            value_col = np.floor(value_col)
-#        else:
-#            value_col = np.round(value_col)
-##        print('value_col',value_col)
-#    else:
-#         value_col = np.round(value_col)
-
     if 0 < np.abs(value_fila-value_col) < 1:
         #print('hay singularidad','value_fila',value_fila,'value_col',value_col)
         value_col = np.round((value_fila + value_col)/2)
-
-     
+   
     return int(value_col) #----posible freq fundamental
-
+#------------------------------------------------------------------------------
+def Accurate_freq(n,sptrm):
+    if sptrm[n-1] > sptrm[n+1]:
+        f1 = f(n-1)
+        f2 = f(n)
+        x1 = sptrm[n-1]
+        x2 = sptrm[n]
+    else:
+        f1 = f(n)
+        f2 = f(n+1)
+        x1 = sptrm[n]
+        x2 = sptrm[n+1]
+        
+    f_accu = x1*f1/(x1+x2)  + x2*f2/(x1+x2)
+    return f_accu
+#------------------------------------------------------------------------------
 def Remove_duplicate(duplicate): 
     final_list = np.array([]) 
     for num in duplicate:
@@ -2404,11 +2401,12 @@ def find_f1x_robust(sptrm,RMS,indexes, properties ,fnom):
         for i in df.index:                #-------------valores pequeños = filas
             for k in df.columns:          #-------------valores grandes  = columnas
                 parecido     = 1- (np.abs((k/i) - (listab[counter][1]/listab[counter][0]))/(listab[counter][1]/listab[counter][0]))
+#                parecido     = 1- (np.abs(( Accurate_freq(k,sptrm) / Accurate_freq(i,sptrm) ) - (listab[counter][1]/listab[counter][0]))/(listab[counter][1]/listab[counter][0]))              
                 df.loc[i][k] = parecido
 #        print('--Hemos construido df')  
 #        print(df  )  
         valores,filas,columnas = Df_Dismount(df)                                     # extraemos los máximos de casa cruce fila/columna
-
+#        print('--------------------------',valores)
         for counter2,k in enumerate(columnas):            
             parecido = valores[counter2]
 #            elemento = np.round(columnas[counter2]/listab[counter][1]) # columna/orden de combinatoria. elemento = f1x Potencial
@@ -2473,7 +2471,7 @@ def find_f1x_robust(sptrm,RMS,indexes, properties ,fnom):
         multiplos                     = Remove_duplicate(multiplos)
         df_ListHarmonics              = pd.DataFrame(index= HarmonicList, columns = ['Sample','Distancia','RMS'])
         df_ListHarmonics['Distancia'] = np.ones(10)
-
+        df_ListHarmonics['RMS'] = np.zeros(10)
         for counter in HarmonicList:
             found_harm = False
             for k in multiplos:
@@ -2496,23 +2494,24 @@ def find_f1x_robust(sptrm,RMS,indexes, properties ,fnom):
                 probability                               = probability +1
         
 #        print('---------------------------------------df_ListHarmonics')
-#        print(df_ListHarmonics)
+#        print(df_ListHarmonics['RMS'].values,np.max(df_ListHarmonics['RMS'].values))
         Highest_Harmonic   = int(np.argmax(df_ListHarmonics['RMS'].values)+1)
         i_Highest_harmonic = int(df_ListHarmonics.loc[Highest_Harmonic]['Sample'])
         found              = True
        
-        if sptrm[i_Highest_harmonic-1] > sptrm[i_Highest_harmonic+1]:
-            f1 = f(i_Highest_harmonic-1)
-            f2 = f(i_Highest_harmonic)
-            x1 = sptrm[i_Highest_harmonic-1]
-            x2 = sptrm[i_Highest_harmonic]
-        else:
-            f1 = f(i_Highest_harmonic)
-            f2 = f(i_Highest_harmonic+1)
-            x1 = sptrm[i_Highest_harmonic]
-            x2 = sptrm[i_Highest_harmonic+1]
-            
-        f_found = x1*f1/(x1+x2)  + x2*f2/(x1+x2)
+#        if sptrm[i_Highest_harmonic-1] > sptrm[i_Highest_harmonic+1]:
+#            f1 = f(i_Highest_harmonic-1)
+#            f2 = f(i_Highest_harmonic)
+#            x1 = sptrm[i_Highest_harmonic-1]
+#            x2 = sptrm[i_Highest_harmonic]
+#        else:
+#            f1 = f(i_Highest_harmonic)
+#            f2 = f(i_Highest_harmonic+1)
+#            x1 = sptrm[i_Highest_harmonic]
+#            x2 = sptrm[i_Highest_harmonic+1]
+#            
+#        f_found = x1*f1/(x1+x2)  + x2*f2/(x1+x2)
+        f_found = Accurate_freq(i_Highest_harmonic,sptrm)
         f_found = f_found / Highest_Harmonic
         print('F. Freq.=',format(f_found,'.03f' ),
               'at Harm N=',Highest_Harmonic,'=>',i_Highest_harmonic,'sample =>',

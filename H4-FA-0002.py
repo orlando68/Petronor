@@ -16,9 +16,9 @@ if __name__ == '__main__':
         'Localizacion' : 'SH3', #SH3/4
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
-        'Fecha'        : '2019-02-13T00:00:00.9988564Z',
+        'Fecha'        : '2019-05-20T00:00:00.00Z',
         'FechaInicio'  : '2019-02-13T00:52:46.9988564Z',
-        'NumeroTramas' : '100',
+        'NumeroTramas' : '1',
         'Parametros'   : 'waveform',
         
 #        'Path'         : 'C://OPG106300//TRABAJO//Proyectos//Petronor-075879.1 T 20000//Trabajo//data//Petronor//data//vibrations//2018',
@@ -53,10 +53,10 @@ if __name__ == '__main__':
     #Plot_Spectrum_log(0,df_SPEED,harm)
     #PETROspectro(df_speed.iloc[0], fs,'Velocidad','mm/s',Detection = 'Peak')
     #color,vertices = plot_waterfall(df_SPEED_abs,harm,fs,0,400) 
-    plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED,harm,fs,0,400)
+    #plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED,harm,fs,0,400) #---Este
     #plot_waterfall27(parameters,df_SPEED_abs,harm,fs,0,400)
     
-    
+    """
     AVG = df_SPEED.abs().sum().div(df_SPEED.shape[0]).values
     df_SPEED_AVG = pd.DataFrame(data     = AVG,
                                  index   = df_SPEED.columns.values, 
@@ -83,4 +83,4 @@ if __name__ == '__main__':
 
     # WE ARE NOT ALLOWED TO POST DATA TO THE SERVER YET
     #requests.post('/api/Models/SetResultModel', output=OUTPUT)
-    
+    """

@@ -15,7 +15,7 @@ if __name__ == '__main__':
         'Localizacion' : 'MH2', #SH4/MH2
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
-        'Fecha'        : '2019-04-20T00:00:00.00Z',
+        'Fecha'        : '2019-05-20T00:00:00.00Z',
         'FechaInicio'  : '2019-02-14T00:00:00Z',
         'NumeroTramas' : '1',
         'Parametros'   : 'waveform',
@@ -23,8 +23,8 @@ if __name__ == '__main__':
 #        'Path'         : 'C://OPG106300//TRABAJO//Proyectos//Petronor-075879.1 T 20000//Trabajo//data//Petronor//data//vibrations//2018',
         'Path'         : '//home//instalador//Mantenimiento//data//2018',
         'Month'        : '10',
-        'Day'          : '',#'12'
-        'Hour'         : ''    
+        'Day'          : '01',#'12'
+        'Hour'         : '01'    
     }
 
     
@@ -32,26 +32,26 @@ if __name__ == '__main__':
     harm              = df_Harmonics(df_SPEED, fs,'blower')
     
     if parameters['Localizacion'] == 'SH4':
-        harm                  = Plain_Bearing_Block_Looseness(harm)   # not for MH2
-        harm                  = Centrifugal_Fan_Unbalance(harm)       # not for MH2
-        harm                  = Blade_Faults(harm)                    # not for MH2
-        harm                  = Flow_Turbulence(harm)                 # not for MH2
-        harm                  = Pressure_Pulsations(harm)             # not for MH2
-        harm                  = Surge_Effect(harm)                    # not for MH2
+        harm                  = Plain_Bearing_Block_Looseness(harm)      # not for MH2
+        harm                  = Centrifugal_Fan_Unbalance(harm)          # not for MH2
+        harm                  = Blade_Faults(harm)                       # not for MH2
+        harm                  = Flow_Turbulence(harm)                    # not for MH2
+        harm                  = Pressure_Pulsations(harm)                # not for MH2
+        harm                  = Surge_Effect(harm)                       # not for MH2
     
     harm                  = Severe_Misaligment(harm)
     harm                  = Loose_Bedplate(harm) 
-    harm                  = Ball_Bearing_Outer_Race_Defects_22217C(harm) #ok
-    harm                  = Ball_Bearing_Outer_Race_Defects_22219C(harm) #ok
+    harm                  = Ball_Bearing_Outer_Race_Defects_22217C(harm) # ok
+    harm                  = Ball_Bearing_Outer_Race_Defects_22219C(harm) # ok
     
-    harm                  = Ball_Bearing_Inner_Race_Defects_22217C(harm) #ok
-    harm                  = Ball_Bearing_Inner_Race_Defects_22219C(harm) #ok
+    harm                  = Ball_Bearing_Inner_Race_Defects_22217C(harm) # ok
+    harm                  = Ball_Bearing_Inner_Race_Defects_22219C(harm) # ok
     
-    harm                  = Ball_Bearing_Ball_Defect_22217C(harm)        #ok
-    harm                  = Ball_Bearing_Ball_Defect_22219C(harm)        #ok
+    harm                  = Ball_Bearing_Ball_Defect_22217C(harm)        # ok
+    harm                  = Ball_Bearing_Ball_Defect_22219C(harm)        # ok
     
-    harm                  = Ball_Bearing_Cage_Defect_22217C(harm)        #ok
-    harm                  = Ball_Bearing_Cage_Defect_22219C(harm)        #ok
+    harm                  = Ball_Bearing_Cage_Defect_22217C(harm)        # ok
+    harm                  = Ball_Bearing_Cage_Defect_22219C(harm)        # ok
     
     check_test_results(harm)
     
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     #PETROspectro(df_speed.iloc[0], fs,'Velocidad','mm/s',Detection = 'Peak')
     #color,vertices = plot_waterfall(df_SPEED_abs,harm,fs,0,400) 
     
-    plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED,harm,fs,0,400)
+    #plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',df_SPEED,harm,fs,0,400) #---Este
 
     print('-------------------------------FIN----------------------------------')
 

@@ -41,7 +41,7 @@ if __name__ == '__main__':
     harm                        = Shaft_Misaligments(harm)
     harm                        = Pressure_Pulsations(harm)
     harm                        = Surge_Effect(harm)
-    harm                        = Severe_Misaligment(harm)
+    harm                        = Severe_Misaligment_H4_FA_0002(harm)
     harm                        = Loose_Bedplate(harm)
     
     check_test_results(harm)
@@ -57,6 +57,7 @@ if __name__ == '__main__':
     #plot_waterfall27(parameters,df_SPEED_abs,harm,fs,0,400)
     
     """
+    #------------------------this is for averaging-----------------------------
     AVG = df_SPEED.abs().sum().div(df_SPEED.shape[0]).values
     df_SPEED_AVG = pd.DataFrame(data     = AVG,
                                  index   = df_SPEED.columns.values, 

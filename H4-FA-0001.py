@@ -39,7 +39,7 @@ if __name__ == '__main__':
         harm                  = Pressure_Pulsations(harm)                # not for MH2
         harm                  = Surge_Effect(harm)                       # not for MH2
     
-    harm                  = Severe_Misaligment(harm)
+    harm                  = Severe_Misaligment_H4_FA_0001(harm)
     harm                  = Loose_Bedplate(harm) 
     harm                  = Ball_Bearing_Outer_Race_Defects_22217C(harm) # ok
     harm                  = Ball_Bearing_Outer_Race_Defects_22219C(harm) # ok

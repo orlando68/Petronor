@@ -242,19 +242,19 @@ class FailureMode:
         for counter,k in enumerate(freq_values):
             df_special_freqs.iloc[1,counter] = (16384-1)* df_special_freqs.iloc[0][counter]/5120
         
-        self.df_FingerPrint_Real     = df_Harmonics(self.df_SP_SIGNAL, fs,'blower')
+        self.df_FingerPrint_Real       = df_Harmonics(self.df_SP_SIGNAL, fs,'blower')
         exec('self.df_FingerPrint_Real = '+self.FailureName+'(self.df_FingerPrint_Real)')
-        self.spectrum                = np.fft.fft(self.df_TI_signal.iloc[n_golden].values)/l #-----me quedo con la primera 
-        spec_rand                    = np.copy(self.spectrum) 
-        n_real_OUT                   = self.df_SP_SIGNAL.shape[0]
-        columnas_OUT                 = ['Type','Failure Type']+Harmonics+['Kurtosis','Skewness','Wnl','Entropy','Nnl']  
+        self.spectrum                  = np.fft.fft(self.df_TI_signal.iloc[n_golden].values)/l #-----me quedo con la primera 
+        spec_rand                      = np.copy(self.spectrum) 
+        n_real_OUT                     = self.df_SP_SIGNAL.shape[0]
+        columnas_OUT                   = ['Type','Failure Type']+Harmonics+['Kurtosis','Skewness','Wnl','Entropy','Nnl']  
                                     #------------------------------------------
-        df_RD_specs_OUT              = pd.DataFrame(index = ['lon','mean','std'],columns = Harmonics, data = np.zeros((3,np.size(Harmonics))) )
-        df_RD_specs_OUT.loc['mean']  = rand_mean
-        df_RD_specs_OUT.loc['std']   = rand_std
+        df_RD_specs_OUT                = pd.DataFrame(index = ['lon','mean','std'],columns = Harmonics, data = np.zeros((3,np.size(Harmonics))) )
+        df_RD_specs_OUT.loc['mean']    = rand_mean
+        df_RD_specs_OUT.loc['std']     = rand_std
                                     #------------------------------------------        
-        df_env_specs_OUT             = pd.DataFrame(index = ['0'], columns = Harmonics, data = np.zeros((1,np.size(Harmonics))) )
-        df_env_specs_OUT.loc['0']    = template_specs
+        df_env_specs_OUT               = pd.DataFrame(index = ['0'], columns = Harmonics, data = np.zeros((1,np.size(Harmonics))) )
+        df_env_specs_OUT.loc['0']      = template_specs
                                     #-------Creo y preparo --self.df_Values_OUT--------        
         self.df_Values_OUT           = pd.DataFrame(index   = range( n_real_OUT + 3*n_random),columns = columnas_OUT, 
                                                                     data    = np.zeros(( n_real_OUT + 3*n_random , np.size(columnas_OUT))) )
@@ -318,7 +318,7 @@ class FailureMode:
                 
                 if k < n_random:
                     self.df_speed_g.iloc[k]            = signal
-                    self.df_CMPLX_G.iloc[k]            = spec_rand
+                    self.df_CMPLX_G.iloc[k]            = spec_rand             # asi almaceno la velocidad en freqcuencia sintetica SIN recorte    
                 if n_random <= k < 2*n_random:
                     self.df_speed_y.iloc[k-n_random]   = signal
                 if 2*n_random <= k < 3*n_random:
@@ -362,15 +362,28 @@ class FailureMode:
     
     def __func_2__(self):
         b= 1
-                
-        plot_waterfall_lines('espectro de la señal normalizada en el tiempo',self.df_cmplx_g,self.df_SP_FingerPrint_g,fs,0,400)
-        plot_waterfall_lines('espectro modificado',self.df_CMPLX_G,self.df_SP_FingerPrint_g,fs,0,400)
         plot_waterfall_lines(parameters['IdAsset']+' '+parameters['Localizacion']+' mm/sg RMS',self.df_SP_SIGNAL,self.df_FingerPrint_Real,fs,0,400)
+        
+        plot_waterfall_lines('espectro con recorte GREEN',self.df_cmplx_g,self.df_SP_FingerPrint_g,fs,0,400)
+        plot_waterfall_lines('espectro sin recorte GREEN',self.df_CMPLX_G,self.df_SP_FingerPrint_g,fs,0,400)
+        
+        plot_waterfall_lines('espectro con recorte YELLOW',self.df_cmplx_y,self.df_SP_FingerPrint_y,fs,0,400)
+        plot_waterfall_lines('espectro sin recorte YELLOW',self.df_CMPLX_Y,self.df_SP_FingerPrint_y,fs,0,400)
+        
+        plot_waterfall_lines('espectro con recorte RED',self.df_cmplx_r,self.df_SP_FingerPrint_r,fs,0,400)
+        plot_waterfall_lines('espectro sin recorte RED',self.df_CMPLX_R,self.df_SP_FingerPrint_r,fs,0,400)
+        
+        f = np.arange(10900)/10900*fs
+        plt.figure()
+        plt.plot(f,np.abs(self.df_cmplx_g.iloc[0].values))
+        plt.plot(f,np.abs(self.df_cmplx_y.iloc[0].values))
+        plt.plot(f,np.abs(self.df_cmplx_r.iloc[0].values),'o')
+        plt.show()
         return b
 
 #-----------------------------------------------------------------------------1   
 @jit
-def DecissionTable_Severe_Misaligment(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,df_env_specs_IN,df_Values_IN,n_reales_IN,n_golden):
+def DecissionTable_Severe_Misaligment_H4_FA_0001(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,df_env_specs_IN,df_Values_IN,n_reales_IN,n_golden):
     
     l1 = l2 = l3  = 0
     df_dice_IN = pd.DataFrame(index = ['0'], columns = Harmonics_IN, data = np.zeros((1,np.size(Harmonics_IN))) )
@@ -385,13 +398,13 @@ def DecissionTable_Severe_Misaligment(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN
 #        print(bool_template)
         if bool_template:#-----------------TEMPLATE
             
-            N_picos_A = Number_PEAKS(E1,df_dice_IN.iloc[0]['2.0'],df_dice_IN.iloc[0]['3.0'],df_dice_IN.iloc[0]['4.0'])
+            N_picos_A = Number_PEAKS(0.2,df_dice_IN.iloc[0]['2.0'],df_dice_IN.iloc[0]['3.0'],df_dice_IN.iloc[0]['4.0'])
             
-            A         = N_picos_A >= 3 and  PK(E1,df_dice_IN.iloc[0]['1.0'] )
+            A         = N_picos_A >= 3 and  PK(1,df_dice_IN.iloc[0]['1.0'] )
 
-            N_picos_B = Number_PEAKS(E1,df_dice_IN.iloc[0]['5/2'],df_dice_IN.iloc[0]['7/2'],df_dice_IN.iloc[0]['9/2'])
+            N_picos_B = Number_PEAKS(0.2,df_dice_IN.iloc[0]['5/2'],df_dice_IN.iloc[0]['7/2'],df_dice_IN.iloc[0]['9/2'])
             
-            B         = N_picos_B >= 3 and  PK(E1,df_dice_IN.iloc[0]['1.0'] )
+            B         = N_picos_B >= 3 and  PK(1,df_dice_IN.iloc[0]['1.0'] )
             C         = df_dice_IN.iloc[0]['2.0'] > df_dice_IN.iloc[0]['1.0']
             print(l1,l2,l3,A,'(',N_picos_A,')',B,'(',N_picos_B,')',C)
             df_Values_IN,l1,l2,l3 = decision_table( not A,l1,
@@ -399,6 +412,38 @@ def DecissionTable_Severe_Misaligment(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN
                                                 A and B and C,l3,
                                                 df_Values_IN,df_dice_IN.loc['0'],Harmonics_IN,n_reales_IN)
     return df_Values_IN
+#-----------------------------------------------------------------------------1   
+@jit
+def DecissionTable_Severe_Misaligment_H4_FA_0002(SP_FingerPrint,Harmonics_IN,df_RD_specs_IN,df_env_specs_IN,df_Values_IN,n_reales_IN,n_golden):
+    
+    l1 = l2 = l3  = 0
+    df_dice_IN = pd.DataFrame(index = ['0'], columns = Harmonics_IN, data = np.zeros((1,np.size(Harmonics_IN))) )
+    
+    while not(l1 == n_random and l2 == n_random and l3 == n_random): #---------rellenamos df_random con "sucesos" aleatorios válidos
+                #----------------lanzamos el dado
+        bool_template = True
+        for k in Harmonics_IN:             #------lanzo el dado--
+            df_dice_IN.loc['0',k] = np.abs(df_RD_specs_IN.loc['mean'][k] + df_RD_specs_IN.loc['std'][k] * np.random.randn(1)) 
+            bool_template      = bool_template and df_dice_IN.loc['0'][k] < df_env_specs_IN.loc['0'][k] 
+#            print(       df_dice_IN.loc['0'][k] , df_env_specs_IN.loc['0'][k],'==>',df_dice_IN.loc['0'][k] < df_env_specs_IN.loc['0'][k])                    #---------------------
+#        print(bool_template)
+        if bool_template:#-----------------TEMPLATE
+            
+            N_picos_A = Number_PEAKS(0.1,df_dice_IN.iloc[0]['2.0'],df_dice_IN.iloc[0]['3.0'],df_dice_IN.iloc[0]['4.0'])
+            
+            A         = N_picos_A >= 3 and  PK(1,df_dice_IN.iloc[0]['1.0'] )
+
+            N_picos_B = Number_PEAKS(0.1,df_dice_IN.iloc[0]['5/2'],df_dice_IN.iloc[0]['7/2'],df_dice_IN.iloc[0]['9/2'])
+            
+            B         = N_picos_B >= 3 and  PK(1,df_dice_IN.iloc[0]['1.0'] )
+            C         = df_dice_IN.iloc[0]['2.0'] > df_dice_IN.iloc[0]['1.0']
+            print(l1,l2,l3,A,'(',N_picos_A,')',B,'(',N_picos_B,')',C)
+            df_Values_IN,l1,l2,l3 = decision_table( not A,l1,
+                                                A or B,l2,
+                                                A and B and C,l3,
+                                                df_Values_IN,df_dice_IN.loc['0'],Harmonics_IN,n_reales_IN)
+    return df_Values_IN
+
 """
 #-----------------------------------------------------------------------------1   
 @jit
@@ -1047,7 +1092,7 @@ if __name__ == '__main__':
         'Localizacion' : 'SH4', #SH3/4
         'Source'       : 'Petronor Server', # 'Petronor Server'/'Local Database'
         
-        'Fecha'        : '2019-02-20T00:20:00.9988564Z',
+        'Fecha'        : '002019-02-20T:20:00.9988564Z',
         'FechaInicio'  : '2019-02-12T00:52:46.9988564Z',
         'NumeroTramas' : '3',
         'Parametros'   : 'waveform' ,
@@ -1058,29 +1103,36 @@ if __name__ == '__main__':
         'Hour'         : ''
         }
     
-    n_random = 2 #---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
+    n_random = 10#---Numeroseñales sintéticas de cada tipo (Red, Green, Yellow)
     df_speed,df_SPEED = Load_Vibration_Data_Global(parameters)
     
     
-#    Process_variable1 = FailureMode('Severe_Misaligment',df_speed,df_SPEED)    #------tarda mucho en generar señales verdes
-#    Process_variable1.__func__(0,['1.0','2.0','3.0','4.0','5/2','7/2','9/2'],
+#    Process_variable1a = FailureMode('Severe_Misaligment_H4_FA_0002',df_speed,df_SPEED)    #------tarda mucho en generar señales verdes
+#    Process_variable1a.__func__(0,['1.0','2.0','3.0','4.0','5/2','7/2','9/2'],
 #                                 [4.6  ,4.6   ,1.0  ,0.5  ,0.1  ,0.1  , 0.1],
 #                                 [0.85 ,0.85  ,0.5  ,0.5  ,0.5  ,0.5  , 0.5],
 #                                 [10   ,10    ,1.4  ,0.9  ,0.2  ,0.2  , 0.2])
     
-#
+#    Process_variable1b = FailureMode('Severe_Misaligment_H4_FA_0001',df_speed,df_SPEED)    #------tarda mucho en generar señales verdes
+#    Process_variable1b.__func__(0,['1.0','2.0','3.0','4.0','5/2','7/2','9/2'],
+#                                 [4.6  ,4.6   ,1.0  ,0.5  ,0.1  ,0.1  , 0.1],
+#                                 [0.85 ,0.85  ,0.5  ,0.5  ,0.5  ,0.5  , 0.5],
+#                                 [10   ,10    ,1.4  ,0.9  ,0.2  ,0.2  , 0.2])
+    
+    
+
     Process_variable2 = FailureMode('Loose_Bedplate',df_speed,df_SPEED) 
     Process_variable2.__func__(0,['1.0','2.0','3.0'],
                                  [4.8  ,0.9  ,0.9],
                                  [1.2  ,0.5  ,0.5],
                                  [10   ,1.2  ,2.4])
-#    Process_variable2.__func_2__()
-#    
-    Process_variable3 = FailureMode('Surge_Effect',df_speed,df_SPEED) 
-    Process_variable3.__func__(0,['1.0','Surge E. 0.33x 0.5x'],
-                                  [3,0.05                 ],
-                                  [3,0.1                 ],
-                                  [7,0.7                  ])
+    Process_variable2.__func_2__()
+##    
+#    Process_variable3 = FailureMode('Surge_Effect',df_speed,df_SPEED) 
+#    Process_variable3.__func__(0,['1.0','Surge E. 0.33x 0.5x'],
+#                                  [3,0.05                 ],
+#                                  [3,0.1                 ],
+#                                  [7,0.7                  ])
 #
 #    Process_variable4 = FailureMode('Plain_Bearing_Lubrication_Whip',df_speed,df_SPEED) 
 #    Process_variable4.__func__(0,['1/2','5/2'],

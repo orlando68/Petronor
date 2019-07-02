@@ -630,15 +630,7 @@ def velocity(df_in):
 
 #------------------------------------------------------------------------------
  
-def feats(df_speed):
 
-    df_out  = pd.DataFrame(np.nan,index = df_speed.index,columns = ['Kurtosis','Skewness'])
-        
-    for counter,indice in enumerate(df_speed.index):
-        df_out.iloc[counter]['Kurtosis'] = stats.kurtosis(df_speed.iloc[counter].values,fisher = False)
-        df_out.iloc[counter]['Skewness'] = stats.skew(df_speed.iloc[counter].values)
-
-    return df_out
 #-----------------------------------------------------------------------------1
 def Plain_Bearing_Clearance(df_in):
     print('-------------------------Clearance Failure--------------------------')
@@ -803,48 +795,87 @@ def Centrifugal_Fan_Unbalance (df_in):
             if (A == False) and (B == False):
                 df_in.loc[df_in.index[i],'$Centrifugal_Fan_Unbalance_Failure'] = 'Green'
     return df_in
-#-----------------------------------------------------------------------------6
-def Severe_Misaligment(df_in):
+#---------------------------------------------------------------------------6.1
+def Severe_Misaligment_H4_FA_0001(df_in):
     print('----------------------------Severe Mis. Failure---------------------')
-    n_traces   = df_in.shape[0]
-    none_list  = []
-    
+    n_traces  = df_in.shape[0]
+    none_list = []
+
+    threshold = 0.2
     for i in range (n_traces):
         none_list.append('None')
-    df_in['$Severe_Misaligment_Failure'] = none_list
+    df_in['$Severe_Misaligment_H4_FA_0001_Failure'] = none_list
 
     for i in range (n_traces):
         if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
-            df_in.loc[df_in.index[i],'$Severe_Misaligment_Failure'] = 'No vibration detected'
+            df_in.loc[df_in.index[i],'$Severe_Misaligment_H4_FA_0001_Failure'] = 'No vibration detected'
         else:
             counter_A = 0
             for m in [2,3,4,5,6,7,8,9,10]:
-                if (df_in.iloc[i]['RMS '+str(m)+'.0'] > 0.02*df_in.iloc[i]['RMS 1.0']) and PK(E1,df_in.iloc[i]['RMS 1.0']):
+                if (df_in.iloc[i]['RMS '+str(m)+'.0'] > threshold*df_in.iloc[i]['RMS 1.0']) and PK(1,df_in.iloc[i]['RMS 1.0']):
                     counter_A = counter_A+1
-            A         = counter_A >= 3
+            A       = counter_A >= 3
     
             counter_B = 0
             for m in ['5/2','7/2','9/2','11/2','13/2','15/2','17/2','19/2']:
-                if (df_in.iloc[i]['RMS '          +m] > 0.02*df_in.iloc[i]['RMS 1.0']) and PK(E1,df_in.iloc[i]['RMS 1.0']):
+                if (df_in.iloc[i]['RMS '          +m] > threshold*df_in.iloc[i]['RMS 1.0']) and PK(1,df_in.iloc[i]['RMS 1.0']):
                     counter_B = counter_B+1
-            B         = counter_B >= 3
+            B       = counter_B >= 3
     
-            C_peaks   = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'])
-            C         = C_peaks and df_in.iloc[i]['RMS 2.0'] > df_in.iloc[i]['RMS 1.0']
+            C_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'])
+            C       = C_peaks and df_in.iloc[i]['RMS 2.0'] > df_in.iloc[i]['RMS 1.0']
             
             if not A:
-                df_in.loc[df_in.index[i],'$Severe_Misaligment_Failure'] = 'Green'
+                df_in.loc[df_in.index[i],'$Severe_Misaligment_H4_FA_0001_Failure'] = 'Green'
             if A or B:               #---27/2/19 Dammika por tlfn cambio Xor por or
-                df_in.loc[df_in.index[i],'$Severe_Misaligment_Failure'] = 'Yellow'
+                df_in.loc[df_in.index[i],'$Severe_Misaligment_H4_FA_0001_Failure'] = 'Yellow'
             if A and B and C:
-                df_in.loc[df_in.index[i],'$Severe_Misaligment_Failure'] = 'Red'
+                df_in.loc[df_in.index[i],'$Severe_Misaligment_H4_FA_0001_Failure'] = 'Red'
+    #        print(df_in.loc[df_in.index[i],'$Severe Mis. Failure'])
+    return df_in
+#---------------------------------------------------------------------------6.2
+def Severe_Misaligment_H4_FA_0002(df_in):
+    print('----------------------------Severe Mis. Failure---------------------')
+    n_traces  = df_in.shape[0]
+    none_list = []
+    
+    threshold = 0.1
+    for i in range (n_traces):
+        none_list.append('None')
+    df_in['$Severe_Misaligment_H4_FA_0002_Failure'] = none_list
+
+    for i in range (n_traces):
+        if df_in.iloc[i]['RMS (mm/s) f'] < 0.3:
+            df_in.loc[df_in.index[i],'$Severe_Misaligment_H4_FA_0002_Failure'] = 'No vibration detected'
+        else:
+            counter_A = 0
+            for m in [2,3,4,5,6,7,8,9,10]:
+                if (df_in.iloc[i]['RMS '+str(m)+'.0'] > threshold*df_in.iloc[i]['RMS 1.0']) and PK(1,df_in.iloc[i]['RMS 1.0']):
+                    counter_A = counter_A+1
+            A       = counter_A >= 3
+    
+            counter_B = 0
+            for m in ['5/2','7/2','9/2','11/2','13/2','15/2','17/2','19/2']:
+                if (df_in.iloc[i]['RMS '          +m] > threshold*df_in.iloc[i]['RMS 1.0']) and PK(1,df_in.iloc[i]['RMS 1.0']):
+                    counter_B = counter_B+1
+            B       = counter_B >= 3
+    
+            C_peaks = PEAKS(E1,df_in.iloc[i]['RMS 1.0'],df_in.iloc[i]['RMS 2.0'])
+            C       = C_peaks and df_in.iloc[i]['RMS 2.0'] > df_in.iloc[i]['RMS 1.0']
+            
+            if not A:
+                df_in.loc[df_in.index[i],'$Severe_Misaligmen_H4_FA_0002t_Failure'] = 'Green'
+            if A or B:               #---27/2/19 Dammika por tlfn cambio Xor por or
+                df_in.loc[df_in.index[i],'$Severe_Misaligment_H4_FA_0002_Failure'] = 'Yellow'
+            if A and B and C:
+                df_in.loc[df_in.index[i],'$Severe_Misaligment_H4_FA_0002_Failure'] = 'Red'
     #        print(df_in.loc[df_in.index[i],'$Severe Mis. Failure'])
     return df_in
 #---------------------------------------------------------------------------7.1
 def Blade_Faults(df_in):
     print('-----------------------Blade Faults Failure-------------------------')
-    n_traces   = df_in.shape[0]
-    none_list  = []
+    n_traces  = df_in.shape[0]
+    none_list = []
    
     for i in range (n_traces):
         none_list.append('None')
@@ -2372,6 +2403,7 @@ def Remove_duplicate(duplicate):
 #------------------------------------------------------------------------------
 def find_f1x_robust(sptrm,RMS,indexes, properties ,fnom):
 #    print('--------------Buscando frecuencia fundamental---------------')
+#    print('indexex',indexes)
     HarmonicList = [1,2,3,4,5,6,7,8,9,10] #---lo busco entre los 10 primeros armonicos
     Hz            = f_in(2)
     found         = False
@@ -2382,7 +2414,7 @@ def find_f1x_robust(sptrm,RMS,indexes, properties ,fnom):
         a = indexes[indexes >= f_in(i*fnom) - f_in(i*1)]
         b = a [a <= f_in(i*fnom) + f_in(i*1)]
         lista.append(b)
-        #print (b)
+#        print (b)
     #print(lista)
     listab = []                                                  #--- almaceno los numeros naturales de las combinaciones
     for counter,item in enumerate(combinations(HarmonicList,2)):
@@ -2459,7 +2491,9 @@ def find_f1x_robust(sptrm,RMS,indexes, properties ,fnom):
                     if cond2 == False:
                         df_Ocurrences.loc[indi,elemento] = int(columnas[counter2])
                         df_RMS.loc       [indi,elemento] = piko_col
-                
+    
+#    print(df_RMS)
+#    print(df_Num_Ocurrences)
     elemento_power = int(df_RMS.sum().index       [np.argmax(df_RMS.sum().values)                 ])    #nombre de la columna con mas POWER
     elemento_hits  = int(df_Num_Ocurrences.columns[np.argmax(df_Num_Ocurrences.loc['Hits'].values)])    #nombre de la columna con mas HITS
 #    hits_hits      = df_Num_Ocurrences[elemento_hits].values                                            # HITS del elemento con mas HITS
@@ -2630,9 +2664,9 @@ def df_Harmonics(df_FFT,fs,machine_type):
         df_harm.iloc[medida]['RMS (mm/s) f'] = RMS_freq
         if  RMS_freq > 0.06: #-------------------------esta la máquina apagada?
             sptrm_C             = abs_line * np.sqrt(2)  # integramos en 1º z Nyquist por eso el voltaje x raiz(2) 
-            indexes, properties = find_peaks(sptrm_C[0:l_mitad],height  = 1*0.01 ,prominence = 0.01 , width=1 , rel_height = 0.75)
-#            f_1x , f_1x_exist   = find_f1x(sptrm_C,indexes, properties ,fnom,machine_type)
-            f_1x , f_1x_exist   = find_f1x_robust(sptrm_C,RMS_freq,indexes, properties ,fnom)
+            indexes, properties = find_peaks(sptrm_C[0:l_mitad],height  = 0*0.01 ,prominence = 0.01 , width=1 , rel_height = 0.75)
+            f_1x , f_1x_exist   = find_f1x(sptrm_C,indexes, properties ,fnom,machine_type)
+#            f_1x , f_1x_exist   = find_f1x_robust(sptrm_C,RMS_freq,indexes, properties ,fnom)
             if f_1x_exist:   #----------hemos identificado f1x-----------------
                 for h in fingerprint_list:        
                     if  h.order >1:
